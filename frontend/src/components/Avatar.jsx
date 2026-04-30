@@ -1,10 +1,95 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
+import morphTargets from '../constants/morphTargets';
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import facialExpressions from "../constants/facialExpressions";
 
 export function Avatar(props) {
   const group = useRef()
-  const { nodes, materials, animations } = useGLTF('models/avatar.glb')
-  const { actions } = useAnimations(animations, group)
+  const { nodes, materials } = useGLTF('models/avatar.glb')
+
+  const { scene } = useGLTF("/models/avatar.glb");
+  const { animations } = useGLTF("/models/animations.glb");
+  const { actions, mixer } = useAnimations(animations, group);
+
+  const [animation, setAnimation] = useState("Idle");
+  const [currentExpression, setCurrentExpression] = useState("default");
+  const [blink, setBlink] = useState(false);
+
+  useEffect(() => {
+    if (actions && actions[animation]) {
+      actions[animation]
+        .reset()
+        .fadeIn(mixer.stats.actions.inUse === 0 ? 0 : 0.5)
+        .play();
+
+      return () => {
+        if (actions[animation]) {
+          actions[animation].fadeOut(0.5);
+        }
+      };
+    }
+  }, [animation, actions, mixer]);
+
+  useEffect(() => {
+    let blinkTimeout;
+    const nextBlink = () => {
+      blinkTimeout = setTimeout(() => {
+        setBlink(true);
+        setTimeout(() => {
+          setBlink(false);
+          nextBlink();
+        }, 200);
+      }, THREE.MathUtils.randInt(1000, 5000));
+    };
+    nextBlink();
+    return () => clearTimeout(blinkTimeout);
+  }, []);
+
+  const lerpMorphTarget = (target, value, speed = 0.1) => {
+    scene.traverse((child) => {
+      if (child.isSkinnedMesh && child.morphTargetDictionary) {
+        const index = child.morphTargetDictionary[target];
+        if (index === undefined || child.morphTargetInfluences[index] === undefined) {
+          return;
+        }
+        child.morphTargetInfluences[index] = THREE.MathUtils.lerp(
+          child.morphTargetInfluences[index],
+          value,
+          speed
+        );
+      }
+    });
+  };
+
+  useFrame(() => {
+    lerpMorphTarget("eyeBlinkLeft", blink ? 1 : 0, 0.5);
+    lerpMorphTarget("eyeBlinkRight", blink ? 1 : 0, 0.5);
+
+    const targetExpression = facialExpressions[currentExpression];
+
+    const allMorphsToReset = [
+      "mouthSmileLeft", "mouthSmileRight", "cheekPuff", "eyeSquintLeft", "eyeSquintRight",
+      "mouthFrownLeft", "mouthFrownRight", "mouthShrugLower", "browInnerUp", "eyeLookDownLeft",
+      "eyeLookDownRight", "browDownLeft", "browDownRight", "mouthPressLeft", "mouthPressRight",
+      "noseSneerLeft", "noseSneerRight", "jawOpen", "mouthFunnel", "eyeWideLeft", "eyeWideRight",
+      "browOuterUpLeft", "browOuterUpRight", "mouthRollLower", "mouthDimpleLeft", "mouthDimpleRight"
+    ];
+
+    allMorphsToReset.forEach((morphKey) => {
+      if (!targetExpression[morphKey]) {
+        lerpMorphTarget(morphKey, 0, 0.1);
+      }
+    });
+
+    if (targetExpression) {
+      Object.keys(targetExpression).forEach((morphKey) => {
+        lerpMorphTarget(morphKey, targetExpression[morphKey], 0.1);
+      });
+    }
+  });
+
   return (
     <group ref={group} {...props} dispose={null} position={[0, -0.5, 0]}>
       <group name="Scene">

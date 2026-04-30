@@ -1,0 +1,22 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@langchain/google-genai": "^2.1.29",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "elevenlabs-node": "^2.0.3",
+    "express": "^5.2.1",
+    "langchain": "^1.3.5",
+    "zod": "^4.4.1"
+  }
+}
