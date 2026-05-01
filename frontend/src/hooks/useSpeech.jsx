@@ -82,8 +82,13 @@ export const SpeechProvider = ({ children }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text }),
       });
-      const response = (await data.json()).messages;
-      setMessages((messages) => [...messages, ...response]);
+      const jsonResponse = await data.json();
+      // kode tambahan utk validasi apakah respons dari server sukses dan memiliki array messages
+      if (jsonResponse && Array.isArray(jsonResponse.messages)) {
+        setMessages((messages) => [...messages, ...jsonResponse.messages]);
+      } else {
+        console.error("Respons server tidak valid:", jsonResponse);
+      }
     } catch (e) {
       console.error(e);
     } finally {

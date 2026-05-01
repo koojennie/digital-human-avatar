@@ -1,4 +1,4 @@
-const visemesMapping = {
+const visemeMappings = {
   A: "mouthClose",       // P, B, M (Bibir tertutup)
   B: "jawForward",       // K, S, T (Sedikit terbuka, gigi terlihat)
   C: "jawOpen",          // EH, AE (Mulut terbuka)
@@ -10,4 +10,4 @@ const visemesMapping = {
   X: "mouthClose",       // Idle (Diam)
 };
 
-export default visemesMapping;
+export default visemeMappings;
