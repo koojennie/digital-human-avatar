@@ -1,6 +1,6 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { StructuredOutputParser } from "langchain/output_parsers";
+import { StructuredOutputParser } from "@langchain/core/output_parsers";
 import { z } from "zod";
 import dotenv from "dotenv";
 
@@ -48,7 +48,7 @@ const prompt = ChatPromptTemplate.fromMessages([
 
 const model = new ChatGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY || "-",
-  modelName: "gemini-1.5-flash", 
+  model: "gemini-1.5-flash", 
   temperature: 0.2,
   maxOutputTokens: 1024,
 });

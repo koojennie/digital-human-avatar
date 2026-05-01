@@ -4,18 +4,43 @@ import morphTargets from '../constants/morphTargets';
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import facialExpressions from "../constants/facialExpressions";
+import { useSpeech } from "../hooks/useSpeech";
+import visemesMapping from "../constants/visemeMappings";
 
 export function Avatar(props) {
   const group = useRef()
-  const { nodes, materials } = useGLTF('models/avatar.glb')
+  const { nodes, materials, scene } = useGLTF('models/avatar.glb')
 
-  const { scene } = useGLTF("/models/avatar.glb");
   const { animations } = useGLTF("/models/animations.glb");
   const { actions, mixer } = useAnimations(animations, group);
+  const { message, onMessagePlayed } = useSpeech();
 
   const [animation, setAnimation] = useState("Idle");
   const [currentExpression, setCurrentExpression] = useState("default");
   const [blink, setBlink] = useState(false);
+
+  // state untuk Lip-sync & Audio
+  const [lipsync, setLipsync] = useState();
+  const [audio, setAudio] = useState();
+
+  useEffect(() => {
+    if (!message) {
+      setAnimation("Idle");
+      setCurrentExpression("default");
+      return;
+    }
+    
+    // set animasi dan ekspresi dari Gemini
+    setAnimation(message.animation || "Idle");
+    setCurrentExpression(message.facialExpression || "default");
+    setLipsync(message.lipsync);
+    
+    // audio
+    const newAudio = new Audio("data:audio/mp3;base64," + message.audio);
+    newAudio.play();
+    setAudio(newAudio);
+    newAudio.onended = onMessagePlayed;
+  }, [message]);
 
   useEffect(() => {
     if (actions && actions[animation]) {
@@ -47,6 +72,18 @@ export function Avatar(props) {
     return () => clearTimeout(blinkTimeout);
   }, []);
 
+  useEffect(() => {
+    if (!message) return;
+    
+    // memutar audio Base64 yang dikirim Gemini/ElevenLabs dari backend
+    const audio = new Audio("data:audio/mp3;base64," + message.audio);
+    audio.play();
+    setAudio(audio);
+    
+    // memberi tahu sistem bahwa pesan selesai sehingga pesan berikutnya bisa diputar
+    audio.onended = onMessagePlayed; 
+  }, [message]);
+
   const lerpMorphTarget = (target, value, speed = 0.1) => {
     scene.traverse((child) => {
       if (child.isSkinnedMesh && child.morphTargetDictionary) {
@@ -67,25 +104,49 @@ export function Avatar(props) {
     lerpMorphTarget("eyeBlinkLeft", blink ? 1 : 0, 0.5);
     lerpMorphTarget("eyeBlinkRight", blink ? 1 : 0, 0.5);
 
+    // 2. logika lip-sync Rhubarb -> ARKit
+    const appliedMorphTargets = [];
+    if (message && lipsync && audio) {
+      const currentAudioTime = audio.currentTime;
+      for (let i = 0; i < lipsync.mouthCues.length; i++) {
+        const mouthCue = lipsync.mouthCues[i];
+        if (currentAudioTime >= mouthCue.start && currentAudioTime <= mouthCue.end) {
+          appliedMorphTargets.push(visemesMapping[mouthCue.value]);
+          lerpMorphTarget(visemesMapping[mouthCue.value], 1, 0.2);
+          break;
+        }
+      }
+    }
+
+    // reset morph target bibir yang tidak terpakai
+    Object.values(visemesMapping).forEach((value) => {
+      if (appliedMorphTargets.includes(value)) {
+        return;
+      }
+      lerpMorphTarget(value, 0, 0.1);
+    });
+
+    // 3. logika ekspresi wajah (selain bibir agar tidak bentrok dengan lip-sync)
     const targetExpression = facialExpressions[currentExpression];
 
     const allMorphsToReset = [
       "mouthSmileLeft", "mouthSmileRight", "cheekPuff", "eyeSquintLeft", "eyeSquintRight",
       "mouthFrownLeft", "mouthFrownRight", "mouthShrugLower", "browInnerUp", "eyeLookDownLeft",
       "eyeLookDownRight", "browDownLeft", "browDownRight", "mouthPressLeft", "mouthPressRight",
-      "noseSneerLeft", "noseSneerRight", "jawOpen", "mouthFunnel", "eyeWideLeft", "eyeWideRight",
-      "browOuterUpLeft", "browOuterUpRight", "mouthRollLower", "mouthDimpleLeft", "mouthDimpleRight"
+      "noseSneerLeft", "noseSneerRight", "eyeWideLeft", "eyeWideRight", "browOuterUpLeft", 
+      "browOuterUpRight", "mouthDimpleLeft", "mouthDimpleRight"
     ];
 
-    allMorphsToReset.forEach((morphKey) => {
-      if (!targetExpression[morphKey]) {
-        lerpMorphTarget(morphKey, 0, 0.1);
-      }
-    });
-
     if (targetExpression) {
+      allMorphsToReset.forEach((morphKey) => {
+        if (!targetExpression[morphKey]) {
+          lerpMorphTarget(morphKey, 0, 0.1);
+        }
+      });
       Object.keys(targetExpression).forEach((morphKey) => {
-        lerpMorphTarget(morphKey, targetExpression[morphKey], 0.1);
+        if (!appliedMorphTargets.includes(morphKey)) {
+          lerpMorphTarget(morphKey, targetExpression[morphKey], 0.1);
+        }
       });
     }
   });
@@ -158,3 +219,4 @@ export function Avatar(props) {
 }
 
 useGLTF.preload('models/avatar.glb')
+useGLTF.preload('/models/animations.glb')
