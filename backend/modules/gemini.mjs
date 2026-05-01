@@ -19,7 +19,7 @@ const parser = StructuredOutputParser.fromZodSchema(
         animation: z
           .string()
           .describe(
-            "Animasi yang digunakan AI. Pilih dari: Idle, Kesal, Sedih, TepukTangan, Menjelaskan dan Bertanya."
+            "Animasi yang digunakan AI. Pilih dari: Idle, Kesal, Sedih, TepukTangan, Menjelaskan, dan Bertanya."
           ),
       })
     ),
@@ -48,7 +48,7 @@ const prompt = ChatPromptTemplate.fromMessages([
 
 const model = new ChatGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY || "-",
-  model: "gemini-1.5-flash", 
+  model: "gemini-1.5-flash",
   temperature: 0.2,
   maxOutputTokens: 1024,
 });
