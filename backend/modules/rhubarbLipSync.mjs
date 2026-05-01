@@ -1,4 +1,7 @@
 import { execCommand } from "../utils/files.mjs";
+import { platform } from "os";
+
+const rhubarbBin = platform() === "win32" ? "bin\\rhubarb.exe" : "./bin/rhubarb";
 
 const getPhonemes = async ({ message }) => {
   const time = new Date().getTime();
@@ -11,7 +14,7 @@ const getPhonemes = async ({ message }) => {
   console.log(`Conversion done in ${new Date().getTime() - time}ms`);
   
   await execCommand({
-    command: `./bin/rhubarb -f json -o audios/message_${message}.json audios/message_${message}.wav -r phonetic`,
+    command: `${rhubarbBin} -f json -o audios/message_${message}.json audios/message_${message}.wav -r phonetic`,
   });
   
   console.log(`Lip sync done in ${new Date().getTime() - time}ms`);

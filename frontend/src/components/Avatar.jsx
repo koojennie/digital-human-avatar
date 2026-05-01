@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import morphTargets from '../constants/morphTargets';
 import { useFrame } from "@react-three/fiber";
@@ -10,20 +10,7 @@ import visemesMapping from "../constants/visemeMappings";
 export function Avatar(props) {
   const group = useRef()
   const { nodes, materials, scene } = useGLTF('models/avatar.glb')
-
-  const { animations: rawAnimations } = useGLTF("/models/animations.glb");
-
-  // kode tambahan useMemo untuk membersihkan animasi tepat setelah useGLTF animations
-  const animations = useMemo(() => {
-    if (!rawAnimations) return [];
-    rawAnimations.forEach((clip) => {
-      clip.tracks = clip.tracks.filter((track) => {
-        const nodeName = track.name.split('.')[0];
-        return scene.getObjectByName(nodeName) !== undefined;
-      });
-    });
-    return rawAnimations;
-  }, [rawAnimations, scene]);
+  const { animations } = useGLTF("/models/animations.glb");
 
   const { actions, mixer } = useAnimations(animations, group);
   const { message, onMessagePlayed } = useSpeech();
