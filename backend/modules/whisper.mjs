@@ -11,7 +11,7 @@ async function convertAudioToText({ audioData }) {
   try {
     const mp3AudioData = await convertAudioToMp3({ audioData });
     
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const audioPart = {
       inlineData: {

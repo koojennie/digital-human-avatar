@@ -16,7 +16,12 @@ export const ChatInterface = ({ hidden, ...props }) => {
   if (hidden) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
+    <>
+    <div
+      className="fixed inset-0 bg-cover bg-center -z-10"
+      style={{ backgroundImage: "url('/background.jpg')" }}
+    />
+    <div className="fixed inset-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
       <div className="self-start backdrop-blur-md bg-white bg-opacity-50 p-4 rounded-lg">
         <h1 className="font-black text-xl text-gray-700">Skripsi Jennie - AI Avatar</h1>
         <p className="text-gray-600">
@@ -53,5 +58,6 @@ export const ChatInterface = ({ hidden, ...props }) => {
         </button>
       </div>
     </div>
+    </>
   );
 };

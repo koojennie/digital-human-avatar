@@ -21,12 +21,13 @@ export function Avatar(props) {
 
   // state untuk Lip-sync & Audio
   const [lipsync, setLipsync] = useState();
-  const [audio, setAudio] = useState();
+  const [audioState, setAudioState] = useState();
 
   useEffect(() => {
     if (!message) {
       setAnimation("Idle");
       setCurrentExpression("default");
+      setLipsync(null);
       return;
     }
     
@@ -38,7 +39,7 @@ export function Avatar(props) {
     // audio
     const newAudio = new Audio("data:audio/mp3;base64," + message.audio);
     newAudio.play();
-    setAudio(newAudio);
+    setAudioState(newAudio);
     newAudio.onended = onMessagePlayed;
   }, [message]);
 
@@ -72,18 +73,6 @@ export function Avatar(props) {
     return () => clearTimeout(blinkTimeout);
   }, []);
 
-  useEffect(() => {
-    if (!message) return;
-    
-    // memutar audio Base64 yang dikirim Gemini/ElevenLabs dari backend
-    const audio = new Audio("data:audio/mp3;base64," + message.audio);
-    audio.play();
-    setAudio(audio);
-    
-    // memberi tahu sistem bahwa pesan selesai sehingga pesan berikutnya bisa diputar
-    audio.onended = onMessagePlayed; 
-  }, [message]);
-
   const lerpMorphTarget = (target, value, speed = 0.1) => {
     scene.traverse((child) => {
       if (child.isSkinnedMesh && child.morphTargetDictionary) {
@@ -106,8 +95,8 @@ export function Avatar(props) {
 
     // 2. logika lip-sync Rhubarb -> ARKit
     const appliedMorphTargets = [];
-    if (message && lipsync && audio) {
-      const currentAudioTime = audio.currentTime;
+    if (message && lipsync && audioState) {
+      const currentAudioTime = audioState.currentTime;
       for (let i = 0; i < lipsync.mouthCues.length; i++) {
         const mouthCue = lipsync.mouthCues[i];
         if (currentAudioTime >= mouthCue.start && currentAudioTime <= mouthCue.end) {
@@ -128,21 +117,7 @@ export function Avatar(props) {
 
     // 3. logika ekspresi wajah (selain bibir agar tidak bentrok dengan lip-sync)
     const targetExpression = facialExpressions[currentExpression];
-
-    const allMorphsToReset = [
-      "mouthSmileLeft", "mouthSmileRight", "cheekPuff", "eyeSquintLeft", "eyeSquintRight",
-      "mouthFrownLeft", "mouthFrownRight", "mouthShrugLower", "browInnerUp", "eyeLookDownLeft",
-      "eyeLookDownRight", "browDownLeft", "browDownRight", "mouthPressLeft", "mouthPressRight",
-      "noseSneerLeft", "noseSneerRight", "eyeWideLeft", "eyeWideRight", "browOuterUpLeft", 
-      "browOuterUpRight", "mouthDimpleLeft", "mouthDimpleRight"
-    ];
-
     if (targetExpression) {
-      allMorphsToReset.forEach((morphKey) => {
-        if (!targetExpression[morphKey]) {
-          lerpMorphTarget(morphKey, 0, 0.1);
-        }
-      });
       Object.keys(targetExpression).forEach((morphKey) => {
         if (!appliedMorphTargets.includes(morphKey)) {
           lerpMorphTarget(morphKey, targetExpression[morphKey], 0.1);
@@ -152,7 +127,7 @@ export function Avatar(props) {
   });
 
   return (
-    <group ref={group} {...props} dispose={null} position={[0, -0.5, 0]}>
+    <group ref={group} {...props} dispose={null} position={[-0.1, -0.5, 0]}>
       <group name="Scene">
         <group name="Armature">
           <primitive object={nodes.Hips} />
