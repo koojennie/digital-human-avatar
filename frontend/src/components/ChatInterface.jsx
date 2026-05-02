@@ -23,9 +23,9 @@ export const ChatInterface = ({ hidden, ...props }) => {
     />
     <div className="fixed inset-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
       <div className="self-start backdrop-blur-md bg-white bg-opacity-50 p-4 rounded-lg">
-        <h1 className="font-black text-xl text-gray-700">Skripsi Jennie - AI Avatar</h1>
-        <p className="text-gray-600">
-          {loading ? "Avatar sedang berpikir..." : "Ketik pesan atau gunakan mic untuk mengobrol."}
+        <h1 className="font-black text-xl text-gray-700">Collexa</h1>
+        <p className="text-gray-600 whitespace-pre-line">
+          {loading ? "Collexa sedang berpikir..." : "Asisten yang akan membantumu untuk belajar dan \nmemahami materi VClass."}
         </p>
       </div>
 
