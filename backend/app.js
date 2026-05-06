@@ -18,6 +18,9 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" })); // Parse URL-enc
 
 app.use(cookieParser());
 
+// Daftarkan routes SEBELUM middleware 404 dan error handler
+app.use('/api/v1', routes); //here the routes
+
 // not found routes
 app.use((req, res, next) => {
   res.status(404).json({
@@ -32,13 +35,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-app.use('api/v1', routes); //here the routes
-
 const startServer = async () => {
   // Start the server
   app
     .listen(port, () => {
-       cnnectDB();
+       connectDB();
       console.log(`Server is running at http://localhost:${port}`);
     })
     .on("error", (err) => {

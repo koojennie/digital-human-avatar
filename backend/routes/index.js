@@ -1,7 +1,10 @@
 import express from "express";
-
+import ragRouter from './rag.routes.js';
 
 const router = express.Router();
+
+
+router.use('/rag', ragRouter);
 
 // Health check route
 router.get("/health", (req, res) => {
