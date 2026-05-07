@@ -2,8 +2,13 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { connectDB } from "./utils/supabaseClient.js";
-import routes from './routes/index.js';
+import { connectDB, sequelize } from "./utils/supabaseClient.js";
+
+// Import all your models here to ensure they are registered with Sequelize
+import './model/user.model.js';
+import './models/conversation.model.js';
+import './model/message.model.js';
+import routes from "./routes/index.js";
 
 // Load environment variables before using them
 dotenv.config();
@@ -19,7 +24,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" })); // Parse URL-enc
 app.use(cookieParser());
 
 // Daftarkan routes SEBELUM middleware 404 dan error handler
-app.use('/api/v1', routes); //here the routes
+app.use("/api/v1", routes); //here the routes
 
 // not found routes
 app.use((req, res, next) => {
@@ -36,17 +41,19 @@ app.use((err, req, res, next) => {
 });
 
 const startServer = async () => {
+  // First, establish the database connection
+  await connectDB();
+  // Then, synchronize the models to create/alter tables
+  await sequelize.sync({ alter: true });
+  console.log("✅ Database Sync!");
   // Start the server
-  app
-    .listen(port, () => {
-       connectDB();
-      console.log(`Server is running at http://localhost:${port}`);
-    })
+  app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+  })
     .on("error", (err) => {
       console.error("Failed to start server:", err.message);
       process.exit(1);
     });
 };
-
 
 startServer();
