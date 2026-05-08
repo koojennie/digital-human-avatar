@@ -5,9 +5,9 @@ import cookieParser from "cookie-parser";
 import { connectDB, sequelize } from "./utils/supabaseClient.js";
 
 // Import all your models here to ensure they are registered with Sequelize
-import './model/user.model.js';
+import './models/user.model.js';
 import './models/conversation.model.js';
-import './model/message.model.js';
+import './models/message.model.js';
 import routes from "./routes/index.js";
 
 // Load environment variables before using them
@@ -44,8 +44,8 @@ const startServer = async () => {
   // First, establish the database connection
   await connectDB();
   // Then, synchronize the models to create/alter tables
-  await sequelize.sync({ alter: true });
-  console.log("✅ Database Sync!");
+  // await sequelize.sync({ alter: true });
+  // console.log("✅ Database Sync!");
   // Start the server
   app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);

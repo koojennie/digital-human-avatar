@@ -29,13 +29,26 @@ app.get("/health", (req, res) => res.status(200).json({ status: "OK" }));
 
 app.post("/tts", async (req, res) => {
   try {
-    const userMessage = await req.body.message;
-    if (await sendDefaultMessages({ userMessage })) return;
+    console.log('here the request tts');
+    
+    // Tidak perlu 'await' untuk req.body.message karena ini bukan Promise
+    const userMessage = req.body.message;
+    
+    const defaultMessage = await sendDefaultMessages({ userMessage });
+    if (defaultMessage) {
+      // Langsung kirim pesan default karena sudah memiliki audio & lipsync dari sendDefaultMessages
+      return res.send({ messages: defaultMessage });
+    }
+
+    console.log('userMessage', userMessage);
+    
 
     let geminiMessages = await geminiChain.invoke({
       question: userMessage,
       format_instructions: parser.getFormatInstructions(),
     });
+    console.log('geminiMessages', geminiMessages);
+    
 
     geminiMessages = await lipSync({ messages: geminiMessages.messages });
     res.send({ messages: geminiMessages });

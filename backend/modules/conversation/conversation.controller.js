@@ -4,7 +4,8 @@ class ConversationController {
   async create(req, res, next) {
     try {
       // Assuming userId comes from auth middleware
-      const userId = req.user.id;
+      // const userId = req.user.id;
+      const { userId } = req.body;
       const result = await conversationService.createConversation(
         userId,
         req.body,
@@ -21,9 +22,9 @@ class ConversationController {
 
   async getAll(req, res, next) {
     try {
-      const {userId} = req.body;
+      const { userId } = req.body;
       console.log(req.body);
-      
+
       const result = await conversationService.getUserConversations(userId);
 
       return res.status(200).json({

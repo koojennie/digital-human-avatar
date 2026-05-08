@@ -55,4 +55,15 @@ const model = new ChatGoogleGenerativeAI({
 
 const geminiChain = prompt.pipe(model).pipe(parser);
 
-export { geminiChain, parser };
+class GeminiService {
+  async generateResponse(question) {
+    const result = await geminiChain.invoke({
+      question,
+      format_instructions: parser.getFormatInstructions(),
+    });
+
+    return result.messages;
+  }
+}
+
+export { geminiChain, parser, GeminiService};

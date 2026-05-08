@@ -9,6 +9,11 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
+import User from './user.model.js';
+import Conversation from './conversation.model.js';
+import Message from './message.model.js';
+
+
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
