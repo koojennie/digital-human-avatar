@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
-const backendUrl = "http://localhost:3000";
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 const SpeechContext = createContext();
 
 export const SpeechProvider = ({ children }) => {
@@ -9,37 +9,44 @@ export const SpeechProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState();
   const [loading, setLoading] = useState(false);
-
-  let chunks = [];
+  const [error, setError] = useState(null);
+  const chunksRef = useRef([]);
 
   const initiateRecording = () => {
-    chunks = [];
+    chunksRef.current = [];
   };
 
   const onDataAvailable = (e) => {
-    chunks.push(e.data);
+    chunksRef.current.push(e.data);
   };
 
-  const sendAudioData = async (audioBlob) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(audioBlob);
-    reader.onloadend = async function () {
-      const base64Audio = reader.result.split(",")[1];
-      setLoading(true);
-      try {
-        const data = await fetch(`${backendUrl}/sts`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ audio: base64Audio }),
-        });
-        const response = (await data.json()).messages;
-        setMessages((messages) => [...messages, ...response]);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const sendAudioData = (audioBlob) => {
+    return new Promise((resolve, reject) => {
+      setError(null);
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      reader.onerror = reject;
+      reader.onloadend = async function () {
+        const base64Audio = reader.result.split(",")[1];
+        setLoading(true);
+        try {
+          const data = await fetch(`${backendUrl}/sts`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ audio: base64Audio }),
+          });
+          const response = (await data.json()).messages;
+          setMessages((messages) => [...messages, ...response]);
+          resolve();
+        } catch (e) {
+          console.error(e);
+          setError("Gagal memproses audio. Silakan coba lagi.");
+          reject(e);
+        } finally {
+          setLoading(false);
+        }
+      };
+    });
   };
 
   useEffect(() => {
@@ -51,12 +58,15 @@ export const SpeechProvider = ({ children }) => {
           newMediaRecorder.onstart = initiateRecording;
           newMediaRecorder.ondataavailable = onDataAvailable;
           newMediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(chunks, { type: "audio/webm" });
+            const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
             await sendAudioData(audioBlob);
           };
           setMediaRecorder(newMediaRecorder);
         })
-        .catch((err) => console.error("Error microphone:", err));
+        .catch((err) => {
+          console.error("Error microphone:", err);
+          setError("Tidak dapat mengakses mikrofon. Pastikan Anda memberikan izin.");
+        });
     }
   }, []);
 
@@ -75,7 +85,10 @@ export const SpeechProvider = ({ children }) => {
   };
 
   const tts = async (text) => {
+    setError(null);
     setLoading(true);
+    console.log('here the text input', text);
+    
     try {
       const data = await fetch(`${backendUrl}/tts`, {
         method: "POST",
@@ -83,9 +96,11 @@ export const SpeechProvider = ({ children }) => {
         body: JSON.stringify({ message: text }),
       });
       const response = (await data.json()).messages;
+      console.log('here the response', response);
       setMessages((messages) => [...messages, ...response]);
     } catch (e) {
       console.error(e);
+      setError("Gagal memproses pesan Anda. Silakan coba lagi.");
     } finally {
       setLoading(false);
     }
@@ -113,6 +128,7 @@ export const SpeechProvider = ({ children }) => {
         message,
         onMessagePlayed,
         loading,
+        error,
       }}
     >
       {children}

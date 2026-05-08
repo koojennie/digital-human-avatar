@@ -3,11 +3,11 @@ import { useSpeech } from "../hooks/useSpeech";
 
 export const ChatInterface = ({ hidden, ...props }) => {
   const input = useRef();
-  const { tts, loading, message, startRecording, stopRecording, recording } = useSpeech();
+  const { tts, loading, startRecording, stopRecording, recording, error } = useSpeech();
 
   const sendMessage = () => {
     const text = input.current.value;
-    if (!loading && !message && text) {
+    if (!loading && text) {
       tts(text);
       input.current.value = "";
     }
@@ -27,14 +27,16 @@ export const ChatInterface = ({ hidden, ...props }) => {
         <p className="text-gray-600 whitespace-pre-line">
           {loading ? "Collexa sedang berpikir..." : "Asisten yang akan membantumu untuk belajar dan \nmemahami materi VClass."}
         </p>
+        {error && <p className="text-red-500 mt-2">{error}</p>}
       </div>
 
       <div className="flex items-center gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
         <button
+          disabled={loading}
           onClick={recording ? stopRecording : startRecording}
           className={`bg-gray-500 hover:bg-gray-600 text-white p-4 rounded-md ${
             recording ? "bg-red-500 animate-pulse" : ""
-          } ${loading || message ? "cursor-not-allowed opacity-30" : ""}`}
+          } disabled:cursor-not-allowed disabled:opacity-30`}
         >
           {/* Icon Mic */}
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -50,7 +52,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
         />
         
         <button
-          disabled={loading || message}
+          disabled={loading}
           onClick={sendMessage}
           className="bg-blue-600 hover:bg-blue-700 text-white p-4 px-10 font-semibold uppercase rounded-md disabled:opacity-30"
         >
