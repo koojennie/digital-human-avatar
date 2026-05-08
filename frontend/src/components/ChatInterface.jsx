@@ -19,7 +19,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
     <>
     <div
       className="fixed inset-0 bg-cover bg-center -z-10"
-      style={{ backgroundImage: "url('/background.jpg')" }}
+      style={{ backgroundImage: "url('/background.png')" }}
     />
     <div className="fixed inset-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
       <div className="self-start backdrop-blur-md bg-white bg-opacity-50 p-4 rounded-lg">

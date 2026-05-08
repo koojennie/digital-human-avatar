@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "soundFile": "C:\\Users\\kim\\Documents\\anxin-jiayou\\skripsi\\skripsi-alia\\digital-human\\backend\\audios\\message_0.wav",
+    "duration": 2.27
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.12, "value": "X" },
+    { "start": 0.12, "end": 0.17, "value": "B" },
+    { "start": 0.17, "end": 0.21, "value": "C" },
+    { "start": 0.21, "end": 0.28, "value": "B" },
+    { "start": 0.28, "end": 0.36, "value": "A" },
+    { "start": 0.36, "end": 0.41, "value": "C" },
+    { "start": 0.41, "end": 0.80, "value": "B" },
+    { "start": 0.80, "end": 1.15, "value": "C" },
+    { "start": 1.15, "end": 1.22, "value": "F" },
+    { "start": 1.22, "end": 1.29, "value": "B" },
+    { "start": 1.29, "end": 1.36, "value": "C" },
+    { "start": 1.36, "end": 1.43, "value": "D" },
+    { "start": 1.43, "end": 1.51, "value": "A" },
+    { "start": 1.51, "end": 2.01, "value": "C" },
+    { "start": 2.01, "end": 2.27, "value": "X" }
+  ]
+}
