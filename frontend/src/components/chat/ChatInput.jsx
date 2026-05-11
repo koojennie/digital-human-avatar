@@ -9,10 +9,10 @@ export default function ChatInput() {
 
   const handleSend = async () => {
     if (!text.trim()) return;
+    setText("");
 
     await sendMessage(text);
 
-    setText("");
   };
 
   return (

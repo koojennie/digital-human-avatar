@@ -9,6 +9,7 @@ export default function ChatPage() {
         className="fixed inset-0 bg-cover bg-center -z-10"
         style={{ backgroundImage: "url('/background.png')" }}
       />
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] -z-0" />
       <div className="flex flex-col h-screen items-center justify-center p-4 bg-black/10 backdrop-blur-sm">
         {/* Chat Window */}
         <div className="w-full max-w-4xl h-full flex flex-col bg-white/80 shadow-2xl rounded-xl">

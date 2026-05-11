@@ -24,4 +24,16 @@ export const chatService = {
 
     return response.json();
   },
+
+  async fetchHistoryChat({ conversationId, userId }) {
+    const response = await fetch(
+      `${API_URL}/api/v1/message/${userId}/${conversationId}`,
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed fetch history chat");
+    }
+
+    return response.json();
+  },
 };

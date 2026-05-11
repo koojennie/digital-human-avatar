@@ -1,61 +1,101 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 import { chatService } from "../services/chat.services";
+import { useCallback, useMemo } from "react";
 
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
+  const [conversationId, setConversationId] = useState(
+    "a91b2bea-0997-4d7a-8c57-8cd07598d453",
+  );
 
   const [loading, setLoading] = useState(false);
+  const [loadingResponseAI, setLoadingResponseAI] = useState(false);
 
   const [error, setError] = useState(null);
 
-  const sendMessage = async (text) => {
+  const fetchHistory = useCallback(async () => {
+    if (!conversationId) return;
+
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-
-      // optimistic user message
-      const userMessage = {
-        id: crypto.randomUUID(),
-        role: "user",
-        content: text,
-      };
-
-      setMessages((prev) => [...prev, userMessage]);
-
-      const response = await chatService.sendMessage({
+      const response = await chatService.fetchHistoryChat({
+        conversationId: conversationId,
         userId: "5fc62266-597f-4b1b-9e01-b5abed5b2542",
-
-        conversationId: "a91b2bea-0997-4d7a-8c57-8cd07598d453",
-
-        content: text,
       });
 
-      const aiMessages = response.data.aiMessages;
-
-      setMessages((prev) => [...prev, ...aiMessages]);
+      
+      setMessages(response.data.messages);
     } catch (err) {
-      console.error(err);
-
-      setError("Failed send message");
+      console.error("Failed Fetch History Chat", err);
+      setError("Gagal memuat riwayat percakapan.");
     } finally {
       setLoading(false);
     }
+  }, [conversationId]);
+
+  // Panggil fetchHistory saat komponen pertama kali dirender
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  const sendMessage = async (text) => {
+    setLoadingResponseAI(true);
+
+    const userDateSend = new Date().toISOString();
+    // 1. Optimistic UI: Tampilkan pesan pengguna langsung
+    const userMessage = {
+      id: crypto.randomUUID(), // ID sementara
+      role: "user",
+      content: text,
+      createdAt: userDateSend,
+    };
+    setMessages((prev) => [...prev, userMessage]);
+
+    setError(null);
+
+    try {
+      const response = await chatService.sendMessage({
+        userId: "5fc62266-597f-4b1b-9e01-b5abed5b2542",
+        conversationId: conversationId,
+        content: text,
+      });
+
+
+      const { userMessage: savedUserMessage, aiMessages } = response.data;
+
+      // 3. Ganti pesan sementara dengan data asli dari server dan tambahkan balasan AI
+      setMessages((prev) => [
+        ...prev.filter((msg) => msg.id !== userMessage.id), // Hapus pesan sementara
+        savedUserMessage, // Tambah pesan user dari DB
+        ...aiMessages, // Tambah balasan AI (sebagai array)
+      ]);
+
+    } catch (err) {
+      console.error(err);
+      setError("Failed send message");
+      // Jika gagal, hapus pesan sementara dari UI
+      setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
+    } finally {
+      setLoadingResponseAI(false);
+    }
   };
 
-  return (
-    <ChatContext.Provider
-      value={{
-        messages,
-        sendMessage,
-        loading,
-        error,
-      }}
-    >
-      {children}
-    </ChatContext.Provider>
+  const value = useMemo(
+    () => ({
+      messages,
+      sendMessage,
+      loading,
+      loadingResponseAI,
+      error,
+    }),
+    [messages, loading, loadingResponseAI, error],
   );
+
+  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };
 
 export const useChat = () => {
