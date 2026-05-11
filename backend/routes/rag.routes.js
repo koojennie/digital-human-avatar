@@ -1,11 +1,14 @@
 import express from "express";
-import { uploadDocument, retrieveKnowledge, retrieveKnowledgeWithLLM} from "../modules/rag/rag.controller.js";
-import { upload } from "../utils/uploadMiddleware.js";
+import multer from "multer";
+import ragController from "../modules/rag/rag.controller.js";
 
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
-router.post("/upload", upload.single("file"), uploadDocument);
-// Retrieve knowledge
-router.post("/retrieve", retrieveKnowledgeWithLLM);
+router.post("/upload", upload.single("file"), ragController.uploadPdf);
+router.get("/documents", ragController.getDocuments);
+router.delete("/documents/:documentId", ragController.deleteDocument);
+router.post("/retrieve", ragController.retrieve);
+
 
 export default router;

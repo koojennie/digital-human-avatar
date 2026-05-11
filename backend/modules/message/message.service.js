@@ -9,6 +9,7 @@ import { validateCreateMessage } from "./message.validator.js";
 
 import { toCreateMessageEntity } from "./message.mapper.js";
 import { TtsService } from "../tts.services.js";
+import ragServices from "../rag/rag.services.js";
 
 class MessageService {
   geminiService = new GeminiService();
@@ -37,31 +38,31 @@ class MessageService {
 
     const userMessage = await messageRepository.create(userMessageEntity);
 
+    const { context, documents } = await ragServices.retrieve(payload.content);
+
     // call AI
-    // const aiResponses = await this.geminiService.generateResponse(
-    //   payload.content,
-    // );
+    const aiResponses = await this.geminiService.generateResponse(
+      payload.content,
+      context,
+    );
 
-    const aiResponses = [
-      {
-        text: "Indonesia adalah sebuah negara kepulauan di Asia Tenggara, yang terletak di antara Samudra Pasifik dan Samudra Hindia.",
-        facialExpression: "smile",
-        animation: "Menjelaskan",
-      },
-      {
-        text: "Negara kita ini dikenal dengan keindahan alamnya yang luar biasa, mulai dari pantai-pantai eksotis, gunung berapi, hingga hutan hujan tropis yang kaya akan keanekaragaman hayati.",
-        facialExpression: "smile",
-        animation: "Menjelaskan",
-      },
-      {
-        text: "Selain itu, Indonesia juga sangat kaya akan budaya, suku bangsa, bahasa, dan adat istiadat yang berbeda-beda di setiap pulaunya. Menarik sekali, bukan?",
-        facialExpression: "smile",
-        animation: "Bertanya",
-      },
-    ];
-
-    // combine text
-    // const combinedText = aiResponses.map((item) => item.text).join(" ");
+    // const aiResponses = [
+    //   {
+    //     text: "Indonesia adalah sebuah negara kepulauan di Asia Tenggara, yang terletak di antara Samudra Pasifik dan Samudra Hindia.",
+    //     facialExpression: "smile",
+    //     animation: "Menjelaskan",
+    //   },
+    //   {
+    //     text: "Negara kita ini dikenal dengan keindahan alamnya yang luar biasa, mulai dari pantai-pantai eksotis, gunung berapi, hingga hutan hujan tropis yang kaya akan keanekaragaman hayati.",
+    //     facialExpression: "smile",
+    //     animation: "Menjelaskan",
+    //   },
+    //   {
+    //     text: "Selain itu, Indonesia juga sangat kaya akan budaya, suku bangsa, bahasa, dan adat istiadat yang berbeda-beda di setiap pulaunya. Menarik sekali, bukan?",
+    //     facialExpression: "smile",
+    //     animation: "Bertanya",
+    //   },
+    // ];
 
     // generate ONE TTS
 
@@ -69,7 +70,7 @@ class MessageService {
     const savedAiMessages = [];
 
     for (const item of aiResponses) {
-      const ttsResult = await this.ttsService.generateSpeech(item.text);
+      // const ttsResult = await this.ttsService.generateSpeech(item.text);
 
       const aiMessage = await messageRepository.create({
         user_id: userId,
@@ -86,8 +87,9 @@ class MessageService {
 
       savedAiMessages.push({
         ...plainAiMessage,
-        audio: ttsResult.audio_base64,
-      })
+        // audio: ttsResult.audio_base64,
+        audio: "ttsResult.audio_base64",
+      });
 
       // savedAiMessages.push(aiMessage.toJSON());
     }
