@@ -38,7 +38,7 @@ class MessageService {
 
     const userMessage = await messageRepository.create(userMessageEntity);
 
-    const { context, documents } = await ragServices.retrieve(payload.content);
+    const { context } = await ragServices.retrieve(payload.content);
 
     // call AI
     const aiResponses = await this.geminiService.generateResponse(

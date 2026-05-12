@@ -2,12 +2,12 @@ import React from "react";
 import { Badge, Card, StatCard } from "../../components/Admin/Card";
 import { CheckCircle2, Database, FileText, FileWarning, Layers } from "lucide-react";
 
-const DashboardView = ({ docs }) => (
+const DashboardView = ({ docs, totalDocuments }) => (
   <div className="space-y-8 animate-in fade-in duration-500">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard
         label="Total Documents"
-        value={docs.length}
+        value={totalDocuments !== undefined ? totalDocuments : docs.length}
         icon={Database}
         colorClass="bg-indigo-50 text-indigo-600"
       />
@@ -34,7 +34,7 @@ const DashboardView = ({ docs }) => (
     <Card className="p-8">
       <h3 className="text-lg font-bold mb-6">Recent Activity</h3>
       <div className="space-y-4">
-        {docs.slice(0, 3).map((doc) => (
+        {/* {docs.slice(0, 3).map((doc) => (
           <div
             key={doc.id}
             className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100"
@@ -52,7 +52,7 @@ const DashboardView = ({ docs }) => (
             </div>
             <Badge status={doc.status} />
           </div>
-        ))}
+        ))} */}
       </div>
     </Card>
   </div>

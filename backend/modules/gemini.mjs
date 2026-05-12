@@ -2,7 +2,7 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { StructuredOutputParser } from "@langchain/core/output_parsers";
 import { z } from "zod";
-import dotenv from "dotenv";
+import dotenv, { parse } from "dotenv";
 
 dotenv.config();
 
@@ -57,14 +57,23 @@ const prompt = ChatPromptTemplate.fromMessages([
 
 const model = new ChatGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY || "-",
-  model: "gemini-2.5-flash",
+  model: "gemini-2.5-flash-lite",
   temperature: 0.2,
   maxOutputTokens: 1024,
 });
 
 const geminiChain = prompt.pipe(model).pipe(parser);
 
+const cleanJson = (text) => {
+  return text
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
+};
+
 class GeminiService {
+  accessToken = null;
+
   //  constructor(){
   //   this.accessToken = null;
   //  }
@@ -79,38 +88,126 @@ class GeminiService {
     return result.messages;
   }
 
-  // async GenerateResponseRestAPi(
-  //   question,
-  //   context = "Tidak ada konteks tambahan.",
-  // ) {
-  //   const _baseUrl = `pt1762403887118.my.salesforce.com`;
-  //   const modelName = 'sfdc_ai__DefaultVertexAIGemini25Flash001';
+  async authenticateRestAPI() {
+    try {
+      const response = await fetch(
+        `${process.env.AUTH_SF_BASE_URL}/services/oauth2/token`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            grant_type: "client_credentials",
+            client_id: process.env.SF_CLIENT_ID || "",
+            client_secret: process.env.SF_CLIENT_SECRET || "",
+          }),
+        },
+      );
 
-  //   const finalPrompt = `
-  //     ${template}
+      if (!response.ok) {
+        throw new Error("Failed to authenticate");
+      }
 
-  //     QUESTION:
-  //     ${question}
+      const data = await response.json();
+      this.accessToken = data.access_token;
 
-  //     CONTEXT:
-  //     ${context}
+      return this.accessToken;
+    } catch (error) {
+      console.error("Error during authentication:", error);
+      throw error;
+    }
+  }
 
-  //     FORMAT:
-  //     ${parser.getFormatInstructions()}
-  //     `;
+  async generateResponseWithRestAPI(
+    question,
+    context = "Tidak ada konteks tambahan.",
+  ) {
+    try {
+      if (!this.accessToken) {
+        await this.authenticateRestAPI();
+      }
 
-  //     const reponse = await fetch(
-  //       `${_baseUrl}/models/${modelName}/generations`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type" : "application/json",
-  //           Authorization: `Bearer eyJ0bmsiOiJjb3JlL3Byb2QvMDBES2EwMDAwMFRvZ0tUTUFaIiwidmVyIjoiMS4wIiwia2lkIjoiQ09SRV9BVEpXVC4wMERLYTAwMDAwVG9nS1QuMTc3NTUzODI1NjIwMiIsInR0eSI6InNmZGMtY29yZS10b2tlbiIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzY3AiOiJzZmFwX2FwaSBhcGkiLCJzdWIiOiJ1aWQ6MDA1S2EwMDAwMDRpcER0SUFJIiwicm9sZXMiOltdLCJpc3MiOiJodHRwczovL3B0MTc2MjQwMzg4NzExOC5teS5zYWxlc2ZvcmNlLmNvbSIsImNsaWVudF9pZCI6IjNNVkc5elN5OW5BYWkxeGw1eU93eUJKcW03VTYybHo2WXRWc19hM3M1QlIxNVJLVGJNRktsNU5iX0wydlhmOGVIdkFzSTl3dGZyRmFKa3Vsa1ZDMmMiLCJjZHBfdGVuYW50IjoiYTM2MC9wcm9kMjEvODc2ZjA4ZGUzY2FjNDVjNGFhOWQ4MGI4Yzk1ZjJhNjUiLCJhdWQiOlsiaHR0cHM6Ly9wdDE3NjI0MDM4ODcxMTgubXkuc2FsZXNmb3JjZS5jb20iLCJodHRwczovL2FwaS5zYWxlc2ZvcmNlLmNvbSJdLCJuYmYiOjE3Nzg0MTIwMTcsIm10eSI6Im9hdXRoIiwic2ZhcF9yaCI6ImJvdC1zdmMtbGxtOmF3cy1wcm9kMjEtdXNlYXN0Mi9laW5zdGVpbjIsbXZzL0VEQzphd3MtcHJvZDIxLXVzZWFzdDIvZWluc3RlaW4yLGJvdC1zdmMtbGxtL0Zsb3dHcHQ6YXdzLXByb2QxLXVzZWFzdDEvZWluc3RlaW4yLGJvdC1zdmMtYXBpOmF3cy1wcm9kMS11c2Vhc3QxL3VlbmdhZ2UxIiwic2ZpIjoiODYwMzNmNTZlZDBkZWFjNTcwMWU1NTRkMmZlYTk4OTFmYWFiMzMxYWFiZWM4OTgxOGNhMzAyNjExYWUxZTBjMSIsInNmYXBfb3AiOiJFaW5zdGVpbkhhd2tpbmdDMkNFbmFibGVkLEVHcHRGb3JEZXZzQXZhaWxhYmxlLEVpbnN0ZWluR2VuZXJhdGl2ZVNlcnZpY2UsVGFibGVhdU1ldHJpY0Jhc2ljcyxTYWxlc2ZvcmNlQ29uZmlndXJhdG9yRW5naW5lLEVpbnN0ZWluR1BUTkNQLE1DUFNlcnZpY2UsQ29yZVByaWNpbmdBY2Nlc3MsT0FJU0MiLCJoc2MiOmZhbHNlLCJjZHBfdXJsIjoiaHR0cHM6Ly9hMzYwLmNkcC5jZHAzLmF3cy1wcm9kMjEtdXNlYXN0Mi5hd3Muc2ZkYy5jbCIsImV4cCI6MTc3ODQ0MDgzMiwiaWF0IjoxNzc4NDEyMDMyfQ.VxkuRhfqMcTGsXe9QzQZQ425zILgsVO54QAOZmNBDqdkD4D6oBSt51x3sxh10nntrJO7c-QIzsuPcTFRRQQ1XtfeLdvQGXyTEFDwy_rly3mSciJgr3C_o4sT02BWJYoxxmYOCXXk2AvZpdbej-tINTqS0i17tvPvrlhxhZi9PLohklrh96bW96qMMXv_I6azR6q-Vd4wApmtC7s_haRi1SjSv6Ja_0YuPvuv3pYv8gJJpXJ-FMeTwCVtjsEn2WdVrFl8peARGmGKCqbtMBYwQlXes5AVj2RtjB-yJ9VZdjgkiuulJSNgDn6C22_ePQvLgFHhGdAZPJQBs8x-VYzZTw`,
+      const modelName =
+        process.env.MODEL_NAME || "sfdc_ai__DefaultVertexAIGemini25Flash001";
 
-  //         }
-  //       }
-  //     )
-  // }
+      // const _baseUrl = `pt1762403887118.my.salesforce.com`;
+      // const modelName = 'sfdc_ai__DefaultVertexAIGemini25Flash001';
+
+      const finalPrompt = `
+      ${template}
+
+      QUESTION:
+      ${question}
+
+      CONTEXT:
+      ${context}
+
+      FORMAT:
+      ${parser.getFormatInstructions()}
+      `;
+
+      const response = await fetch(
+        `${process.env.SF_BASE_URL_API}/models/${modelName}/generations`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.accessToken}`,
+            "x-sfdc-app-context": "EinsteinGPT",
+            "x-client-feature-id": "ai-platform-models-connected-app",
+          },
+          body: JSON.stringify({
+            prompt: finalPrompt,
+            // temperature: 0.2,
+            // max_tokens: 1024,
+          }),
+        },
+      );
+
+      if (response.status === 401) {
+        console.log("TOKEN REFRESH...");
+        await this.authenticateRestAPI();
+        return await this.GenerateResponseRestAPi(question, context);
+      }
+
+      if (!response.ok) {
+        const errText = await response.text();
+
+        throw new Error(errText);
+      }
+
+      const data = await response.json();
+
+      const rawText =
+        data?.generation?.generatedText || data?.generation?.text || "";
+
+      const cleaned = cleanJson(rawText);
+
+      const parsed = JSON.parse(cleaned);
+
+      // const message = parsed.message.map((item) => {
+      //   const text = item.pesan || item.text || "";
+      //   const animation = item.animation;
+      //   const facialExpression = item.facialExpression;
+
+      //   return {
+      //     text,
+      //     animation,
+      //     facialExpression,
+      //   };
+      // });
+
+      // console.log('here for the message, ', message);
+
+      // return message;
+      
+      return parsed.messages;
+    } catch (err) {
+      console.log('error generateResponseWithRestAPI Gemini Service', err);
+      throw err;
+    }
+  }
 }
 
 export { geminiChain, parser, GeminiService };

@@ -12,6 +12,7 @@ class RagRepository {
     }
     return data;
   }
+
   async updateDocument(documentId, payload) {
     const { data, error } = await supabase
       .from("documents")
@@ -24,6 +25,7 @@ class RagRepository {
     }
     return data;
   }
+  
   async getDocuments({ page = 1, limit = 10, search = "", status, category }) {
     const offset = (page - 1) * limit;
     let query = supabase

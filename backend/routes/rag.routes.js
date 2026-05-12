@@ -9,6 +9,7 @@ router.post("/upload", upload.single("file"), ragController.uploadPdf);
 router.get("/documents", ragController.getDocuments);
 router.delete("/documents/:documentId", ragController.deleteDocument);
 router.post("/retrieve", ragController.retrieve);
+router.post("/playground", ragController.retrievePlayGroundAndKnowledge);
 
 
 export default router;

@@ -3,7 +3,8 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export const geminiLLM = new ChatGoogleGenerativeAI({
-  model: "gemini-2.5-flash",
+  // model: "gemini-2.5-flash",
+  model: "gemini-2.0-flash-lite",
   apiKey: process.env.GEMINI_API_KEY,
 });
 

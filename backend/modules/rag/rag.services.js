@@ -1,22 +1,18 @@
-
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { v4 as uuidv4 } from "uuid";
 
 import ragRepository from "./rag.repository.js";
 import { geminiEmbeddings } from "../../config/gemini.mjs";
+import { GeminiService } from "../gemini.mjs";
 
 class RagService {
-  
-
   async uploadAndIndexPdf(file, metadata = {}) {
     const documentId = uuidv4();
 
     const sanitizedFileName = file.originalname.replace(/\s+/g, "_");
 
     const fileName = `${Date.now()}-${sanitizedFileName}`;
-
-    
 
     await ragRepository.createDocument({
       id: documentId,
@@ -30,70 +26,38 @@ class RagService {
     });
 
     try {
-      /*
-       |--------------------------------------------------------------------------
-       | UPLOAD PDF TO STORAGE
-       |--------------------------------------------------------------------------
-       */
+     
 
       const publicUrl = await ragRepository.uploadPdf(
         fileName,
         file.buffer,
-        file.mimetype
+        file.mimetype,
       );
 
-      /*
-       |--------------------------------------------------------------------------
-       | LOAD PDF
-       |--------------------------------------------------------------------------
-       */
+      
 
-      const loader = new PDFLoader(
-        new Blob([file.buffer])
-      );
+      const loader = new PDFLoader(new Blob([file.buffer]));
 
       const docs = await loader.load();
 
-      /*
-       |--------------------------------------------------------------------------
-       | SPLIT DOCUMENTS
-       |--------------------------------------------------------------------------
-       */
+     
 
       const splitter = new RecursiveCharacterTextSplitter({
         chunkSize: 800,
         chunkOverlap: 120,
       });
 
-      const splitDocs =
-        await splitter.splitDocuments(docs);
+      const splitDocs = await splitter.splitDocuments(docs);
 
-      /*
-       |--------------------------------------------------------------------------
-       | EXTRACT CONTENTS
-       |--------------------------------------------------------------------------
-       */
+     
 
-      const chunkContents = splitDocs.map(
-        (doc) => doc.pageContent
-      );
+      const chunkContents = splitDocs.map((doc) => doc.pageContent);
 
-      /*
-       |--------------------------------------------------------------------------
-       | GENERATE EMBEDDINGS
-       |--------------------------------------------------------------------------
-       */
+      
 
-      const embeddings =
-        await geminiEmbeddings.embedDocuments(
-          chunkContents
-        );
+      const embeddings = await geminiEmbeddings.embedDocuments(chunkContents);
 
-      /*
-       |--------------------------------------------------------------------------
-       | BUILD CHUNKS
-       |--------------------------------------------------------------------------
-       */
+      
 
       const chunks = splitDocs.map((doc, index) => ({
         document_id: documentId,
@@ -103,8 +67,7 @@ class RagService {
         content: doc.pageContent,
 
         metadata: {
-          page:
-            doc.metadata?.loc?.pageNumber || 1,
+          page: doc.metadata?.loc?.pageNumber || 1,
 
           source: sanitizedFileName,
         },
@@ -126,14 +89,11 @@ class RagService {
        |--------------------------------------------------------------------------
        */
 
-      await ragRepository.updateDocument(
-        documentId,
-        {
-          status: "indexed",
-          chunk_count: chunks.length,
-          file_url: publicUrl,
-        }
-      );
+      await ragRepository.updateDocument(documentId, {
+        status: "indexed",
+        chunk_count: chunks.length,
+        file_url: publicUrl,
+      });
 
       /*
        |--------------------------------------------------------------------------
@@ -155,12 +115,9 @@ class RagService {
        |--------------------------------------------------------------------------
        */
 
-      await ragRepository.updateDocument(
-        documentId,
-        {
-          status: "failed",
-        }
-      );
+      await ragRepository.updateDocument(documentId, {
+        status: "failed",
+      });
 
       throw error;
     }
@@ -173,63 +130,82 @@ class RagService {
    */
 
   async retrieve(question, limit = 5) {
-    /*
-     |--------------------------------------------------------------------------
-     | EMBED QUERY
-     |--------------------------------------------------------------------------
-     */
 
-    const queryEmbedding =
-      await geminiEmbeddings.embedQuery(question);
+    const queryEmbedding = await geminiEmbeddings.embedQuery(question);
 
-    /*
-     |--------------------------------------------------------------------------
-     | VECTOR SEARCH
-     |--------------------------------------------------------------------------
-     */
+    const results = await ragRepository.similaritySearch(queryEmbedding, limit);
 
-    const results =
-      await ragRepository.similaritySearch(
-        queryEmbedding,
-        limit
-      );
-
-    /*
-     |--------------------------------------------------------------------------
-     | FILTER SIMILARITY
-     |--------------------------------------------------------------------------
-     */
-
-    const filtered = results.filter(
-      (item) => item.similarity > 0.7
-    );
-
-    /*
-     |--------------------------------------------------------------------------
-     | BUILD CONTEXT
-     |--------------------------------------------------------------------------
-     */
+    const filtered = results.filter((item) => item.similarity > 0.7);
 
     const context = filtered
       .map(
         (item, index) => `
-[Source ${index + 1}]
-${item.content}
-`
+          [Source ${index + 1}]
+          ${item.content}
+`,
       )
       .join("\n\n");
 
-    /*
-     |--------------------------------------------------------------------------
-     | RESPONSE
-     |--------------------------------------------------------------------------
-     */
+    // return {
+    //   context,
+    //   documents: filtered,
+    // };
 
     return {
+      question,
+
+      summary: {
+        totalRetrieved: results.length,
+        totalRelevant: filtered.length,
+        threshold: 0.7,
+      },
+
       context,
-      documents: filtered,
+
+      retrievedChunks: filtered.map((item, index) => ({
+        index: index + 1,
+
+        chunkId: item.id,
+
+        documentId: item.document_id,
+
+        similarityScore: Number(item.similarity.toFixed(4)),
+
+        content: item.content,
+
+        metadata: {
+          source: item.metadata?.source || null,
+          page: item.metadata?.page || null,
+        },
+      })),
     };
   }
+
+
+  async retrievePlayGroundAndKnowledge(question, limit = 5, threshold = 0.7) {
+    const geminiService = new GeminiService();
+    const ragResult = await this.retrieve(question, limit);
+
+    const answersAI = await geminiService.generateResponseWithRestAPI(
+      question,
+      ragResult.context,
+    );
+
+    return {
+      question: question,
+
+      answersAI,
+
+      summary:
+        ragResult.summary,
+
+      retrievedChunks:
+        ragResult.retrievedChunks,
+
+      context:
+        ragResult.context,
+    }
+  };
 
   /*
    |--------------------------------------------------------------------------
@@ -258,10 +234,7 @@ ${item.content}
    */
 
   async deleteDocument(documentId) {
-    const document =
-      await ragRepository.findDocumentById(
-        documentId
-      );
+    const document = await ragRepository.findDocumentById(documentId);
 
     if (!document) {
       throw new Error("Document not found");
@@ -273,9 +246,7 @@ ${item.content}
      |--------------------------------------------------------------------------
      */
 
-    await ragRepository.deletePdf(
-      document.filename
-    );
+    await ragRepository.deletePdf(document.filename);
 
     /*
      |--------------------------------------------------------------------------
@@ -283,13 +254,10 @@ ${item.content}
      |--------------------------------------------------------------------------
      */
 
-    await ragRepository.deleteDocument(
-      documentId
-    );
+    await ragRepository.deleteDocument(documentId);
 
     return true;
   }
 }
 
 export default new RagService();
-
