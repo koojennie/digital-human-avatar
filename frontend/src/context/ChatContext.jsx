@@ -6,6 +6,14 @@ import { useCallback, useMemo } from "react";
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
+
+  const queryParams = new URLSearchParams(window.location.search);
+  // const conversationId = queryParams.get("conversationId");
+
+  // const userId = '5fc62266-597f-4b1b-9e01-b5abed5b2542';
+  const userId = queryParams.get("userId");  
+
+
   const [messages, setMessages] = useState([]);
   const [conversationId, setConversationId] = useState(
     "a91b2bea-0997-4d7a-8c57-8cd07598d453",
@@ -24,7 +32,7 @@ export const ChatProvider = ({ children }) => {
     try {
       const response = await chatService.fetchHistoryChat({
         conversationId: conversationId,
-        userId: "5fc62266-597f-4b1b-9e01-b5abed5b2542",
+        userId: userId,
       });
 
       

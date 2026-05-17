@@ -11,4 +11,6 @@ export const geminiLLM = new ChatGoogleGenerativeAI({
 export const geminiEmbeddings = new GoogleGenerativeAIEmbeddings({
   model: "gemini-embedding-2",
   apiKey: process.env.GEMINI_API_KEY,
+  dimensions: 1536,
+  outputDimensionality: 1536,
 });

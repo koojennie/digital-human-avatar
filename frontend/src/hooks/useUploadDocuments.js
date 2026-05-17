@@ -25,8 +25,10 @@ export const uploadDocument = () => {
 
       const result = await documentServices.uploadFileKnowledge(file, metadata);
 
+      
+
       setSuccessUploadDocument(
-        `PDF berhasil diindex (${result.chunkCount} chunks)`,
+        `PDF berhasil diindex (${result.data.chunkCount} chunks)`,
       );
 
       console.log(result);

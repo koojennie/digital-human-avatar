@@ -8,14 +8,14 @@ class RagController {
           .status(400)
           .json({ success: false, message: "File is required" });
       }
-      // const result = await ragService.uploadAndIndexPdf(req.file, {
-      //   category: req.body.category,
-      //   uploadedBy: req.user?.id || null,
-      // });
+      const result = await ragService.uploadAndIndexPdf(req.file, {
+        category: req.body.category,
+        uploadedBy: req.user?.id || null,
+      });
       return res.status(201).json({
         success: true,
         message: "Document uploaded successfully",
-        data: 'kepanggil',
+        data: result,
       });
     } catch (error) {
       next(error);

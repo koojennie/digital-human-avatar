@@ -125,14 +125,10 @@ export default function AppAdmin() {
 
         const { data, pagination } = response.data;
 
-        // const formattedDocs = data.map((doc) => ({
-        //   ...doc,
-        //   date: doc.created_at
-        //     ? new Date(doc.created_at).toISOString().split("T")[0]
-        //     : "",
-        // }));
+        console.log('data from getDocumentsLibrary', data);
+        
 
-        // setDocuments(formattedDocs);
+        setDocuments(data);
         setNumberDocument(pagination.total);
       } catch (error) {
         console.error("Error fetching documents:", error);
