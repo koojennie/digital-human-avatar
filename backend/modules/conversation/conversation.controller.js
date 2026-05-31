@@ -1,13 +1,12 @@
 import conversationService from "./conversation.services.js";
 
 class ConversationController {
-  async create(req, res, next) {
+  async initSessions(req, res, next) {
     try {
       // Assuming userId comes from auth middleware
       // const userId = req.user.id;
-      const { userId } = req.body;
-      const result = await conversationService.createConversation(
-        userId,
+      // const { userId } = req.body;
+      const result = await conversationService.initalizeSession(
         req.body,
       );
 

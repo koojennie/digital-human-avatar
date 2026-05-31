@@ -1,15 +1,18 @@
 export function validateCreateMessage(payload) {
-  if (!payload.content) {
-    throw new Error("Content is required");
-  }
+  const { content, type, voice, role } = payload;
 
-  if (!payload.role) {
-    throw new Error("Role is required");
-  }
-
+  if (!role) throw new Error("Role is required");
+  
   const allowedRoles = ["user", "assistant"];
-
-  if (!allowedRoles.includes(payload.role)) {
+  if (!allowedRoles.includes(role)) {
     throw new Error("Invalid role");
+  }
+
+  if (type === "voice" && !voice) {
+    throw new Error("Voice is required");
+  }
+
+  if (type !== "voice" && !content) {
+    throw new Error("Content is required");
   }
 }

@@ -79,6 +79,7 @@ export const ChatProvider = ({ children }) => {
         userId: userId,
         conversationId: conversationId,
         content: text,
+        type: "text",
       });
 
       console.log("here the reponse sendMessage chatServices", response);
@@ -109,6 +110,53 @@ export const ChatProvider = ({ children }) => {
     }
   };
 
+  // send audio Message
+  const sendAudioMessage = async (base64Audio) => {
+    setLoadingResponseAI(true);
+    setError(null);
+
+    const userDateSend = new Date().toISOString();
+
+    const tempUserMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: "🎙️ Mengirim pesan suara...",
+      createdAt: userDateSend,
+    };
+
+    setMessages((prev) => [...prev, tempUserMessage]);
+
+    try {
+      const response = await chatService.sendMessage({
+        userId: userId,
+        conversationId: conversationId,
+        voice: base64Audio,
+        type: "voice",
+      });
+
+      const { userMessage: savedUserMessage, aiMessages } = response.data;
+      const safeAiMessages = Array.isArray(aiMessages)
+        ? aiMessages
+        : [aiMessages];
+
+      setMessages((prev) => [
+        ...prev.filter((msg) => msg.id !== tempUserMessage.id),
+        savedUserMessage, // savedUserMessage.content nanti otomatis berisi teks hasil transkripsi STT dari backend
+        ...safeAiMessages,
+      ]);
+
+      setAvatarQueue((prev) => [...prev, ...safeAiMessages]);
+    } catch (err) {
+      console.error("Gagal mengirim audio:", err);
+      setError("Gagal memproses pesan suara.");
+      setMessages((prev) =>
+        prev.filter((msg) => msg.id !== tempUserMessage.id),
+      );
+    } finally {
+      setLoadingResponseAI(false);
+    }
+  };
+
   useEffect(() => {
     if (avatarQueue.length > 0) {
       setCurrentAvatarMessage(avatarQueue[0]);
@@ -125,13 +173,14 @@ export const ChatProvider = ({ children }) => {
     () => ({
       messages,
       sendMessage,
+      sendAudioMessage,
       currentAvatarMessage,
       onAvatarMessagePlayed,
       loading,
       loadingResponseAI,
       error,
     }),
-    [messages, currentAvatarMessage, loading, loadingResponseAI, error],
+    [messages, sendAudioMessage ,currentAvatarMessage, loading, loadingResponseAI, error],
   );
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

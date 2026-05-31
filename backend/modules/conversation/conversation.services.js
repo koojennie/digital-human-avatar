@@ -1,15 +1,58 @@
 import ConversationDTO from "./conversation.dto.js";
 import conversationRepository from "./conversation.repository.js";
+import { UserRepository } from "../user/user.repository.js";
 
 class ConversationService {
-  async createConversation(userId, data) {
-    const conversation = await conversationRepository.createConversation({
-      user_id: userId,
-      title: data.title || "New Conversation",
-      metadata: data.metadata || {},
+  userRepository = new UserRepository();
+
+  // async createConversation(userId, data) {
+  //   const conversation = await conversationRepository.createConversation({
+  //     user_id: userId,
+  //     title: data.title || "New Conversation",
+  //     metadata: data.metadata || {},
+  //   });
+
+  //   return ConversationDTO.toResponse(conversation);
+  // }
+
+  async initalizeSession(payload) {
+    const { userId, username } = payload;    
+
+    // check data user (Find or Create)
+    const user = await this.userRepository.findOrCreateUser({
+      userId,
+      username,
     });
 
-    return ConversationDTO.toResponse(conversation);
+    // Check history Chat
+    const existingConversation = await conversationRepository.findActiveSession(
+      {
+        user_id: userId,
+      },
+    );
+    
+
+    // if existing return response
+    if (existingConversation) {
+      return {
+        isNewSessions: false,
+        conversation: ConversationDTO.toResponse(existingConversation),
+      };
+    }
+
+    const titleConversation = "New Conversation with " + username;
+
+    // is not found history create a new sessions conversation
+    const newConversation = await conversationRepository.createConversation({
+      user_id: userId,
+      title: titleConversation,
+      metadata: {},
+    });
+
+    return {
+      isNewSession: true,
+      conversation: ConversationDTO.toResponse(newConversation),
+    };
   }
 
   async getConversationById(id, userId) {
@@ -32,7 +75,7 @@ class ConversationService {
 
   async getUserConversations(userId) {
     const conversations =
-      await conversationRepository.findAllConversationByUser(userId);      
+      await conversationRepository.findAllConversationByUser(userId);
     return ConversationDTO.toListResponse(conversations);
   }
 
