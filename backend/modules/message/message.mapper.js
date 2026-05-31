@@ -5,6 +5,7 @@ export function toCreateMessageEntity(payload, userId, conversationId) {
     user_id: userId,
     conversation_id: conversationId,
     role: payload.role,
+    type: payload.type,
     content: payload.content,
     metadata: payload.metadata || {},
   };

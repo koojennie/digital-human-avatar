@@ -1,9 +1,15 @@
 import Conversation from "../../models/conversation.model.js";
 
-
 class ConversationRepository {
   async createConversation(data) {
     return await Conversation.create(data);
+  }
+
+  async findActiveSession({ user_id }) {
+    return await Conversation.findOne({
+      where: { user_id },
+      order: [["last_message_at", "DESC"]],
+    });
   }
 
   async findConversationById(id) {
@@ -13,7 +19,10 @@ class ConversationRepository {
   async findAllConversationByUser(userId) {
     return await Conversation.findAll({
       where: { user_id: userId },
-      order: [['last_message_at', 'DESC'], ['created_at', 'DESC']]
+      order: [
+        ["last_message_at", "DESC"],
+        ["created_at", "DESC"],
+      ],
     });
   }
 
@@ -32,7 +41,7 @@ class ConversationRepository {
   async touchConversation(id) {
     return await Conversation.update(
       { last_message_at: new Date() },
-      { where: { id } }
+      { where: { id } },
     );
   }
 }

@@ -24,7 +24,26 @@ class MessageController {
         ),
       });
     } catch (error) {
-      next(error);
+      console.error(error);
+
+      if (error.message === "Unauthorized") {
+        return res
+          .status(403)
+          .json({
+            success: false,
+            message: "Akses ditolak. Anda tidak berhak melihat chat ini.",
+          });
+      }
+      if (error.message === "Conversation not found") {
+        return res
+          .status(404)
+          .json({ success: false, message: "Riwayat chat tidak ditemukan." });
+      }
+
+      // Jika benar-benar ada crash kodingan/database baru lempar 500
+      return res
+        .status(500)
+        .json({ success: false, message: "Internal Server Error" });
     }
   }
 
@@ -39,7 +58,6 @@ class MessageController {
         conversationId,
         dto,
       );
-      
 
       return res.status(201).json({
         success: true,
@@ -47,7 +65,11 @@ class MessageController {
         data: result,
       });
     } catch (error) {
-      next(error);
+      console.error(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error : " + error.message
+      });
     }
   }
 

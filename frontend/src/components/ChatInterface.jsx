@@ -3,8 +3,17 @@ import { useSpeech } from "../hooks/useSpeech";
 import { Send, AudioLines } from "lucide-react";
 
 export const ChatInterface = ({ hidden, ...props }) => {
-  const input = useRef();
-  const { tts, loading, startRecording, stopRecording, recording, error } = useSpeech();
+  const chatContainerRef = useRef(null);
+  const inputRef = useRef(null);
+  
+  const {
+    messages,
+    sendMessage,
+    sendAudioMessage,
+    loading,
+    loadingResponseAI,
+    error: errorChat,
+  } = useChat();
 
   // dummy response
   const staticResponse = "Halo! Aku Collexa, asisten belajarmu. Ada yang ingin kamu tanyakan tentang materi VClass hari ini?";
@@ -18,6 +27,8 @@ export const ChatInterface = ({ hidden, ...props }) => {
   };
 
   if (hidden) return null;
+
+  const displayError = errorChat || speechError;
 
   return (
     <>

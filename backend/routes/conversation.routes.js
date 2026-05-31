@@ -18,7 +18,7 @@ const validate = (schema) => (req, res, next) => {
 };
 
 // TTS (text to speech)
-router.post('/', validate(createConversationSchema), conversationController.create);
+router.post('/', validate(createConversationSchema), conversationController.initSessions);
 router.get('/', conversationController.getAll);
 router.get('/:id', validate(conversationIdSchema), conversationController.getOne);
 router.patch('/:id', validate(updateConversationSchema), conversationController.update);

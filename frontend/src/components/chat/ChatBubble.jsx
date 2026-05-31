@@ -1,8 +1,10 @@
 export default function ChatBubble({ msg, loadingResponseAI }) {
   const isUser = msg.role === "user";
 
-  const dateObj = new Date(msg.created_at);
-  const timeString = isNaN(dateObj) 
+ const rawDate = msg.created_at || msg.createdAt;
+  const dateObj = new Date(rawDate);
+  
+  const timeString = isNaN(dateObj.getTime()) 
     ? "Baru saja" 
     : dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 

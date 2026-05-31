@@ -2,7 +2,23 @@ import fs from "fs/promises";
 import path from "path";
 
 export const sendDefaultMessages = async ({ userMessage }) => {
-  if (userMessage.toLowerCase().includes("halo")) {
+  const greetingKeywords = [
+    "halo",
+    "hello",
+    "hi",
+    "hey",
+    "hai",
+    "hallo",
+    "selamat pagi",
+    "selamat siang",
+    "selamat sore",
+    "selamat malam"
+  ];
+
+  const lowerMessage = userMessage.toLowerCase();
+  const isGreeting = greetingKeywords.some((keyword) => lowerMessage.includes(keyword));
+
+  if (isGreeting) {
     const audioPath = path.join(process.cwd(), "audios", "message_default.mp3");
     const audioBuffer = await fs.readFile(audioPath);
     const base64Audio = audioBuffer.toString("base64");
