@@ -8,7 +8,7 @@ class MessageRepository {
   async findByConversationId(conversationId, limit = 50, offset = 0) {
     return await Message.findAll({
       where: { conversation_id: conversationId },
-      order: [['created_at', 'ASC']],
+      order: [['created_at', 'DESC']],
       limit,
       offset
     });

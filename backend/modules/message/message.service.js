@@ -83,11 +83,15 @@ class MessageService {
     const limit = Number(query.limit) || 50;
     const offset = Number(query.offset) || 0;
 
-    const messages = await messageRepository.findByConversationId(conversationId, limit, offset);
+    const rawMessages = await messageRepository.findByConversationId(conversationId, limit, offset);
+
+    const plainMessages = rawMessages.map(msg => msg.toJSON());
+
+    const chronologicalMessages  = plainMessages.reverse();
 
     return {
       conversationId,
-      messages,
+      messages: chronologicalMessages,
       pagination: { limit, offset },
     };
   }

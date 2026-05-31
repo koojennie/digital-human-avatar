@@ -5,6 +5,7 @@ import {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import { chatService } from "../services/chat.services";
 
@@ -25,6 +26,30 @@ export const ChatProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [loadingResponseAI, setLoadingResponseAI] = useState(false);
   const [error, setError] = useState(null);
+
+  const audioElementRef = useRef(null);
+  const abortControllerRef = useRef(null);
+
+  const interruptActiveAvatar = useCallback(() => {
+    if (audioElementRef.current) {
+      audioElementRef.current.pause();
+      audioElementRef.current.currentTime = 0;
+      audioElementRef.current = null;
+      console.log(
+        "[AUDIO] Audio aktif berhasil dihentikan karena interopsi user.",
+      );
+    }
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      console.log(
+        "[API] Request Gemini/HuggingFace sebelumnya berhasil dibatalkan.",
+      );
+    }
+
+    setAvatarQueue([]);
+    setCurrentAvatarMessage(null);
+  }, []);
 
   const fetchHistory = useCallback(async () => {
     if (
@@ -47,6 +72,8 @@ export const ChatProvider = ({ children }) => {
       });
 
       setMessages(response.data.messages);
+      setAvatarQueue([]);
+      setCurrentAvatarMessage(null);
     } catch (err) {
       console.error("Failed Fetch History Chat", err);
       setError("Gagal memuat riwayat percakapan.");
@@ -57,15 +84,24 @@ export const ChatProvider = ({ children }) => {
 
   useEffect(() => {
     fetchHistory();
+    return () => {
+      if (audioElementRef.current) {
+        audioElementRef.current.pause();
+      }
+    };
   }, [fetchHistory]);
 
   const sendMessage = async (text) => {
+    interruptActiveAvatar();
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoadingResponseAI(true);
     setError(null);
 
     const userDateSend = new Date().toISOString();
 
-    // 1. Optimistic UI: Buat objek dengan variabel tempUserMessage
     const tempUserMessage = {
       id: crypto.randomUUID(),
       role: "user",
@@ -75,14 +111,15 @@ export const ChatProvider = ({ children }) => {
     setMessages((prev) => [...prev, tempUserMessage]);
 
     try {
-      const response = await chatService.sendMessage({
-        userId: userId,
-        conversationId: conversationId,
-        content: text,
-        type: "text",
-      });
-
-      console.log("here the reponse sendMessage chatServices", response);
+      const response = await chatService.sendMessage(
+        {
+          userId: userId,
+          conversationId: conversationId,
+          content: text,
+          type: "text",
+        },
+        { signal: controller.signal },
+      );
 
       const { userMessage: savedUserMessage, aiMessages } = response.data;
 
@@ -98,20 +135,32 @@ export const ChatProvider = ({ children }) => {
 
       setAvatarQueue((prev) => [...prev, ...safeAiMessages]);
     } catch (err) {
-      console.error(err);
-      setError("Failed send message");
+      if (err.name === "CanceledError" || err.name === "AbortError") {
+        console.log("[API] Request di-abort dengan sukses.");
+        return;
+      }
+      console.error("Gagal mengirim pesan:", err);
+      setError("Gagal mengirim pesan.");
 
       // FIX BUG 2: Menggunakan tempUserMessage.id saat rollback UI gagal kirim
       setMessages((prev) =>
         prev.filter((msg) => msg.id !== tempUserMessage.id),
       );
     } finally {
-      setLoadingResponseAI(false);
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+        setLoadingResponseAI(false);
+      }
     }
   };
 
   // send audio Message
   const sendAudioMessage = async (base64Audio) => {
+    interruptActiveAvatar();
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoadingResponseAI(true);
     setError(null);
 
@@ -127,12 +176,15 @@ export const ChatProvider = ({ children }) => {
     setMessages((prev) => [...prev, tempUserMessage]);
 
     try {
-      const response = await chatService.sendMessage({
-        userId: userId,
-        conversationId: conversationId,
-        voice: base64Audio,
-        type: "voice",
-      });
+      const response = await chatService.sendMessage(
+        {
+          userId: userId,
+          conversationId: conversationId,
+          voice: base64Audio,
+          type: "voice",
+        },
+        { signal: controller.signal },
+      );
 
       const { userMessage: savedUserMessage, aiMessages } = response.data;
       const safeAiMessages = Array.isArray(aiMessages)
@@ -147,27 +199,108 @@ export const ChatProvider = ({ children }) => {
 
       setAvatarQueue((prev) => [...prev, ...safeAiMessages]);
     } catch (err) {
+      if (err.name === "CanceledError" || err.name === "AbortError") return;
       console.error("Gagal mengirim audio:", err);
       setError("Gagal memproses pesan suara.");
       setMessages((prev) =>
         prev.filter((msg) => msg.id !== tempUserMessage.id),
       );
     } finally {
-      setLoadingResponseAI(false);
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+        setLoadingResponseAI(false);
+      }
     }
   };
 
   useEffect(() => {
-    if (avatarQueue.length > 0) {
-      setCurrentAvatarMessage(avatarQueue[0]);
-    } else {
-      setCurrentAvatarMessage(null);
-    }
-  }, [avatarQueue]);
+    if (avatarQueue.length === 0 || currentAvatarMessage) return;
 
-  const onAvatarMessagePlayed = () => {
-    setAvatarQueue((prev) => prev.slice(1));
-  };
+    const nextMessage = avatarQueue[0];
+    setCurrentAvatarMessage(nextMessage);
+
+    let isCurrentEffectActive = true;
+    let audio = null;
+
+    if (nextMessage.audio) {
+      const audioUrl = `data:audio/wav;base64,${nextMessage.audio}`;
+      audio = new Audio(audioUrl);
+      audioElementRef.current = audio;
+
+      window.currentAvatarAudio = audio;
+
+      audio.onended = () => {
+        if (!isCurrentEffectActive) return;
+
+        audioElementRef.current = null;
+        window.currentAvatarAudio = null;
+
+        setAvatarQueue((prev) => prev.slice(1));
+        setCurrentAvatarMessage(null);
+      };
+
+      const playPromise = audio.play();
+
+      if (playPromise !== undefined) {
+        playPromise.catch((e) => {
+          if (e.name !== "AbortError") {
+            console.error("Gagal melakukan auto-play suara avatar:", e);
+          } else {
+            console.log(
+              "[AUDIO] Playback lama di-abort dengan aman untuk digantikan yang baru.",
+            );
+          }
+
+          if (e.name !== "AbortError" && isCurrentEffectActive) {
+            setAvatarQueue((prev) => prev.slice(1));
+            setCurrentAvatarMessage(null);
+          }
+        });
+      }
+    } else {
+      // Fallback jika response AI berupa teks statis tanpa audio berkas
+      const timer = setTimeout(() => {
+        if (isCurrentEffectActive) {
+          setAvatarQueue((prev) => prev.slice(1));
+          setCurrentAvatarMessage(null);
+        }
+      }, 3000);
+
+      return () => {
+        isCurrentEffectActive = false;
+        clearTimeout(timer);
+      };
+    }
+
+    return () => {
+      isCurrentEffectActive = false;
+
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        console.log(
+          "[CLEANUP] Berhasil mencegah tumpang tindih duplikasi audio.",
+        );
+      }
+    };
+  }, [avatarQueue, currentAvatarMessage]);
+
+  const onAvatarMessagePlayed = useCallback(() => {
+    setAvatarQueue((prev) => {
+      const nextQueue = prev.slice(1);
+
+      if (nextQueue.length === 0) {
+        setCurrentAvatarMessage(null); // <--- KUNCI UTAMA: Buka gembok tombol mic!
+        console.log(
+          "[CONTEXT] Seluruh antrean suara habis. Mikrofon dibuka kembali.",
+        );
+      } else {
+        setCurrentAvatarMessage(nextQueue[0]);
+      }
+
+      return nextQueue;
+    });
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -175,12 +308,22 @@ export const ChatProvider = ({ children }) => {
       sendMessage,
       sendAudioMessage,
       currentAvatarMessage,
+      interruptActiveAvatar,
       onAvatarMessagePlayed,
       loading,
       loadingResponseAI,
       error,
     }),
-    [messages, sendAudioMessage ,currentAvatarMessage, loading, loadingResponseAI, error],
+    [
+      messages,
+      sendAudioMessage,
+      currentAvatarMessage,
+      interruptActiveAvatar,
+      onAvatarMessagePlayed,
+      loading,
+      loadingResponseAI,
+      error,
+    ],
   );
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

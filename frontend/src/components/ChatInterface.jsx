@@ -1,25 +1,34 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChat } from "../context/ChatContext";
 import { useSpeechNew } from "../context/useSpeechNew";
 import ChatBubbleNew from "./chat/ChatBubbleNew";
+import { useLiveSpeech } from "../context/useLiveSpeech";
 
 export const ChatInterface = ({ hidden, ...props }) => {
   const chatContainerRef = useRef(null);
-  const inputRef = useRef(null);
-  
+  const [inputValue, setInputValue] = useState(""); // <--- Ubah kontrol input dari Ref ke State agar teks live-speech bisa me-render langsung di layar
+
   const {
     messages,
     sendMessage,
     sendAudioMessage,
+    currentAvatarMessage,
     loading,
     loadingResponseAI,
     error: errorChat,
   } = useChat();
 
-  const { recording, startRecording, stopRecording, speechError } =
-    useSpeechNew({
-      onAudioReady: (base64Audio) => {
-        sendAudioMessage(base64Audio);
+  // const { recording, startRecording, stopRecording, speechError } =
+  //   useSpeechNew({
+  //     onAudioReady: (base64Audio) => {
+  //       sendAudioMessage(base64Audio);
+  //     },
+  //   });
+
+  const { recording, startLiveRecording, stopLiveRecording, speechError } =
+    useLiveSpeech({
+      onTranscriptChange: (liveText) => {
+        setInputValue(liveText);
       },
     });
 
@@ -42,13 +51,30 @@ export const ChatInterface = ({ hidden, ...props }) => {
     }
   }, [loadingResponseAI]);
 
+  // const handleSend = () => {
+  //   const text = inputRef.current.value;
+  //   if (!loading && text.trim()) {
+  //     sendMessage(text);
+  //     inputRef.current.value = "";
+  //   }
+  // };
+
   const handleSend = () => {
-    const text = inputRef.current.value;
-    if (!loading && text.trim()) {
-      sendMessage(text);
-      inputRef.current.value = "";
+    if (!loading && inputValue.trim()) {
+      if(recording) {
+        stopLiveRecording();
+      }
+      sendMessage(inputValue);
+      setInputValue("");
     }
   };
+
+  useEffect(() => {
+    if (loadingResponseAI && recording) {
+      console.log("[SPEECH] Mematikan mikrofon secara otomatis karena bot mulai merespons.");
+      stopLiveRecording();
+    }
+  }, [loadingResponseAI, recording, stopLiveRecording]);
 
   if (hidden) return null;
 
@@ -61,17 +87,20 @@ export const ChatInterface = ({ hidden, ...props }) => {
         className="fixed inset-0 bg-cover bg-center -z-10"
         style={{ backgroundImage: "url('/background.png')" }}
       />
-      
+
       {/* Main Wrapper Layout */}
       <div className="fixed inset-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
-        
         {/* App Branding & Status Header */}
         <div className="self-start backdrop-blur-md bg-white/70 p-4 rounded-xl shadow-sm border border-white/40 pointer-events-auto max-w-xs transition-all">
           <h1 className="font-black text-xl text-gray-800 tracking-wide flex items-center gap-1.5">
             Collexa
             <span className="flex h-2 w-2 relative">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${loadingResponseAI ? "bg-amber-400" : "bg-emerald-400"}`}></span>
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${loadingResponseAI ? "bg-amber-500" : "bg-emerald-500"}`}></span>
+              <span
+                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${loadingResponseAI ? "bg-amber-400" : "bg-emerald-400"}`}
+              ></span>
+              <span
+                className={`relative inline-flex rounded-full h-2 w-2 ${loadingResponseAI ? "bg-amber-500" : "bg-emerald-500"}`}
+              ></span>
             </span>
           </h1>
           <p className="text-gray-600 whitespace-pre-line text-xs mt-1 leading-relaxed">
@@ -95,17 +124,28 @@ export const ChatInterface = ({ hidden, ...props }) => {
             className="w-full max-h-[320px] overflow-y-auto flex flex-col gap-3 p-2 scrollbar-thin scroll-smooth"
           >
             {messages.map((msg) => (
-              <ChatBubbleNew key={msg.id} msg={msg}/>
+              <ChatBubbleNew key={msg.id} msg={msg} />
             ))}
 
             {loadingResponseAI && (
               <div className="bg-white/80 backdrop-blur-sm text-gray-500 text-xs px-4 py-3 rounded-2xl rounded-bl-none self-start shadow-sm border border-gray-100 flex items-center gap-2">
                 <div className="flex gap-1 items-center">
-                  <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                  <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                  <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  <span
+                    className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  ></span>
+                  <span
+                    className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  ></span>
+                  <span
+                    className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  ></span>
                 </div>
-                <span className="text-gray-400">Collexa sedang mengetik...</span>
+                <span className="text-gray-400">
+                  Collexa sedang mengetik...
+                </span>
               </div>
             )}
           </div>
@@ -113,21 +153,22 @@ export const ChatInterface = ({ hidden, ...props }) => {
 
         {/* Interactive Bottom Input Controls Bar */}
         <div className="pointer-events-auto max-w-screen-sm w-full mx-auto bg-white/80 backdrop-blur-lg p-2.5 rounded-2xl shadow-xl border border-white/50 flex items-center gap-2.5 transition-all">
-          
           {/* Advanced Interactive Mic Button */}
           <div className="relative flex items-center justify-center">
             {recording && (
               <span className="absolute inline-flex h-full w-full rounded-xl bg-red-400 opacity-60 animate-ping"></span>
             )}
             <button
-              disabled={loading || loadingResponseAI}
-              onClick={recording ? stopRecording : startRecording}
+              disabled={loading || loadingResponseAI || currentAvatarMessage}
+              onClick={recording ? stopLiveRecording : startLiveRecording}
               className={`relative p-3.5 rounded-xl text-white transition-all duration-300 transform active:scale-95 disabled:opacity-40 disabled:pointer-events-none shadow-md ${
                 recording
                   ? "bg-gradient-to-r from-red-500 to-rose-600 shadow-red-200"
                   : "bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 shadow-gray-200"
               }`}
-              title={recording ? "Klik untuk selesai merekam" : "Klik untuk bicara"}
+              title={
+                recording ? "Klik untuk selesai merekam" : "Klik untuk bicara"
+              }
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -149,8 +190,8 @@ export const ChatInterface = ({ hidden, ...props }) => {
           {/* Text Input Field */}
           <input
             className={`w-full py-3 px-4 rounded-xl bg-gray-50/50 outline-none text-sm transition-all border ${
-              recording 
-                ? "border-red-300 bg-red-50/30 text-red-900 placeholder-red-400 italic" 
+              recording
+                ? "border-red-300 bg-red-50/30 text-red-900 placeholder-red-400 italic"
                 : "border-gray-200 text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
             }`}
             placeholder={
@@ -158,7 +199,9 @@ export const ChatInterface = ({ hidden, ...props }) => {
                 ? "Mendengarkan suaramu... ketuk tombol merah jika selesai"
                 : "Tanyakan materi perkuliahan di sini..."
             }
-            ref={inputRef}
+            // ref={inputRef}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
             disabled={recording}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
           />
@@ -179,7 +222,6 @@ export const ChatInterface = ({ hidden, ...props }) => {
             </svg>
           </button>
         </div>
-
       </div>
     </>
   );
