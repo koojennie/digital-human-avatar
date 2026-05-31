@@ -123,7 +123,7 @@ const UploadView = ({ onUploadSuccess }) => {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-pink-400"
             >
               <option value="kurikulum">
                 Kurikulum
@@ -151,7 +151,7 @@ const UploadView = ({ onUploadSuccess }) => {
             <input
               type="text"
               placeholder="e.g. Semester Ganjil 2024"
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-pink-400"
             />
           </div>
         </div>
@@ -161,9 +161,9 @@ const UploadView = ({ onUploadSuccess }) => {
         <div
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
-          className="border-2 border-dashed border-slate-200 rounded-[2.5rem] p-16 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all cursor-pointer group"
+          className="border-2 border-dashed border-slate-200 rounded-[2.5rem] p-16 text-center hover:border-pink-400 hover:bg-indigo-50/30 transition-all cursor-pointer group"
         >
-          <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+          <div className="w-16 h-16 bg-pink-50 text-pink-400 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
             <UploadCloud size={32} />
           </div>
 
@@ -189,7 +189,7 @@ const UploadView = ({ onUploadSuccess }) => {
             onClick={() =>
               document.getElementById("fileInput").click()
             }
-            className="mt-6 px-8 py-3 bg-slate-900 text-white font-bold rounded-2xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200"
+            className="mt-6 px-8 py-3 bg-pink-400 text-white font-bold rounded-2xl hover:bg-pink-600 transition-all ease-in duration-200 cursor-pointer"
           >
             Select Files
           </button>

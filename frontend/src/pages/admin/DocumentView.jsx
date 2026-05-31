@@ -30,7 +30,7 @@ const DocumentsView = ({ docs = [], pagination, onPageChange, isLoading }) => {
           <input
             type="text"
             placeholder="Search documents..."
-            className="pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 w-full md:w-80 outline-none"
+            className="pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-pink-400 w-full md:w-80 outline-none"
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
@@ -77,11 +77,11 @@ const DocumentsView = ({ docs = [], pagination, onPageChange, isLoading }) => {
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">
                     <Link to={doc.file_url} target="_blank">
-                      <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg">
+                      <button className="p-2 transition-all duration-200 ease-in cursor-pointer text-slate-400 hover:text-pink-600 hover:bg-pink-50 rounded-lg">
                         <ExternalLink size={16} />
                       </button>
                     </Link>
-                    <button className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg">
+                    <button className="p-2 transition-all duration-200 ease-in cursor-pointer text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg">
                       <Trash2 size={16} />
                     </button>
                   </div>

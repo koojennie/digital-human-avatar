@@ -1,26 +1,26 @@
 import { Model, DataTypes } from 'sequelize';
-import { sequelize } from '../utils/supabaseClient.js'; // Corrected import path
+import { sequelize } from '../utils/supabaseClient.js';
 
 class User extends Model {}
 
 User.init({
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+  user_id: {
+    type: DataTypes.CHAR(8),
     primaryKey: true,
+    allowNull: false,
   },
   username: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(30),
     allowNull: false,
     unique: true,
   },
   email: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(100),
     allowNull: false,
-    validate: { isEmail: true }
+    validate: { isEmail: true },
   },
   full_name: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(100),
     allowNull: true,
   },
   metadata: {
