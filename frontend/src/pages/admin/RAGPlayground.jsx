@@ -43,7 +43,7 @@ const RAGPlayground = () => {
         {/* QUERY SANDBOX CARD */}
         <Card className="p-8 rounded-[2.5rem] bg-white shadow-sm border border-slate-200">
           <div className="flex items-center gap-4 mb-8">
-            <div className="p-3.5 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-200">
+            <div className="p-3.5 bg-pink-400 text-white rounded-2xl">
               <Terminal size={22} />
             </div>
             <div>
@@ -57,13 +57,13 @@ const RAGPlayground = () => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Tanyakan sesuatu pada basis pengetahuan AI..."
-              className="w-full h-48 p-6 rounded-[2rem] border border-slate-200 bg-slate-50 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all resize-none text-sm font-medium leading-relaxed"
+              className="w-full h-48 p-6 rounded-[2rem] border border-slate-200 bg-slate-50 outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-500 transition-all resize-none text-sm font-medium leading-relaxed"
             />
             
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4.5 rounded-2xl bg-slate-900 text-white font-bold hover:bg-indigo-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-slate-200 active:scale-[0.98]"
+              className="w-full py-4.5 rounded-2xl bg-pink-400 text-white font-bold hover:bg-pink-600 transition-all duration-200 ease-in cursor-pointer flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-slate-200 active:scale-[0.98]"
             >
               {loading ? (
                 <>
@@ -160,10 +160,10 @@ const RAGPlayground = () => {
         )}
 
         {/* RAW RETRIEVED CHUNKS */}
-        <Card className="p-8 rounded-[2.5rem] bg-slate-950 text-white min-h-[500px] border border-slate-800">
+        <Card className="p-8 rounded-[2.5rem] bg-slate-950 text-white min-h-[500px] border border-slate-200">
           <div className="flex items-center gap-3 mb-8">
-            <Search className="text-indigo-400" size={18} />
-            <h3 className="font-bold text-lg tracking-tight">Source Chunks</h3>
+            <Search className="text-pink-400" size={18} />
+            <h3 className="font-bold text-lg tracking-tight text-slate-800">Source Chunks</h3>
           </div>
 
           {!result && !loading && (

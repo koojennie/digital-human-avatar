@@ -163,11 +163,11 @@ export default function AppAdmin() {
       >
         <div className="flex items-center justify-between mb-10 pl-2">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
+            <div className="w-10 h-10 bg-pink-400 rounded-xl flex items-center justify-center">
               <Database className="text-white" size={22} />
             </div>
             <span className="text-xl font-extrabold tracking-tighter">
-              Admin<span className="text-indigo-600">RAG</span>
+              Dashboard
             </span>
           </div>
 
@@ -221,13 +221,13 @@ export default function AppAdmin() {
 
         <div className="mt-auto p-4 bg-slate-50 rounded-2xl border border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white font-bold">
+            <div className="w-10 h-10 bg-pink-400 rounded-xl flex items-center justify-center text-white font-bold">
               A
             </div>
             <div>
-              <p className="text-sm font-bold">Admin Central</p>
+              <p className="text-sm font-bold">Admin</p>
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                Super Administrator
+                User
               </p>
             </div>
           </div>
@@ -246,27 +246,15 @@ export default function AppAdmin() {
               <Menu size={24} />
             </button>
             <h2 className="text-sm md:text-lg font-bold text-slate-800 truncate max-w-[150px] md:max-w-none">
-              {activeTab === "dashboard" && "System Overview"}
-              {activeTab === "documents" && "Document Library"}
-              {activeTab === "upload" && "Upload Knowledge"}
+              {activeTab === "dashboard" && "Overview"}
+              {activeTab === "documents" && "All Documents"}
+              {activeTab === "upload" && "Upload Knowledge Base"}
               {activeTab === "playground" && "RAG Sandbox"}
             </h2>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden lg:flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full border border-slate-200">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">
-                Nodes Online
-              </span>
-            </div>
-            <button className="p-2.5 text-slate-400 hover:bg-slate-100 rounded-xl relative">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
-            </button>
-            <div className="hidden sm:flex w-10 h-10 bg-indigo-50 border border-indigo-100 rounded-xl items-center justify-center text-indigo-600">
-              <User size={20} />
-            </div>
+          <div className="hidden sm:flex w-10 h-10 bg-pink-50 border border-indigo-100 rounded-xl items-center justify-center text-pink-600">
+            <User size={20} />
           </div>
         </header>
 
