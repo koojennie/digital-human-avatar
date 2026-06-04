@@ -7,8 +7,8 @@ class ConversationRepository {
 
   async findActiveSession({ user_id }) {
     return await Conversation.findOne({
-      where: { user_id },
-      order: [["last_message_at", "DESC"]],
+      where: { user_id: String(user_id) },
+      order: [["created_at", "DESC"]],
     });
   }
 
@@ -38,10 +38,10 @@ class ConversationRepository {
     return await Conversation.destroy({ where: { id } });
   }
 
-  async touchConversation(id) {
+  async touchConversation(conversation_id) {
     return await Conversation.update(
       { last_message_at: new Date() },
-      { where: { id } },
+      { where: { conversation_id } },
     );
   }
 }

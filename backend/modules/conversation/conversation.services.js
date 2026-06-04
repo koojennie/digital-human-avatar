@@ -1,56 +1,87 @@
 import ConversationDTO from "./conversation.dto.js";
 import conversationRepository from "./conversation.repository.js";
 import { UserRepository } from "../user/user.repository.js";
+import { MoodleServices } from "../moodle/moodle.service.js";
+import { generateConversationId } from "./conversation.utils.js";
 
 class ConversationService {
   userRepository = new UserRepository();
-
-  // async createConversation(userId, data) {
-  //   const conversation = await conversationRepository.createConversation({
-  //     user_id: userId,
-  //     title: data.title || "New Conversation",
-  //     metadata: data.metadata || {},
-  //   });
-
-  //   return ConversationDTO.toResponse(conversation);
-  // }
+  moodleService = new MoodleServices();
 
   async initalizeSession(payload) {
-    const { userId, username } = payload;    
+    const { moodleUserId } = payload;
 
-    // check data user (Find or Create)
-    const user = await this.userRepository.findOrCreateUser({
-      userId,
-      username,
+    if (!moodleUserId) {
+      throw new Error("moodleUserId is required");
+    }
+
+    // Get user from Moodle
+    const responseMoodle = await this.moodleService.getUserMoodleByUserId({
+      moodleUserId: moodleUserId,
     });
 
-    // Check history Chat
+    const moodleUser = responseMoodle[0];
+
+    if (!moodleUser) {
+      throw new Error("User not found in Moodle");
+    }
+
+    const moodleProfile = {
+      moodleUserId: moodleUser.id,
+      username: moodleUser.username,
+      email: moodleUser.email,
+      fullname: moodleUser.fullname,
+    };
+
+    // Find or create internal user
+    const [userRecord] =
+      await this.userRepository.findOrCreateUser(moodleProfile);
+
+    // IMPORTANT:
+    // Use internal user_id (USR-0001)
+    // NOT moodle user id (3)
     const existingConversation = await conversationRepository.findActiveSession(
       {
-        user_id: userId,
+        user_id: userRecord.user_id,
       },
     );
-    
 
-    // if existing return response
     if (existingConversation) {
       return {
-        isNewSessions: false,
+        success: true,
+        isNewSession: false,
+        user: {
+          userId: userRecord.user_id,
+          moodleUserId: userRecord.moodle_user_id,
+          username: userRecord.username,
+          fullname: userRecord.full_name,
+          email: userRecord.email,
+        },
         conversation: ConversationDTO.toResponse(existingConversation),
       };
     }
 
-    const titleConversation = "New Conversation with " + username;
+    const conversationId = await generateConversationId();
 
-    // is not found history create a new sessions conversation
+    const titleConversation = `New Conversation with ${moodleProfile.username}`;
+
     const newConversation = await conversationRepository.createConversation({
-      user_id: userId,
+      conversation_id: conversationId,
+      user_id: userRecord.dataValues.user_id,
       title: titleConversation,
       metadata: {},
     });
 
     return {
+      success: true,
       isNewSession: true,
+      user: {
+        userId: userRecord.user_id,
+        moodleUserId: userRecord.moodle_user_id,
+        username: userRecord.username,
+        fullname: userRecord.full_name,
+        email: userRecord.email,
+      },
       conversation: ConversationDTO.toResponse(newConversation),
     };
   }

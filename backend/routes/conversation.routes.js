@@ -18,6 +18,7 @@ const validate = (schema) => (req, res, next) => {
 };
 
 // TTS (text to speech)
+router.post('/initialize', conversationController.initSessions);
 router.post('/', validate(createConversationSchema), conversationController.initSessions);
 router.get('/', conversationController.getAll);
 router.get('/:id', validate(conversationIdSchema), conversationController.getOne);

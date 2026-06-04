@@ -1,9 +1,10 @@
 // modules/message/message.mapper.js
 
-export function toCreateMessageEntity(payload, userId, conversationId) {
+export function toCreateMessageEntity(payload) {
   return {
-    user_id: userId,
-    conversation_id: conversationId,
+    message_id: payload.message_id,
+    user_id: payload.userId,
+    conversation_id: payload.conversationId,
     role: payload.role,
     type: payload.type,
     content: payload.content,

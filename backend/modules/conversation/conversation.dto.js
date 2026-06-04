@@ -3,7 +3,7 @@ class ConversationDTO {
     if (!conversation) return null;
     
     return {
-      id: conversation.id,
+      id: conversation.conversation_id,
       userId: conversation.user_id,
       title: conversation.title,
       lastMessageAt: conversation.last_message_at,

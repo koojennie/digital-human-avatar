@@ -14,7 +14,7 @@ router.get(
 
 // CREATE message + AI response
 router.post(
-  "/:userId/:conversationId",
+  "/",
   messageController.createMessage
 );
 

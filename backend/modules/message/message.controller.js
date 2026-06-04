@@ -49,13 +49,10 @@ class MessageController {
 
   async createMessage(req, res, next) {
     try {
-      const { conversationId, userId } = req.params;
 
       const dto = new CreateMessageDto(req.body);
 
       const result = await messageService.createMessage(
-        userId,
-        conversationId,
         dto,
       );
 

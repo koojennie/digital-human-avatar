@@ -8,17 +8,21 @@ import {
   useRef,
 } from "react";
 import { chatService } from "../services/chat.services";
+import { conversationService } from "../services/conversation.services";
 
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
+  
   const queryParams = new URLSearchParams(window.location.search);
-  const userId = queryParams.get("userId");
+  const moodleUserId = queryParams.get("userId");
 
   const [messages, setMessages] = useState([]);
-  const [conversationId, setConversationId] = useState(
-    "a91b2bea-0997-4d7a-8c57-8cd07598d453",
-  );
+  // const [conversationId, setConversationId] = useState(
+  //   "a91b2bea-0997-4d7a-8c57-8cd07598d453",
+  // );
+  const [userId, setUserId] = useState(null);
+  const [conversationId, setConversationId] = useState(null);
 
   const [avatarQueue, setAvatarQueue] = useState([]);
   const [currentAvatarMessage, setCurrentAvatarMessage] = useState(null);
@@ -51,45 +55,67 @@ export const ChatProvider = ({ children }) => {
     setCurrentAvatarMessage(null);
   }, []);
 
-  const fetchHistory = useCallback(async () => {
+  const initializeChat = useCallback(async () => {
     if (
-      !conversationId ||
-      !userId ||
-      userId === "null" ||
-      userId === "undefined"
+      !moodleUserId ||
+      moodleUserId === "null" ||
+      moodleUserId === "undefined"
     ) {
       console.log(
-        "Fetch History dibatalkan: Parameter userId belum siap atau tidak ditemukan.",
+        "[INITIALIZE] Handshake gagal: moodleUserId tidak ditemukan.",
       );
+      setError(
+        "Identitas pengguna Moodle tidak terdeteksi. Mohon akses kembali dari halaman VClass.",
+      );
+      setLoading(false);
       return;
     }
+
     setLoading(true);
     setError(null);
+
     try {
-      const response = await chatService.fetchHistoryChat({
-        conversationId: conversationId,
-        userId: userId,
+      const responseInit = await conversationService.initSessions({
+        userId: moodleUserId,
       });
 
-      setMessages(response.data.messages);
+      const activeUserId = responseInit.data.user.userId;
+      const activeConversationId = responseInit.data.conversation.id;
+
+      setUserId(activeUserId);
+      setConversationId(activeConversationId);
+      setLoading(false);
+
+      const responseHistory = await chatService.fetchHistoryChat({
+        conversationId: activeConversationId,
+        userId: activeUserId,
+      });
+
+      setMessages(responseHistory.data.messages || []);
       setAvatarQueue([]);
       setCurrentAvatarMessage(null);
-    } catch (err) {
-      console.error("Failed Fetch History Chat", err);
-      setError("Gagal memuat riwayat percakapan.");
+      console.log("[INITIALIZE] Seluruh rangkaian proses handshake sukses dilakukan.");
+
+    } catch (error) {
+      console.error("error initialize", error);
+      setError("Gagal menghubungkan sesi dengan server Avatar AI.");  
+      setUserId(null);
+      setConversationId(null);
     } finally {
       setLoading(false);
     }
-  }, [conversationId, userId]);
+  }, [moodleUserId]);
 
   useEffect(() => {
-    fetchHistory();
+    initializeChat();
+
     return () => {
       if (audioElementRef.current) {
         audioElementRef.current.pause();
       }
     };
-  }, [fetchHistory]);
+
+  }, [initializeChat]);
 
   const sendMessage = async (text) => {
     interruptActiveAvatar();
