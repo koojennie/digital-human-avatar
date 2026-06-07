@@ -32,7 +32,6 @@ class DocumentServices {
 
     const response = await fetch(`${import.meta.env.VITE_API_URL}/rag/upload`, {
       headers: {
-        "Content-Type": "multipart/form-data",
         ...authServices.getAuthHeader(),
       },
       method: "POST",

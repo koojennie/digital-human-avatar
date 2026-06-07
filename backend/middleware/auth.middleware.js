@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken";
 import { AuthService } from "../modules/auth/auth.service.js";
 
 export const isAdmin = async (req, res, next) => {
+  const authService = new AuthService();
+
   try {
     const authHeader = req.headers.authorization;
 

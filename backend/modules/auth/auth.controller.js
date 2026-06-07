@@ -35,7 +35,7 @@ export class AuthController {
       const token = jwt.sign(payload, secretKey, { expiresIn: "1d" });
 
       return res.status(200).json({
-        succes: true, 
+        success: true, 
         message: "Login successfully via Moodle",
         data: {
           token,

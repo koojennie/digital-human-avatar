@@ -6,11 +6,11 @@ import { isAdmin } from "../middleware/auth.middleware.js";
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.post("/upload", upload.single("file"), ragController.uploadPdf);
+router.post("/upload", isAdmin, upload.single("file"), ragController.uploadPdf);
 router.get("/documents", isAdmin, ragController.getDocuments);
-router.delete("/documents/:documentId", ragController.deleteDocument);
+router.delete("/documents/:documentId", isAdmin, ragController.deleteDocument);
 router.post("/retrieve", ragController.retrieve);
-router.post("/playground", ragController.retrievePlayGroundAndKnowledge);
+router.post("/playground", isAdmin, ragController.retrievePlayGroundAndKnowledge);
 
 
 export default router;
