@@ -18,4 +18,17 @@ export class UserRepository {
       },
     });
   }
+
+  async findUserByEmail(email) {
+    return User.findOne({ where: { email: email } });
+  }
+  async findUserByUsername(username) {
+    return User.findOne({ where: { username: username } });
+  }
+  async findUserByMoodleId(id) {
+    return User.findOne({ where: { moodle_user_id: id } });
+  }
+  async findUserById(id) {
+    return User.findByPk(id);
+  }
 }

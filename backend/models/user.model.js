@@ -29,6 +29,11 @@ User.init(
       type: DataTypes.STRING(100),
       allowNull: true,
     },
+    role: {
+      type: DataTypes.STRING,
+      defaultValue: "student",
+      allowNull: false,
+    },
     metadata: {
       type: DataTypes.JSONB,
       defaultValue: {},
