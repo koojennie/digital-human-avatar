@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react"; // 1. Ditambahkan useEffect
-import { Send, AudioLines } from "lucide-react";
+import { Send, AudioLines, ReceiptCent } from "lucide-react";
 import { useLiveSpeech } from "../context/useLiveSpeech";
 import { useChat } from "../context/ChatContext";
 import ChatBubbleNew from "./chat/ChatBubbleNew";
@@ -16,6 +16,11 @@ export const ChatInterface = ({ hidden, ...props }) => {
     loadingResponseAI,
     error: errorChat,
   } = useChat();
+
+  const [activeCaption, setActiveCaption] = useState(null);
+  const [showCaption, setShowCaption] = useState(false);
+  const fadeTimeoutRef = useRef(null);
+  const cleanTimeoutRef = useRef(null);
 
   // dummy response
   const staticResponse =
@@ -44,8 +49,39 @@ export const ChatInterface = ({ hidden, ...props }) => {
   useEffect(() => {
     if (loadingResponseAI) {
       scrollToBottom();
+      setShowCaption(false);
+      setActiveCaption("");
     }
   }, [loadingResponseAI]);
+
+  useEffect(() => {
+    if (currentAvatarMessage && currentAvatarMessage.role === "assistant") {
+      if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
+      if (cleanTimeoutRef.current) clearTimeout(cleanTimeoutRef.current);
+
+      setActiveCaption(currentAvatarMessage.content);
+      setShowCaption(true);
+    }
+
+    if (!currentAvatarMessage && activeCaption && !loadingResponseAI) {
+      console.log(
+        "[CAPTION] Audio selesai diputar. Menunggu 5 detik sebelum memudarkan teks.",
+      );
+
+      fadeTimeoutRef.current = setTimeout(() => {
+        setShowCaption(false);
+      }, 5000);
+
+      cleanTimeoutRef.current = setTimeout(() => {
+        setActiveCaption("");
+      }, 5500);
+    }
+
+    return () => {
+      if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
+      if (cleanTimeoutRef.current) clearTimeout(cleanTimeoutRef.current);
+    };
+  }, [currentAvatarMessage, loadingResponseAI, activeCaption]);
 
   const handleSend = () => {
     if (!loading && inputValue.trim()) {
@@ -91,7 +127,69 @@ export const ChatInterface = ({ hidden, ...props }) => {
         </div>
 
         {/* Bubble Chat Dummy (Kanan) */}
-        <div className="fixed right-6 top-1/2 -translate-y-1/2 max-w-xs w-full pointer-events-none">
+        {/* INTERACTIVE IDEA: FLOATING RIGHT CHAT STREAM */}
+        <div className="fixed right-6 top-1/2 -translate-y-1/2 max-w-xs w-full flex flex-col gap-3 pointer-events-auto z-20">
+          {/* Tampilkan pesan error di dalam list kanan jika terjadi kegagalan sistem */}
+          {displayError && (
+            <div className="rounded-2xl px-4 py-3 text-white text-xs leading-relaxed bg-gradient-to-r from-red-500 to-rose-600 shadow-lg shadow-red-500/20 animate-bounce flex items-center gap-2">
+              <span>⚠️</span>
+              <p>{displayError}</p>
+            </div>
+          )}
+
+          {activeCaption && (
+            <div
+              className={`relative rounded-2xl px-4 py-3 text-white text-sm leading-relaxed shadow-lg border border-white/20 transition-all duration-500 ease-in-out transform backdrop-blur-md ${
+                showCaption
+                  ? "opacity-100 translate-y-0 scale-100"
+                  : "opacity-0 translate-y-2 scale-95 pointer-events-none"
+              }`}
+              style={{
+                background: "linear-gradient(135deg, #f472b6, #ec4899)",
+                boxShadow:
+                  "0 8px 24px rgba(236,72,153,0.3), 0 2px 6px rgba(236,72,153,0.15)",
+              }}
+            >
+              <span className="block text-[10px] font-bold uppercase tracking-wider opacity-60 mb-0.5">
+                Collexa AI
+              </span>
+              <p className="font-normal text-[13px] leading-relaxed">
+                {activeCaption}
+              </p>
+            </div>
+          )}
+
+          {/* Animasi Pulse Indikator Mengetik dari Bot */}
+          {loadingResponseAI && (
+            <div
+              className="rounded-2xl px-4 py-3 text-white text-xs leading-relaxed shadow-md border border-white/20 flex items-center gap-2 self-start transition-all duration-300"
+              style={{
+                background: "linear-gradient(135deg, #f472b6, #ec4899)",
+                opacity: 0.8,
+              }}
+            >
+              <div className="flex gap-1 items-center">
+                <span
+                  className="w-1.5 h-1.5 bg-white rounded-full animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                ></span>
+                <span
+                  className="w-1.5 h-1.5 bg-white rounded-full animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                ></span>
+                <span
+                  className="w-1.5 h-1.5 bg-white rounded-full animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                ></span>
+              </div>
+              <span className="font-medium">
+                Collexa sedang menyusun materi...
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* <div className="fixed right-6 top-1/2 -translate-y-1/2 max-w-xs w-full pointer-events-none">
           <div
             className="relative rounded-2xl px-4 py-3 text-white text-sm leading-relaxed"
             style={{
@@ -102,7 +200,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
           >
             <span>{staticResponse}</span>
           </div>
-        </div>
+        </div> */}
 
         {/* Container Utama Chat (Tengah - Bawah) */}
         <div className="pointer-events-auto max-w-screen-sm w-full mx-auto flex flex-col gap-4">
@@ -226,7 +324,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
             <button
               disabled={loading || loadingResponseAI || recording}
               onClick={handleSend}
-              className="bg-blue-600 hover:bg-blue-700 text-white p-3.5 rounded-xl font-semibold transition-all duration-200 transform active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-md shadow-blue-100 flex items-center justify-center flex-shrink-0"
+              className="bg-pink-400 hover:bg-pink-500 text-white p-3.5 rounded-xl font-semibold transition-all duration-200 transform active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-md shadow-blue-100 flex items-center justify-center flex-shrink-0"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

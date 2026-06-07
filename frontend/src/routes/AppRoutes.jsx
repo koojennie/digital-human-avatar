@@ -1,10 +1,12 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Router } from "react-router-dom";
 
-import ChatPage from "../pages/ChatPage";
 import App from "../App";
-import AppAdmin from "../pages/admin/AppAdmin";
-import { SpeechProvider } from "../hooks/useSpeech";
+import { ProtectedRoute } from "./ProtectedAdminRoute";
 import { ChatProvider } from "../context/ChatContext";
+import { SpeechProvider } from "../hooks/useSpeech";
+import ChatPage from "../pages/ChatPage";
+import { LoginPage } from "../pages/LoginPage";
+import AppAdmin from "../pages/admin/AppAdmin";
 
 export default function AppRoutes() {
   return (
@@ -31,7 +33,10 @@ export default function AppRoutes() {
           }
         />
 
-        <Route path="/admin" element={<AppAdmin />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admin" element={<AppAdmin />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

@@ -71,34 +71,52 @@ const UploadView = ({ onUploadSuccess }) => {
     processFiles(e.target.files);
   };
 
-  const startUpload = async () => {
-    const updatedFiles = [...files];
+ const startUpload = async () => {
+  const updatedFiles = [...files];
+  let standardSuccess = true; // Indikator pembantu untuk validasi akhir
 
-    for (let i = 0; i < updatedFiles.length; i++) {
-      try {
-        updatedFiles[i].status = "uploading";
-        updatedFiles[i].progress = 30;
+  for (let i = 0; i < updatedFiles.length; i++) {
+    // Abaikan jika file sudah sukses atau gagal sebelumnya
+    if (updatedFiles[i].status === "success") continue;
 
-        setFiles([...updatedFiles]);
+    try {
+      updatedFiles[i].status = "uploading";
+      updatedFiles[i].progress = 30;
+      setFiles([...updatedFiles]);
 
-        const result = await upload(updatedFiles[i].file, {
-          category,
-        });
+      // Eksekusi upload ke RAG Pipeline backend
+      const result = await upload(updatedFiles[i].file, {
+        category,
+      });
 
-        updatedFiles[i].progress = 100;
-        updatedFiles[i].status = "success";
-        updatedFiles[i].result = result;
-
-        setFiles([...updatedFiles]);
-      } catch (error) {
-        updatedFiles[i].status = "error";
-
-        setFiles([...updatedFiles]);
+    
+      if (!result || result.success === false) {
+        throw new Error("Backend pipeline failed");
       }
-    }
 
+      updatedFiles[i].progress = 100;
+      updatedFiles[i].status = "success";
+      updatedFiles[i].result = result;
+      setFiles([...updatedFiles]);
+
+    } catch (error) {
+      console.error(`Error uploading file ${updatedFiles[i].name}:`, error);
+      
+      l
+      updatedFiles[i].status = "error";
+      updatedFiles[i].progress = 0;
+      standardSuccess = false; 
+      
+      setFiles([...updatedFiles]);
+    }
+  }
+
+  if (standardSuccess) {
     onUploadSuccess?.();
-  };
+  } else {
+    console.warn("Beberapa dokumen gagal di-index ke RAG Pipeline.");
+  }
+};
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in zoom-in-95 duration-300">

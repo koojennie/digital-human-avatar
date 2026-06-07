@@ -1,9 +1,15 @@
+import { authServices } from "./auth.services";
+
 class DocumentServices {
   async getDocumentsLibrary({ page = 1, limit = 10 }) {
     const response = await fetch(
       `
 			${import.meta.env.VITE_API_URL}/rag/documents?page=${page}&limit=${limit}`,
       {
+        headers: {
+          "Content-Type": "application/json",
+          ...authServices.getAuthHeader(),
+        },
         method: "GET",
       },
     );
@@ -25,6 +31,10 @@ class DocumentServices {
     }
 
     const response = await fetch(`${import.meta.env.VITE_API_URL}/rag/upload`, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        ...authServices.getAuthHeader(),
+      },
       method: "POST",
       body: formData,
     });

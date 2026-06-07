@@ -105,7 +105,7 @@ const DashboardView = ({ docs, totalDocuments }) => {
           icon={Database}
           colorClass="bg-indigo-50 text-indigo-600"
         />
-        <StatCard
+        {/* <StatCard
           label="Total Chunks"
           value="1,420"
           icon={Layers}
@@ -122,7 +122,7 @@ const DashboardView = ({ docs, totalDocuments }) => {
           value={docs.filter((d) => d.status === "failed").length}
           icon={FileWarning}
           colorClass="bg-rose-50 text-rose-600"
-        />
+        /> */}
       </div>
 
       {/* Recent Activity Card */}
