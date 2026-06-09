@@ -1,7 +1,15 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../utils/supabaseClient.js";
+import Conversation from "./conversation.model.js";
 
-class User extends Model {}
+class User extends Model {
+  static associate(models) {
+    User.hasMany(models.Conversation, {
+      foreignKey: "user_id",
+      as: "conversations",
+    });
+  }
+}
 
 User.init(
   {

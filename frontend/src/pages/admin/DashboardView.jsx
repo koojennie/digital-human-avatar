@@ -17,16 +17,18 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useEffect } from "react";
+import { dashboardServices } from "../../services/dashboard.services";
 
 // ── Static Data ────────────────────────────────────────────────────────────────
 const LEADERBOARD = [
-  { id: 1, full_name: "Andi Pratama",     username: "andi.p",   count: 87 },
-  { id: 2, full_name: "Siti Rahma",       username: "siti.r",   count: 74 },
-  { id: 3, full_name: "Budi Santoso",     username: "budi.s",   count: 68 },
-  { id: 4, full_name: "Dewi Kusuma",      username: "dewi.k",   count: 55 },
-  { id: 5, full_name: "Reza Firmansyah",  username: "reza.f",   count: 49 },
-  { id: 6, full_name: "Lina Hartati",     username: "lina.h",   count: 41 },
-  { id: 7, full_name: "Fajar Nugroho",    username: "fajar.n",  count: 33 },
+  { id: 1, full_name: "Andi Pratama", username: "andi.p", count: 87 },
+  { id: 2, full_name: "Siti Rahma", username: "siti.r", count: 74 },
+  { id: 3, full_name: "Budi Santoso", username: "budi.s", count: 68 },
+  { id: 4, full_name: "Dewi Kusuma", username: "dewi.k", count: 55 },
+  { id: 5, full_name: "Reza Firmansyah", username: "reza.f", count: 49 },
+  { id: 6, full_name: "Lina Hartati", username: "lina.h", count: 41 },
+  { id: 7, full_name: "Fajar Nugroho", username: "fajar.n", count: 33 },
 ];
 
 const DAILY_DATA = [
@@ -49,32 +51,36 @@ const DAILY_DATA = [
 const WEEKLY_DATA = [
   { label: "18 Feb", count: 180 },
   { label: "25 Feb", count: 210 },
-  { label: "4 Mar",  count: 195 },
+  { label: "4 Mar", count: 195 },
   { label: "11 Mar", count: 245 },
   { label: "18 Mar", count: 198 },
   { label: "25 Mar", count: 280 },
-  { label: "1 Apr",  count: 265 },
-  { label: "8 Apr",  count: 310 },
+  { label: "1 Apr", count: 265 },
+  { label: "8 Apr", count: 310 },
   { label: "15 Apr", count: 320 },
   { label: "22 Apr", count: 295 },
   { label: "29 Apr", count: 341 },
-  { label: "6 Mei",  count: 378 },
+  { label: "6 Mei", count: 378 },
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = [
   { bg: "bg-indigo-100", text: "text-indigo-700" },
   { bg: "bg-emerald-100", text: "text-emerald-700" },
-  { bg: "bg-amber-100",   text: "text-amber-700"  },
-  { bg: "bg-rose-100",    text: "text-rose-700"   },
-  { bg: "bg-sky-100",     text: "text-sky-700"    },
-  { bg: "bg-violet-100",  text: "text-violet-700" },
+  { bg: "bg-amber-100", text: "text-amber-700" },
+  { bg: "bg-rose-100", text: "text-rose-700" },
+  { bg: "bg-sky-100", text: "text-sky-700" },
+  { bg: "bg-violet-100", text: "text-violet-700" },
 ];
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
 function getInitials(name = "") {
-  return name.split(" ").slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");
 }
 
 // ── Custom Tooltip ─────────────────────────────────────────────────────────────
@@ -83,7 +89,9 @@ const CustomTooltip = ({ active, payload, label }) => {
   return (
     <div className="bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-md text-sm">
       <p className="text-slate-400 text-xs mb-1">{label}</p>
-      <p className="font-bold text-indigo-600">{payload[0].value} conversations</p>
+      <p className="font-bold text-indigo-600">
+        {payload[0].value} conversations
+      </p>
     </div>
   );
 };
@@ -91,12 +99,44 @@ const CustomTooltip = ({ active, payload, label }) => {
 // ── Main Component ─────────────────────────────────────────────────────────────
 const DashboardView = ({ docs, totalDocuments }) => {
   const [chartMode, setChartMode] = useState("day");
-  const chartData = chartMode === "day" ? DAILY_DATA : WEEKLY_DATA;
-  const maxCount = LEADERBOARD[0]?.count ?? 1;
+  
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [dailyData, setDailyData] = useState([]);
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const dataDashboardLeaderboard =
+          await dashboardServices.getDashboardOverview();
+        setLeaderboard(dataDashboardLeaderboard.data.leaderboard);
+        setDailyData(dataDashboardLeaderboard.data.dailyData);
+        setWeeklyData(dataDashboardLeaderboard.data.weeklyData);
+        // console.log(dataDashboardLeaderboard.data.leaderboard);
+      } catch (error) {
+        console.error("🚨 [FETCH DASHBOARD ERROR] ->", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardData();
+  }, []);
+
+  const chartData = chartMode === "day" ? dailyData :  weeklyData;
+  const maxCount = leaderboard[0]?.count ?? 1;
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 space-y-3">
+        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-slate-500 text-sm font-medium">Sinkronisasi metrik database Collexa...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
@@ -130,13 +170,14 @@ const DashboardView = ({ docs, totalDocuments }) => {
         <h3 className="text-lg font-bold mb-6">Recent Activity</h3>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
           {/* ── Chart ── */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <TrendingUp size={15} className="text-indigo-500" />
-                <span className="text-sm font-bold text-slate-700">Conversations</span>
+                <span className="text-sm font-bold text-slate-700">
+                  Conversations
+                </span>
               </div>
               <div className="flex gap-1 p-1 bg-slate-100 rounded-xl">
                 <button
@@ -167,13 +208,18 @@ const DashboardView = ({ docs, totalDocuments }) => {
                 data={chartData}
                 margin={{ top: 4, right: 4, left: -24, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#f1f5f9"
+                  vertical={false}
+                />
                 <XAxis
                   dataKey="label"
                   tick={{ fontSize: 10, fill: "#94a3b8" }}
                   tickLine={false}
                   axisLine={false}
-                  interval={chartMode === "day" ? 2 : 1}
+                  // interval={chartMode === "day" ? 2 : 1}
+                  interval={0}
                 />
                 <YAxis
                   tick={{ fontSize: 10, fill: "#94a3b8" }}
@@ -181,8 +227,16 @@ const DashboardView = ({ docs, totalDocuments }) => {
                   axisLine={false}
                   allowDecimals={false}
                 />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(99,102,241,0.06)" }} />
-                <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  cursor={{ fill: "rgba(99,102,241,0.06)" }}
+                />
+                <Bar
+                  dataKey="count"
+                  fill="#6366f1"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={28}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -191,11 +245,13 @@ const DashboardView = ({ docs, totalDocuments }) => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Trophy size={15} className="text-amber-500" />
-              <span className="text-sm font-bold text-slate-700">Leaderboard User</span>
+              <span className="text-sm font-bold text-slate-700">
+                Leaderboard User
+              </span>
             </div>
 
             <div className="space-y-2">
-              {LEADERBOARD.map((u, i) => {
+              {leaderboard.map((u, i) => {
                 const ac = AVATAR_COLORS[i % AVATAR_COLORS.length];
                 const pct = Math.round((u.count / maxCount) * 100);
                 return (
@@ -208,7 +264,9 @@ const DashboardView = ({ docs, totalDocuments }) => {
                       {i < 3 ? (
                         <span>{MEDAL[i]}</span>
                       ) : (
-                        <span className="font-bold text-slate-400 text-xs">{i + 1}</span>
+                        <span className="font-bold text-slate-400 text-xs">
+                          {i + 1}
+                        </span>
                       )}
                     </div>
 
@@ -221,8 +279,12 @@ const DashboardView = ({ docs, totalDocuments }) => {
 
                     {/* Name */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-slate-800 truncate">{u.full_name}</p>
-                      <p className="text-xs text-slate-400 truncate">@{u.username}</p>
+                      <p className="text-xs font-bold text-slate-800 truncate">
+                        {u.full_name}
+                      </p>
+                      <p className="text-xs text-slate-400 truncate">
+                        @{u.username}
+                      </p>
                     </div>
 
                     {/* Bar */}
@@ -242,7 +304,6 @@ const DashboardView = ({ docs, totalDocuments }) => {
               })}
             </div>
           </div>
-
         </div>
       </Card>
     </div>

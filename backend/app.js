@@ -4,10 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { connectDB, sequelize } from "./utils/supabaseClient.js";
 
-// Import all your models here to ensure they are registered with Sequelize
-import './models/user.model.js';
-import './models/conversation.model.js';
-import './models/message.model.js';
+import './models/index.js';
 import routes from "./routes/index.js";
 
 // Load environment variables before using them
