@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Database,
   FileText,
+  History,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -23,6 +24,7 @@ import { useEffect } from "react";
 import React from "react";
 import { DocumentServices } from "../../services/document.services";
 import { authServices } from "../../services/auth.services";
+import ChatLogView from "./ChatLogView";
 
 // const mockApi = {
 //   getDocuments: () => [
@@ -207,7 +209,15 @@ export default function AppAdmin() {
               setIsSidebarOpen(false);
             }}
           />
-
+          <SidebarItem
+            icon={History}
+            label="Live Chat Audit"
+            active={activeTab === "chat-logs"}
+            onClick={() => {
+              setActiveTab("chat-logs");
+              setIsSidebarOpen(false);
+            }}
+          />
           <SidebarItem
             icon={FileText}
             label="Manage Documents"
@@ -278,6 +288,7 @@ export default function AppAdmin() {
             <h2 className="text-sm md:text-lg font-bold text-slate-800 truncate max-w-[150px] md:max-w-none">
               {activeTab === "dashboard" && "Overview"}
               {activeTab === "engagement" && "Engagement Analytics"}
+              {activeTab === "chat-logs" && "Live Chat Logs & Audit Feed"}
               {activeTab === "documents" && "All Documents"}
               {activeTab === "upload" && "Upload Knowledge Base"}
               {activeTab === "playground" && "RAG Sandbox"}
@@ -294,9 +305,8 @@ export default function AppAdmin() {
           {activeTab === "dashboard" && (
             <DashboardView docs={documents} totalDocuments={numberDocument} />
           )}
-          {activeTab === "engagement" && (
-            <EngagementAnalyticsView />
-          )}
+          {activeTab === "engagement" && <EngagementAnalyticsView />}
+          {activeTab === "chat-logs" && <ChatLogView />}
           {activeTab === "documents" && (
             <DocumentsView
               docs={documents}

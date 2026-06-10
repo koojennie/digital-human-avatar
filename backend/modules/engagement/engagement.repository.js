@@ -1,5 +1,6 @@
 import Conversation from "../../models/conversation.model.js";
 import Message from "../../models/message.model.js";
+import Course from "../../models/course.model.js";
 import { sequelize } from "../../utils/supabaseClient.js";
 
 class EngagmentRepository {
@@ -48,7 +49,43 @@ class EngagmentRepository {
       type: sequelize.QueryTypes.SELECT,
     });
   }
+
+  async getTopCoursesByEngagement(limitCount = 5) {
+    return await Conversation.findAll({
+      attributes: [
+        // Ambil nama panjang Course
+        [sequelize.col("course.fullname"), "courseName"],
+
+        
+        [
+          sequelize.fn("COUNT", sequelize.col("messages.message_id")),
+          "messageCount",
+        ],
+      ],
+      include: [
+        {
+          model: Course,
+          as: "course",
+          attributes: [],
+          required: true,
+        },
+        {
+          model: Message,
+          as: "messages",
+          attributes: [],
+          where: {
+            role: "user",
+          },
+          required: true,
+        },
+      ],
+      group: ["course.fullname", "course.course_id"], 
+      order: [[sequelize.literal('"messageCount"'), "DESC"]],
+      limit: limitCount,
+      subQuery: false, 
+      raw: true,
+    });
+  }
 }
 
 export default new EngagmentRepository();
-

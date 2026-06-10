@@ -7,11 +7,17 @@ class Conversation extends Model {
       foreignKey: "user_id",
       as: "user",
     });
+    
+    Conversation.belongsTo(models.Course, {
+      foreignKey: "course_id",
+      as: "course",
+    });
 
     Conversation.hasMany(models.Message, {
       foreignKey: "conversation_id",
       as: "messages",
     });
+
   }
 }
 
@@ -26,6 +32,11 @@ Conversation.init(
       type: DataTypes.CHAR(8),
       allowNull: false,
       references: { model: "users", key: "user_id" },
+    },
+    course_id: {
+      type: DataTypes.CHAR(8),
+      allowNull: true,
+      references: { model: "courses", key: "course_id" },
     },
     title: {
       type: DataTypes.STRING(100),

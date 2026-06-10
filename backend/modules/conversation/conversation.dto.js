@@ -5,6 +5,7 @@ class ConversationDTO {
     return {
       id: conversation.conversation_id,
       userId: conversation.user_id,
+      courseId: conversation.course_id,
       title: conversation.title,
       lastMessageAt: conversation.last_message_at,
       metadata: conversation.metadata,

@@ -16,12 +16,14 @@ export const ChatProvider = ({ children }) => {
   
   const queryParams = new URLSearchParams(window.location.search);
   const moodleUserId = queryParams.get("userId");
+  const moodleCourseId = queryParams.get("courseId");
 
   const [messages, setMessages] = useState([]);
   // const [conversationId, setConversationId] = useState(
   //   "a91b2bea-0997-4d7a-8c57-8cd07598d453",
   // );
   const [userId, setUserId] = useState(null);
+  const [courseId, setCourseId] = useState(null);
   const [conversationId, setConversationId] = useState(null);
 
   const [avatarQueue, setAvatarQueue] = useState([]);
@@ -71,18 +73,38 @@ export const ChatProvider = ({ children }) => {
       return;
     }
 
+    if (
+      !moodleCourseId ||
+      moodleCourseId === "null" ||
+      moodleCourseId === "undefined"
+    ) {
+      console.log(
+        "[INITIALIZE] Handshake gagal: moodleCourseID tidak ditemukan.",
+      );
+      setError(
+        "Identitas pengguna Moodle tidak terdeteksi. Mohon akses kembali dari halaman VClass.",
+      );
+      setLoading(false);
+      return;
+    }
+
+
+
     setLoading(true);
     setError(null);
 
     try {
       const responseInit = await conversationService.initSessions({
         userId: moodleUserId,
+        moodleCourseId: moodleCourseId,
       });
 
       const activeUserId = responseInit.data.user.userId;
+      const activeCourseId = responseInit.data.course.courseId;
       const activeConversationId = responseInit.data.conversation.id;
 
       setUserId(activeUserId);
+      setCourseId(activeCourseId);
       setConversationId(activeConversationId);
       setLoading(false);
 
@@ -104,7 +126,7 @@ export const ChatProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [moodleUserId]);
+  }, [moodleUserId, moodleCourseId]);
 
   useEffect(() => {
     initializeChat();

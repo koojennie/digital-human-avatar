@@ -2,7 +2,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const conversationService = {
 
-  async initSessions({ userId }) {
+  async initSessions({ userId, moodleCourseId }) {
     const response = await fetch(`${API_URL}/conversation/initialize`, {
       method: "POST",
       headers: {
@@ -11,6 +11,7 @@ export const conversationService = {
 
       body: JSON.stringify({
         moodleUserId: userId,
+        moodleCourseId: moodleCourseId, 
       }),
     });
 

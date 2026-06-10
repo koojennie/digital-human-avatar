@@ -5,6 +5,7 @@ import messageRouter from "./message.routes.js";
 import authRouter from "./auth.routes.js";
 import dashboardRouter from './dashboard.route.js';
 import engagementRouter from './engagement.routes.js';
+import chatLogRouter from './chatlog.routes.js';
 
 
 const router = express.Router();
@@ -15,6 +16,7 @@ router.use('/message', messageRouter);
 router.use('/auth', authRouter);
 router.use('/dashboard', dashboardRouter);
 router.use('/analytics', engagementRouter);
+router.use('/chat-log', chatLogRouter);
 
 // Health check route
 router.get("/health", (req, res) => {

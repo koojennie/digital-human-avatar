@@ -3,16 +3,21 @@ import conversationRepository from "./conversation.repository.js";
 import { UserRepository } from "../user/user.repository.js";
 import { MoodleServices } from "../moodle/moodle.service.js";
 import { generateConversationId } from "./conversation.utils.js";
+import courseRepository from "../course/course.repository.js";
 
 class ConversationService {
   userRepository = new UserRepository();
   moodleService = new MoodleServices();
 
   async initalizeSession(payload) {
-    const { moodleUserId } = payload;
+    const { moodleUserId, moodleCourseId } = payload;
 
     if (!moodleUserId) {
       throw new Error("moodleUserId is required");
+    }
+
+    if (!moodleCourseId) {
+      throw new Error("moodleCourseId is required");
     }
 
     // Get user from Moodle
@@ -26,6 +31,16 @@ class ConversationService {
       throw new Error("User not found in Moodle");
     }
 
+    const responseCourse = await this.moodleService.getCourseMoodleByCourseId({
+      courseId: moodleCourseId,
+    });
+
+    const moodleCourse = responseCourse.courses[0];
+
+    if (!moodleCourse) {
+      throw new Error("Course not found in Moodle");
+    }
+
     const moodleProfile = {
       moodleUserId: moodleUser.id,
       username: moodleUser.username,
@@ -37,12 +52,21 @@ class ConversationService {
     const [userRecord] =
       await this.userRepository.findOrCreateUser(moodleProfile);
 
+    const [courseRecord] = await courseRepository.findOrCreateCourse({
+      moodleCourseId: moodleCourse.id,
+
+      fullname: moodleCourse.fullname,
+
+      shortname: moodleCourse.shortname,
+    });
+
     // IMPORTANT:
     // Use internal user_id (USR-0001)
     // NOT moodle user id (3)
     const existingConversation = await conversationRepository.findActiveSession(
       {
         user_id: userRecord.user_id,
+        course_id: courseRecord.course_id,
       },
     );
 
@@ -57,6 +81,13 @@ class ConversationService {
           fullname: userRecord.full_name,
           email: userRecord.email,
         },
+
+        course: {
+          courseId: courseRecord.course_id,
+          moodleCourseId: courseRecord.moodle_course_id,
+          fullname: courseRecord.fullname,
+          shortname: courseRecord.shortname,
+        },
         conversation: ConversationDTO.toResponse(existingConversation),
       };
     }
@@ -68,6 +99,7 @@ class ConversationService {
     const newConversation = await conversationRepository.createConversation({
       conversation_id: conversationId,
       user_id: userRecord.dataValues.user_id,
+      course_id: courseRecord.dataValues.course_id,
       title: titleConversation,
       metadata: {},
     });
@@ -81,6 +113,12 @@ class ConversationService {
         username: userRecord.username,
         fullname: userRecord.full_name,
         email: userRecord.email,
+      },
+      course: {
+        courseId: courseRecord.course_id,
+        moodleCourseId: courseRecord.moodle_course_id,
+        fullname: courseRecord.fullname,
+        shortname: courseRecord.shortname,
       },
       conversation: ConversationDTO.toResponse(newConversation),
     };

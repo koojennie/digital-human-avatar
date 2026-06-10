@@ -108,4 +108,26 @@ export class MoodleServices {
       );
     }
   }
+
+  async getCourseMoodleByCourseId({ courseId }) {
+    const params = new URLSearchParams({
+      wstoken: this.MOODLE_TOKEN,
+      wsfunction: "core_course_get_courses_by_field",
+      moodlewsrestformat: "json",
+      field: "id",
+      value: courseId,
+    });
+
+    const url = `${this.API_URL_MOODLE}/webservice/rest/server.php?${params.toString()}`;
+
+    const res = await fetch(url, {
+      method: "GET",
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch Moodle user");
+    }
+
+    return res.json();
+  }
 }

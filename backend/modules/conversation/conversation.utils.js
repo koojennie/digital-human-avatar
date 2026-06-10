@@ -6,7 +6,7 @@ export const generateConversationId = async () => {
   });
 
   const lastNumber = lastConversation
-    ? parseInt(lastConversation.id.replace("CON-", ""))
+    ? parseInt(lastConversation.conversation_id.replace("CON-", ""))
     : 0;
 
   return `CON-${String(lastNumber + 1).padStart(4, "0")}`;

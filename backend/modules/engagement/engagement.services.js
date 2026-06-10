@@ -2,11 +2,12 @@ import engagementRepository from "./engagement.repository.js";
 
 class EngagmentServices {
   async getEngagementDashboardData() {
-    const [featureAdoptionStats, discussionDepthStats, topKeywords] =
+    const [featureAdoptionStats, discussionDepthStats, topKeywords, topCourses] =
       await Promise.all([
         engagementRepository.getFeatureAdoptionStats(),
         engagementRepository.getDiscussionDepthStats(),
         engagementRepository.getTopKeywords(12),
+        engagementRepository.getTopCoursesByEngagement(5),
       ]);
 
     // Kalkulasi Persentase Adopsi Fitur Suara (Voice)
@@ -40,10 +41,10 @@ class EngagmentServices {
         text: k.word,
         value: parseInt(k.frequency, 10),
       })),
-      // topAcademicCourses: topCourses.map((c) => ({
-      //   courseName: c.courseName || "Mata Kuliah Umum",
-      //   messagesVolume: parseInt(c.messageCount, 10),
-      // })),
+      topAcademicCourses: topCourses.map((c) => ({
+        courseName: c.courseName || "Mata Kuliah Umum",
+        messagesVolume: parseInt(c.messageCount, 10),
+      })),
     };
   }
 }

@@ -5,9 +5,9 @@ class ConversationRepository {
     return await Conversation.create(data);
   }
 
-  async findActiveSession({ user_id }) {
+  async findActiveSession({ user_id, course_id }) {
     return await Conversation.findOne({
-      where: { user_id: String(user_id) },
+      where: { user_id: String(user_id), course_id: String(course_id) },
       order: [["created_at", "DESC"]],
     });
   }
