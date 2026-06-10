@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  BarChart3,
   Bell,
   CheckCircle2,
   Database,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import SidebarItem from "../../components/Admin/SidebarItem";
 import DashboardView from "./DashboardView";
+import EngagementAnalyticsView from "./EngagementAnalytics";
 import DocumentsView from "./DocumentView";
 import UploadView from "./UploadView";
 import RAGPlayground from "./RAGPlayground";
@@ -121,10 +123,7 @@ export default function AppAdmin() {
   const loadDocuments = async () => {
     setIsLoading(true);
     try {
-      const response = await documentServices.getDocumentsLibrary(
-        page,
-        limit,
-      );
+      const response = await documentServices.getDocumentsLibrary(page, limit);
 
       const { data, pagination } = response.data;
 
@@ -137,11 +136,12 @@ export default function AppAdmin() {
       console.error("Error fetching documents:", error);
     }
   };
-  useEffect(() => {
-  }, [page, limit]);
+  useEffect(() => {}, [page, limit]);
 
   const handleLogout = () => {
-    if (window.confirm("Apakah Anda yakin ingin keluar dari Dashboard Admin?")) {
+    if (
+      window.confirm("Apakah Anda yakin ingin keluar dari Dashboard Admin?")
+    ) {
       authServices.logOut(); // Menghapus token & redirect ke /login
     }
   };
@@ -200,6 +200,15 @@ export default function AppAdmin() {
             }}
           />
           <SidebarItem
+            icon={BarChart3}
+            label="Student Engagement"
+            onClick={() => {
+              setActiveTab("engagement");
+              setIsSidebarOpen(false);
+            }}
+          />
+
+          <SidebarItem
             icon={FileText}
             label="Manage Documents"
             active={activeTab === "documents"}
@@ -246,7 +255,10 @@ export default function AppAdmin() {
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3.5 text-rose-600 bg-rose-50/50 hover:bg-rose-50 border border-rose-100/40 rounded-2xl text-sm font-extrabold transition-all duration-200 active:scale-[0.98] group"
           >
-            <LogOut size={18} className="group-hover:translate-x-0.5 transition-transform" />
+            <LogOut
+              size={18}
+              className="group-hover:translate-x-0.5 transition-transform"
+            />
             <span>Sign Out Session</span>
           </button>
         </div>
@@ -265,6 +277,7 @@ export default function AppAdmin() {
             </button>
             <h2 className="text-sm md:text-lg font-bold text-slate-800 truncate max-w-[150px] md:max-w-none">
               {activeTab === "dashboard" && "Overview"}
+              {activeTab === "engagement" && "Engagement Analytics"}
               {activeTab === "documents" && "All Documents"}
               {activeTab === "upload" && "Upload Knowledge Base"}
               {activeTab === "playground" && "RAG Sandbox"}
@@ -280,6 +293,9 @@ export default function AppAdmin() {
         <main className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full">
           {activeTab === "dashboard" && (
             <DashboardView docs={documents} totalDocuments={numberDocument} />
+          )}
+          {activeTab === "engagement" && (
+            <EngagementAnalyticsView />
           )}
           {activeTab === "documents" && (
             <DocumentsView
