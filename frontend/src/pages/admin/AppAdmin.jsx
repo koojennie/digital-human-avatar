@@ -138,7 +138,9 @@ export default function AppAdmin() {
       console.error("Error fetching documents:", error);
     }
   };
-  useEffect(() => {}, [page, limit]);
+  useEffect(() => {
+    loadDocuments();
+  }, [page, limit]);
 
   const handleLogout = () => {
     if (

@@ -1,21 +1,22 @@
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { v4 as uuidv4 } from "uuid";
 
 import ragRepository from "./rag.repository.js";
 import { geminiEmbeddings } from "../../config/gemini.mjs";
 import { GeminiService } from "../gemini.mjs";
+import { generateChunkId, generateDocumentId } from "./rag.utils.js";
 
 class RagService {
   async uploadAndIndexPdf(file, metadata = {}) {
-    const documentId = uuidv4();
+    const documentId = await generateDocumentId();
 
     const sanitizedFileName = file.originalname.replace(/\s+/g, "_");
 
     const fileName = `${Date.now()}-${sanitizedFileName}`;
 
     await ragRepository.createDocument({
-      id: documentId,
+      document_id: documentId,
+      uploaded_by: metadata.uploaded_by,
       title: sanitizedFileName,
       filename: fileName,
       mime_type: file.mimetype,
@@ -26,21 +27,15 @@ class RagService {
     });
 
     try {
-     
-
       const publicUrl = await ragRepository.uploadPdf(
         fileName,
         file.buffer,
         file.mimetype,
       );
 
-      
-
       const loader = new PDFLoader(new Blob([file.buffer]));
 
       const docs = await loader.load();
-
-     
 
       const splitter = new RecursiveCharacterTextSplitter({
         chunkSize: 800,
@@ -49,31 +44,29 @@ class RagService {
 
       const splitDocs = await splitter.splitDocuments(docs);
 
-     
-
       const chunkContents = splitDocs.map((doc) => doc.pageContent);
-
-      
 
       const embeddings = await geminiEmbeddings.embedDocuments(chunkContents);
 
-      
+      const baseChunkId = await generateChunkId();
+      const baseNumber = parseInt(baseChunkId.replace("CHK-", ""), 10);
 
-      const chunks = splitDocs.map((doc, index) => ({
-        document_id: documentId,
+      const chunks = splitDocs.map((doc, index) => {
+        const nextNumber = baseNumber + index;
+        const currentChunkId = `CHK-${String(nextNumber).padStart(4, "0")}`;
 
-        chunk_index: index,
-
-        content: doc.pageContent,
-
-        metadata: {
-          page: doc.metadata?.loc?.pageNumber || 1,
-
-          source: sanitizedFileName,
-        },
-
-        embedding: embeddings[index],
-      }));
+        return {
+          chunk_id: currentChunkId,
+          document_id: documentId,
+          chunk_index: index,
+          content: doc.pageContent,
+          metadata: {
+            page: doc.metadata?.loc?.pageNumber || 1,
+            source: sanitizedFileName,
+          },
+          embedding: embeddings[index],
+        };
+      });
 
       /*
        |--------------------------------------------------------------------------
@@ -130,7 +123,6 @@ class RagService {
    */
 
   async retrieve(question, limit = 5) {
-
     const queryEmbedding = await geminiEmbeddings.embedQuery(question);
 
     const results = await ragRepository.similaritySearch(queryEmbedding, limit);
@@ -181,7 +173,6 @@ class RagService {
     };
   }
 
-
   async retrievePlayGroundAndKnowledge(question, limit = 5, threshold = 0.7) {
     const geminiService = new GeminiService();
     const ragResult = await this.retrieve(question, limit);
@@ -196,16 +187,13 @@ class RagService {
 
       answersAI,
 
-      summary:
-        ragResult.summary,
+      summary: ragResult.summary,
 
-      retrievedChunks:
-        ragResult.retrievedChunks,
+      retrievedChunks: ragResult.retrievedChunks,
 
-      context:
-        ragResult.context,
-    }
-  };
+      context: ragResult.context,
+    };
+  }
 
   /*
    |--------------------------------------------------------------------------

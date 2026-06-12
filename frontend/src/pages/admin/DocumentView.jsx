@@ -54,7 +54,7 @@ const DocumentsView = ({ docs = [], pagination, onPageChange, isLoading }) => {
           </thead>
           <tbody className="divide-y divide-slate-50">
             {docs.map((doc) => (
-              <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
+              <tr key={doc.document_id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <FileText size={18} className="text-slate-400 shrink-0" />

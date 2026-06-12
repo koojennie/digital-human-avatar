@@ -8,9 +8,19 @@ class RagController {
           .status(400)
           .json({ success: false, message: "File is required" });
       }
+
+      const userId = req.user?.dataValues?.user_id || req.user?.user_id;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: "User ID tidak valid atau tidak ditemukan.",
+        });
+      }
+
       const result = await ragService.uploadAndIndexPdf(req.file, {
         category: req.body.category,
-        uploadedBy: req.user?.id || null,
+        uploaded_by: userId,
       });
       return res.status(201).json({
         success: true,

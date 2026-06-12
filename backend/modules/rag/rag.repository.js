@@ -1,3 +1,4 @@
+import { QueryTypes } from "sequelize";
 import { supabase } from "../../utils/supabaseClient.js";
 
 class RagRepository {
@@ -17,7 +18,7 @@ class RagRepository {
     const { data, error } = await supabase
       .from("documents")
       .update(payload)
-      .eq("id", documentId)
+      .eq("document_id", documentId)
       .select()
       .single();
     if (error) {
@@ -25,7 +26,7 @@ class RagRepository {
     }
     return data;
   }
-  
+
   async getDocuments({ page = 1, limit = 10, search = "", status, category }) {
     const offset = (page - 1) * limit;
     let query = supabase
@@ -60,7 +61,7 @@ class RagRepository {
     const { data, error } = await supabase
       .from("documents")
       .select("*")
-      .eq("id", documentId)
+      .eq("document_id", documentId)
       .single();
     if (error) {
       return null;
@@ -71,7 +72,7 @@ class RagRepository {
     const { error } = await supabase
       .from("documents")
       .delete()
-      .eq("id", documentId);
+      .eq("document_id", documentId);
     if (error) {
       throw new Error(`Failed delete document: ${error.message}`);
     }
@@ -98,10 +99,41 @@ class RagRepository {
     }
     return true;
   }
-   // chunks 
-  async insertChunks(
-    chunks,
-  ) {
+
+  async countDocuments() {
+    try {
+      const { count, error } = await supabase
+        .from("documents")
+        .select("*", { count: "exact", head: true });
+
+      if (error) {
+        throw error;
+      }
+
+      return count || 0;
+    } catch (error) {
+      throw new Error(`Failed count documents: ${error.message}`);
+    }
+  }
+
+  async findLastDocument() {
+    try {
+      const { data, error } = await supabase
+        .from("documents")
+        .select("document_id")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(); 
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to fetch last document: ${error.message}`);
+    }
+  }
+
+  // chunks
+  async insertChunks(chunks) {
     const { error } = await supabase.from("document_chunks").insert(chunks);
     if (error) {
       throw new Error(`Failed insert chunks: ${error.message}`);
@@ -118,6 +150,22 @@ class RagRepository {
       throw new Error(`Failed similarity search: ${error.message}`);
     }
     return data;
+  }
+
+  async findLastDocumentChunks() {
+    try {
+      const { data, error } = await supabase
+        .from("document_chunks")
+        .select("document_id")
+        .order("chunk_id", { ascending: false })
+        .limit(1)
+        .maybeSingle(); 
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to fetch last document: ${error.message}`);
+    }
   }
 }
 export default new RagRepository();
