@@ -31,18 +31,17 @@ export const LoginPage = () => {
     <>
       <div
         id="login-view"
-        className="min-h-screen flex items-center justify-center gradient-bg px-4"
+        className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat px-4"
+        style={{ backgroundImage: "url('/bg-admin.jpg')" }}
       >
-        <div className="max-w-md w-full glass-panel p-10 rounded-[2.5rem] shadow-2xl">
+        <div className="max-w-md w-full glass-panel p-10 rounded-[2.5rem] shadow-lg bg-white">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 mx-auto mb-4">
-              <span className="text-white font-bold text-2xl">M</span>
-            </div>
+            <img src="/logo.png" width={64} className="items-center mx-auto mb-4"/>
             <h1 className="text-2xl font-extrabold tracking-tight">
-              Admin<span className="text-blue-600">Control</span>
+              Selamat Datang Kembali, Admin
             </h1>
             <p className="text-slate-500 text-sm mt-2">
-              Maintenance &amp; RAG AI Management
+              Silakan masuk menggunakan kredensial moodle Anda
             </p>
           </div>
 
@@ -55,7 +54,7 @@ export const LoginPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2 pl-1">
-              Username Moodle
+              Username
             </label>
             <input
               type="text"
@@ -63,14 +62,14 @@ export const LoginPage = () => {
               disabled={isLoading}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-5 py-4 bg-slate-100/70 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all outline-none text-sm font-bold text-slate-800 disabled:opacity-60"
-              placeholder="Masukkan username admin Moodle"
+              className="w-full px-5 py-4 bg-slate-100/70 border-none rounded-2xl focus:ring-2 focus:ring-pink-600 focus:bg-white transition-all outline-none text-sm font-bold text-slate-800 disabled:opacity-60"
+              placeholder="Masukkan username"
             />
           </div>
           
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2 pl-1">
-              Password Moodle
+              Password
             </label>
             <input
               type="password"
@@ -78,7 +77,7 @@ export const LoginPage = () => {
               disabled={isLoading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-5 py-4 bg-slate-100/70 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all outline-none text-sm font-bold text-slate-800 disabled:opacity-60"
+              className="w-full px-5 py-4 bg-slate-100/70 border-none rounded-2xl focus:ring-2 focus:ring-pink-600 focus:bg-white transition-all outline-none text-sm font-bold text-slate-800 disabled:opacity-60"
               placeholder="••••••••"
             />
           </div>
@@ -86,7 +85,7 @@ export const LoginPage = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-4 bg-blue-600 text-white font-extrabold rounded-2xl hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 disabled:pointer-events-none"
+            className="w-full py-4 cursor-pointer bg-pink-600 text-white font-extrabold rounded-2xl hover:bg-pink-700 transition-all ease-in duration-300 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 disabled:pointer-events-none"
           >
             {isLoading ? (
               <>
