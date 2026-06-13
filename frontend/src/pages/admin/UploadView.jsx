@@ -295,7 +295,7 @@ const UploadView = ({ onUploadSuccess }) => {
             <button
               onClick={startUpload}
               disabled={loadingUploadDocument}
-              className="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all disabled:opacity-50 shadow-lg shadow-indigo-100"
+              className="w-full py-4 bg-pink-600 text-white font-bold rounded-2xl hover:bg-pink-700 cursor-pointer transition-all disabled:opacity-50 shadow-lg shadow-indigo-100"
             >
               {loadingUploadDocument
                 ? "Indexing Knowledge Base..."
