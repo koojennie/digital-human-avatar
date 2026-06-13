@@ -43,7 +43,7 @@ const RAGPlayground = () => {
         {/* QUERY SANDBOX CARD */}
         <Card className="p-8 rounded-[2.5rem] bg-white shadow-sm border border-slate-200">
           <div className="flex items-center gap-4 mb-8">
-            <div className="p-3.5 bg-pink-400 text-white rounded-2xl">
+            <div className="p-3.5 bg-pink-600 text-white rounded-2xl">
               <Terminal size={22} />
             </div>
             <div>
@@ -63,7 +63,7 @@ const RAGPlayground = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4.5 rounded-2xl bg-pink-400 text-white font-bold hover:bg-pink-600 transition-all duration-200 ease-in cursor-pointer flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-slate-200 active:scale-[0.98]"
+              className="w-full py-4.5 rounded-2xl bg-pink-600 text-white font-bold hover:bg-pink-700 transition-all duration-200 ease-in cursor-pointer flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-slate-200 active:scale-[0.98]"
             >
               {loading ? (
                 <>

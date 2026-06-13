@@ -324,7 +324,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
             <button
               disabled={loading || loadingResponseAI || recording}
               onClick={handleSend}
-              className="bg-pink-400 hover:bg-pink-500 text-white p-3.5 rounded-xl font-semibold transition-all duration-200 transform active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-md shadow-blue-100 flex items-center justify-center flex-shrink-0"
+              className="bg-pink-600 hover:bg-pink-700 text-white p-3.5 rounded-xl font-semibold transition-all duration-200 transform active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-md shadow-blue-100 flex items-center justify-center flex-shrink-0"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

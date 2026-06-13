@@ -207,7 +207,7 @@ const UploadView = ({ onUploadSuccess }) => {
             onClick={() =>
               document.getElementById("fileInput").click()
             }
-            className="mt-6 px-8 py-3 bg-pink-400 text-white font-bold rounded-2xl hover:bg-pink-600 transition-all ease-in duration-200 cursor-pointer"
+            className="mt-6 px-8 py-3 bg-pink-600 text-white font-bold rounded-2xl hover:bg-pink-700 transition-all ease-in duration-200 cursor-pointer"
           >
             Select Files
           </button>
