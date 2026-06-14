@@ -102,7 +102,7 @@ const UploadView = ({ onUploadSuccess }) => {
     } catch (error) {
       console.error(`Error uploading file ${updatedFiles[i].name}:`, error);
       
-      l
+      
       updatedFiles[i].status = "error";
       updatedFiles[i].progress = 0;
       standardSuccess = false; 

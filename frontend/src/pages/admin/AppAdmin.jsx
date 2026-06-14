@@ -136,11 +136,13 @@ export default function AppAdmin() {
     } catch (error) {
       showToast("Failed to load documents from server.");
       console.error("Error fetching documents:", error);
+    } finally{
+      setIsLoading(false);
     }
   };
   useEffect(() => {
     loadDocuments();
-  }, [page, limit]);
+  }, [page, limit, activeTab]);
 
   const handleLogout = () => {
     if (
@@ -313,7 +315,12 @@ export default function AppAdmin() {
           {activeTab === "documents" && (
             <DocumentsView
               docs={documents}
+              isLoading={isLoading} 
               pagination={{ page, limit, total: numberDocument }}
+              onRefresh={async () => {
+                await loadDocuments(); 
+                showToast("Document library updated!"); 
+              }}
             />
           )}
           {activeTab === "upload" && (

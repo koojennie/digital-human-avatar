@@ -7,17 +7,14 @@ import {
   FileText,
   Search,
   Trash2,
+  RefreshCw, // <-- Tambahkan import ini
 } from "lucide-react";
 import { Badge, Card } from "../../components/Admin/Card";
 import { DocumentServices } from "../../services/document.services";
 
-// Asumsi struktur props untuk DocumentsView
-const DocumentsView = ({ docs = [], pagination, onPageChange, isLoading }) => {
+// Terima prop onRefresh dan isLoading
+const DocumentsView = ({ docs = [], pagination, onPageChange, isLoading, onRefresh }) => {
   const [searchTerm, setSearchTerm] = useState("");
-
-  // const filtered = docs.filter((d) =>
-  //   d.title.toLowerCase().includes(searchTerm.toLowerCase()),
-  // );
 
   return (
     <Card className="animate-in slide-in-from-bottom-4 duration-500">
@@ -35,12 +32,27 @@ const DocumentsView = ({ docs = [], pagination, onPageChange, isLoading }) => {
           />
         </div>
         <div className="flex gap-2">
+          {/* TOMBOL REFRESH BARU */}
+          <button 
+            onClick={onRefresh}
+            disabled={isLoading}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50 disabled:opacity-60 cursor-pointer active:scale-[0.98] transition-all"
+          >
+            <RefreshCw 
+              size={16} 
+              className={`text-slate-600 ${isLoading ? "animate-spin" : ""}`} 
+            />
+            {isLoading ? "Refreshing..." : "Refresh"}
+          </button>
+
           <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50">
             Filter
           </button>
         </div>
       </div>
-      <div className="overflow-x-auto -mx-6 md:mx-0">
+      
+      {/* Jika data sedang loading, beri indikator visual transparan pada table */}
+      <div className={`overflow-x-auto -mx-6 md:mx-0 ${isLoading ? "opacity-50 pointer-events-none transition-opacity" : ""}`}>
         <table className="w-full text-left border-collapse min-w-[600px] md:min-w-full">
           <thead className="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider">
             <tr>
@@ -53,47 +65,54 @@ const DocumentsView = ({ docs = [], pagination, onPageChange, isLoading }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {docs.map((doc) => (
-              <tr key={doc.document_id} className="hover:bg-slate-50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <FileText size={18} className="text-slate-400 shrink-0" />
-                    <span className="font-semibold text-sm truncate max-w-[150px] sm:max-w-xs md:max-w-none">{doc.title}</span>
-                  </div>
-                </td>
-                <td className="hidden sm:table-cell px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
-                  {doc.category}
-                </td>
-                <td className="hidden sm:table-cell px-4 md:px-6 py-4 text-sm font-mono whitespace-nowrap">
-                  {doc.chunk_count || doc.chunks}
-                </td>
-                <td className="px-6 py-4">
-                  <Badge status={doc.status} />
-                </td>
-                <td className="hidden md:table-cell px-4 md:px-6 py-4 text-sm text-slate-500">
-                  {" "}
-                  {doc.created_at ? new Date(doc.created_at).toISOString().split("T")[0] : doc.date}
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end gap-2">
-                    <Link to={doc.file_url} target="_blank">
-                      <button className="p-2 transition-all duration-200 ease-in cursor-pointer text-slate-400 hover:text-pink-600 hover:bg-pink-50 rounded-lg">
-                        <ExternalLink size={16} />
+            {docs && docs.length > 0 ? (
+              docs.map((doc) => (
+                <tr key={doc.document_id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <FileText size={18} className="text-slate-400 shrink-0" />
+                      <span className="font-semibold text-sm truncate max-w-[150px] sm:max-w-xs md:max-w-none">{doc.title}</span>
+                    </div>
+                  </td>
+                  <td className="hidden sm:table-cell px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
+                    {doc.category}
+                  </td>
+                  <td className="hidden sm:table-cell px-4 md:px-6 py-4 text-sm font-mono whitespace-nowrap">
+                    {doc.chunk_count || doc.chunks}
+                  </td>
+                  <td className="px-6 py-4">
+                    <Badge status={doc.status} />
+                  </td>
+                  <td className="hidden md:table-cell px-4 md:px-6 py-4 text-sm text-slate-500">
+                    {doc.created_at ? new Date(doc.created_at).toISOString().split("T")[0] : doc.date}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link to={doc.file_url} target="_blank">
+                        <button className="p-2 transition-all duration-200 ease-in cursor-pointer text-slate-400 hover:text-pink-600 hover:bg-pink-50 rounded-lg">
+                          <ExternalLink size={16} />
+                        </button>
+                      </Link>
+                      <button className="p-2 transition-all duration-200 ease-in cursor-pointer text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg">
+                        <Trash2 size={16} />
                       </button>
-                    </Link>
-                    <button className="p-2 transition-all duration-200 ease-in cursor-pointer text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="text-center py-8 text-sm text-slate-400 font-medium">
+                  No documents found.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
       <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-xs text-slate-500 font-medium order-2 sm:order-1">
-          Showing {docs.length} of {pagination?.total || docs.length} documents
+          Showing {docs?.length || 0} of {pagination?.total || docs?.length || 0} documents
         </p>
         <div className="flex gap-2 order-1 sm:order-2">
           <button

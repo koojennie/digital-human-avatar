@@ -123,7 +123,7 @@ class RagRepository {
         .select("document_id")
         .order("created_at", { ascending: false })
         .limit(1)
-        .maybeSingle(); 
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -141,6 +141,7 @@ class RagRepository {
     return true;
   }
   async similaritySearch(queryEmbedding, limit = 5, filter = {}) {
+    const safeFilter = Object.keys(filter).length === 0 ? {} : filter;
     const { data, error } = await supabase.rpc("match_documents", {
       query_embedding: queryEmbedding,
       match_count: limit,
@@ -156,10 +157,10 @@ class RagRepository {
     try {
       const { data, error } = await supabase
         .from("document_chunks")
-        .select("document_id")
+        .select("chunk_id")
         .order("chunk_id", { ascending: false })
         .limit(1)
-        .maybeSingle(); 
+        .maybeSingle();
 
       if (error) throw error;
       return data;

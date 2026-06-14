@@ -49,11 +49,12 @@ class RagService {
       const embeddings = await geminiEmbeddings.embedDocuments(chunkContents);
 
       const baseChunkId = await generateChunkId();
-      const baseNumber = parseInt(baseChunkId.replace("CHK-", ""), 10);
+      
+      const baseNumber = parseInt(baseChunkId.replace("CHK-", ""), 10) || 0;
 
       const chunks = splitDocs.map((doc, index) => {
         const nextNumber = baseNumber + index;
-        const currentChunkId = `CHK-${String(nextNumber).padStart(4, "0")}`;
+        const currentChunkId = `CHK-${String(nextNumber).padStart(4, "0")}`; 
 
         return {
           chunk_id: currentChunkId,
