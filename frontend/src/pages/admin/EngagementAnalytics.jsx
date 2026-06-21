@@ -144,48 +144,7 @@ const EngagementAnalyticsView = () => {
              </p>
           </div>
         </Card>
-
       </div>
-
-      {/* ── SECTION 4: COURSE ENGAGEMENT (Bar Chart) ── */}
-      <Card className="p-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <BarChart3 size={18} className="text-blue-500" />
-            <h3 className="text-lg font-bold text-slate-800">Top Engagement by Courses</h3>
-          </div>
-          <Badge className="bg-blue-50 text-blue-600 border-blue-100">Moodle VClass Sync</Badge>
-        </div>
-        
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={data?.topAcademicCourses}
-              layout="vertical"
-              margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
-              <XAxis type="number" hide />
-              <YAxis 
-                dataKey="courseName" 
-                type="category" 
-                tick={{ fontSize: 11, fill: '#64748b' }} 
-                width={150}
-              />
-              <Tooltip 
-                cursor={{fill: '#f8fafc'}}
-                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-              />
-              <Bar 
-                dataKey="messagesVolume" 
-                fill="#6366f1" 
-                radius={[0, 10, 10, 0]} 
-                barSize={32}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
     </div>
   );
 };
