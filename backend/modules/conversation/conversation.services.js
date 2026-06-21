@@ -96,13 +96,19 @@ class ConversationService {
 
     const titleConversation = `New Conversation with ${moodleProfile.username}`;
 
-    const newConversation = await conversationRepository.createConversation({
-      conversation_id: conversationId,
-      user_id: userRecord.dataValues.user_id,
-      course_id: courseRecord.dataValues.course_id,
-      title: titleConversation,
-      metadata: {},
-    });
+    let newConversation;
+    
+    try {
+      newConversation = await conversationRepository.createConversation({
+        conversation_id: conversationId,
+        user_id: userRecord.dataValues.user_id,
+        course_id: courseRecord.dataValues.course_id,
+        title: titleConversation,
+        metadata: {},
+      });
+    } catch (error) {
+      console.log("[error] ", error);
+    }
 
     return {
       success: true,
