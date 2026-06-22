@@ -5,6 +5,8 @@ export const generateMessageId = async () => {
     order: [["created_at", "DESC"]],
   });
 
+  console.log("LAST MESSAGE:", lastMessage?.message_id);
+
   const lastNumber = lastMessage
     ? parseInt(lastMessage.message_id.replace("MSG-", ""))
     : 0;

@@ -17,6 +17,7 @@ import {
   saveBase64ToWav,
 } from "../../utils/files.mjs";
 import { generateMessageId } from "./message.utils.js";
+import { lipSync } from "../lip-sync.mjs";
 
 class MessageService {
   geminiService = new GeminiService();
@@ -30,6 +31,7 @@ class MessageService {
     const userText = await this._resolveUserText(payload);
 
     const messageId = await generateMessageId();
+    console.log("messageId", messageId);
 
     const userMessageEntity = toCreateMessageEntity({
       ...payload,
@@ -63,10 +65,20 @@ class MessageService {
         `[DEBUG] Gemini merespons dengan ${aiResponses.length} kalimat.`,
       );
 
+      const messagesToProcess = aiResponses.map((item) => ({
+        text: item.text,
+      }));
+
+      const processedMediaMessages = await lipSync({
+        messages: messagesToProcess,
+      });
+
       const savedAiMessages = [];
-      for (const item of aiResponses) {
-        // Pemrosesan media diisolasi ke private method agar alur utama tetap clean
-        const mediaArtifacts = await this._generateSpeechAndLipsync(item.text);
+
+      for (let i = 0; i < aiResponses.length; i++) {
+        const item = aiResponses[i];
+
+        const media = processedMediaMessages[i];
 
         const messageId = await generateMessageId();
 
@@ -84,8 +96,8 @@ class MessageService {
 
         savedAiMessages.push({
           ...aiMessage.toJSON(),
-          audio: mediaArtifacts.audio,
-          lipsync: mediaArtifacts.lipsync,
+          audio: media.audio,
+          lipsync: media.lipsync,
         });
       }
 

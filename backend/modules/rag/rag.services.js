@@ -123,10 +123,11 @@ class RagService {
    |--------------------------------------------------------------------------
    */
 
-  async retrieve(question, limit = 5) {
-    const queryEmbedding = await geminiEmbeddings.embedQuery(question);
+  async retrieve(question, limit = 20) {
+    const queryEmbedding = await geminiEmbeddings.embedQuery(question);    
 
     const results = await ragRepository.similaritySearch(queryEmbedding, limit);
+    
 
     const filtered = results.filter((item) => item.similarity > 0.7);
 
