@@ -8,103 +8,6 @@ import {
 import { Card } from "../../components/Admin/Card";
 import { chatLogService } from "../../services/chatlog.service";
 
-// ── DATA DUMMY SISI KIRI (Daftar Sesi Obrolan) ──────────────────────────────────
-const MOCK_SESSIONS = [
-  {
-    conversation_id: "CONV0001",
-    title: "Diskusi Enkapsulasi OOP",
-    last_message_at: "2026-06-10T07:45:00.000Z",
-    metadata: {
-      course_name: "Pemrograman Berorientasi Objek",
-    },
-    user: {
-      user_id: "USR-0001",
-      username: "aliajennie",
-      full_name: "Alia Jennifer Kim Ritzky",
-    },
-  },
-  {
-    conversation_id: "CONV0002",
-    title: "Tanya Cara Setup Sequelize",
-    last_message_at: "2026-06-10T06:12:00.000Z",
-    metadata: {
-      course_name: "Arsitektur Basis Data",
-    },
-    user: {
-      user_id: "USR-0002",
-      username: "andi.p",
-      full_name: "Andi Pratama",
-    },
-  },
-  {
-    conversation_id: "CONV0003",
-    title: "Error Token JWT Expired",
-    last_message_at: "2026-06-09T23:15:00.000Z",
-    metadata: {
-      course_name: "Pengembangan Web Lanjut",
-    },
-    user: {
-      user_id: "USR-0003",
-      username: "siti.rahma",
-      full_name: "Siti Rahma",
-    },
-  },
-];
-
-// ── DATA DUMMY SISI KANAN (Isi Balon Chat Berdasarkan Sesi Yang Dipilih) ─────────
-const MOCK_CHAT_MESSAGES = {
-  CONV0001: [
-    {
-      message_id: "MSG001",
-      conversation_id: "CONV0001",
-      role: "user",
-      content:
-        "Collexa, bingung deh bedanya private sama protected property di pilar enkapsulasi apa ya?",
-      type: "text",
-      created_at: "2026-06-10T07:42:00.000Z",
-    },
-    {
-      message_id: "MSG002",
-      conversation_id: "CONV0001",
-      role: "assistant",
-      content:
-        "Halo Alia! Bagus sekali pertanyaannya. Singkatnya: properti 'private' hanya bisa diakses oleh kelas itu sendiri. Sedangkan 'protected' bisa diakses oleh kelas itu sendiri DAN kelas turunannya (inheritance). Mau dibuatkan contoh kodenya?",
-      type: "text",
-      created_at: "2026-06-10T07:43:00.000Z",
-    },
-    {
-      message_id: "MSG003",
-      conversation_id: "CONV0001",
-      role: "user",
-      content:
-        "Oh paham! Berarti kalau sub-class gak bisa panggil private-nya parent ya? Makasih ya!",
-      type: "voice", // Menandakan dia lewat input mikrofon
-      created_at: "2026-06-10T07:45:00.000Z",
-    },
-  ],
-  CONV0002: [
-    {
-      message_id: "MSG004",
-      conversation_id: "CONV0002",
-      role: "user",
-      content:
-        "Cara hubungin Sequelize biar konek ke database Supabase gimana?",
-      type: "text",
-      created_at: "2026-06-10T06:10:00.000Z",
-    },
-    {
-      message_id: "MSG005",
-      conversation_id: "CONV0002",
-      role: "assistant",
-      content:
-        "Kamu cukup mengambil URI Connection string dari dashboard Supabase, lalu masukkan ke instansiasi `new Sequelize(CONNECTION_STRING)`. Jangan lupa pasang SSL mode require ya karena Supabase mewajibkannya.",
-      type: "text",
-      created_at: "2026-06-10T06:12:00.000Z",
-    },
-  ],
-  CONV0003: [],
-};
-
 export default function ChatLogView() {
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState();
@@ -179,7 +82,7 @@ export default function ChatLogView() {
                   {sess.course?.fullname || "VClass Course"}
                 </span>
                 <span>
-                  {new Date(sess.last_message_at).toLocaleTimeString([], {
+                {new Date(sess.last_message_at).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
