@@ -111,7 +111,7 @@ export default function ChatLogView() {
             <div className="flex-1 overflow-y-auto space-y-4 pr-2">
               {loadingChat ? (
                 <div className="text-center py-12 text-slate-400 text-xs">
-                  Memuat histori obrolan...
+                  Loading chat history...
                 </div>
               ) : (
                 messages.map((msg) => (
@@ -148,8 +148,7 @@ export default function ChatLogView() {
           <div className="flex-1 flex flex-col items-center justify-center text-slate-400 text-xs space-y-2">
             <MessageSquare size={32} className="opacity-30" />
             <p>
-              Pilih salah satu sesi mahasiswa di sebelah kiri untuk mengaudit
-              percakapan.
+              Select a student session from the left to audit the conversation.
             </p>
           </div>
         )}

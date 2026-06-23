@@ -24,7 +24,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
 
   // dummy response
   const staticResponse =
-    "Halo! Aku Collexa, asisten belajarmu. Ada yang ingin kamu tanyakan tentang materi VClass hari ini?";
+    "Hello! I'm Collexa, your learning assistant. Is there anything you'd like to ask about VClass material?";
 
   const { recording, startLiveRecording, stopLiveRecording, speechError } =
     useLiveSpeech({
@@ -65,7 +65,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
 
     if (!currentAvatarMessage && activeCaption && !loadingResponseAI) {
       console.log(
-        "[CAPTION] Audio selesai diputar. Menunggu 5 detik sebelum memudarkan teks.",
+        "[CAPTION] Audio finished playing. Waiting 5 seconds before fading out text.",
       );
 
       fadeTimeoutRef.current = setTimeout(() => {
@@ -96,7 +96,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
   useEffect(() => {
     if (loadingResponseAI && recording) {
       console.log(
-        "[SPEECH] Mematikan mikrofon secara otomatis karena bot mulai merespons.",
+        "[SPEECH] Automatically turning off the microphone as the bot begins to respond.",
       );
       stopLiveRecording();
     }
@@ -118,7 +118,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
           <h1 className="font-black text-xl text-gray-700">Collexa</h1>
           <p className="text-gray-600 whitespace-pre-line">
             {loading
-              ? "Collexa sedang berpikir..."
+              ? "Collexa is thinking..."
               : "An assistant that will help you learn and understand VClass materials."}
           </p>
           {displayError && (

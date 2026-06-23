@@ -2,10 +2,11 @@ import dashboardRepository from "./dashboard.repository.js";
 
 class DashboardService {
   async getMainDashboardStash() {
-    const [dailyStats,weeklyStats, leaderboardStats] = await Promise.all([
+    const [dailyStats,weeklyStats, leaderboardStats, totalUsers] = await Promise.all([
       dashboardRepository.getDailyTrends(),
       dashboardRepository.getWeeklyTrends(),
       dashboardRepository.getUserLeaderboard(7),
+      dashboardRepository.getTotalUsers(),
     ]);    
 
     const formattedLeaderboard = leaderboardStats.map((item, index) => {
@@ -21,6 +22,7 @@ class DashboardService {
       dailyData: dailyStats.map(d => ({ label: d.label, count: parseInt(d.count, 10) })),
       weeklyData: weeklyStats.map(w => ({ label: w.label, count: parseInt(w.count, 10) })),
       leaderboard: formattedLeaderboard,
+      totalUsers,
     };
   }
 }

@@ -134,6 +134,12 @@ class DashboardRepository {
       raw: true,
     });
   }
+
+  async getTotalUsers() {
+    return await User.count({
+      where: { role: "student" },
+    });
+  }
 }
 
 export default new DashboardRepository();

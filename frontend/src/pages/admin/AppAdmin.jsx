@@ -25,90 +25,13 @@ import React from "react";
 import { DocumentServices } from "../../services/document.services";
 import { authServices } from "../../services/auth.services";
 import ChatLogView from "./ChatLogView";
-
-// const mockApi = {
-//   getDocuments: () => [
-//     {
-//       id: "1",
-//       title: "Panduan_Informatika_2024.pdf",
-//       category: "Kurikulum",
-//       chunks: 145,
-//       status: "indexed",
-//       date: "2023-10-12",
-//     },
-//     {
-//       id: "2",
-//       title: "Algoritma_Dasar.docx",
-//       category: "Materi",
-//       chunks: 82,
-//       status: "indexed",
-//       date: "2023-10-15",
-//     },
-//     {
-//       id: "3",
-//       title: "Database_Systems_Final.pdf",
-//       category: "Ujian",
-//       chunks: 210,
-//       status: "processing",
-//       date: "2023-10-20",
-//     },
-//     {
-//       id: "4",
-//       title: "Etika_Profesi.pdf",
-//       category: "Umum",
-//       chunks: 0,
-//       status: "failed",
-//       date: "2023-10-21",
-//     },
-//     {
-//       id: "5",
-//       title: "Web_Development_Syllabus.pdf",
-//       category: "Kurikulum",
-//       chunks: 45,
-//       status: "indexed",
-//       date: "2023-10-22",
-//     },
-//   ],
-//   uploadDocument: (file, metadata) =>
-//     new Promise((resolve) =>
-//       setTimeout(() => resolve({ success: true }), 2000),
-//     ),
-//   testRag: (query) =>
-//     new Promise((resolve) =>
-//       setTimeout(
-//         () =>
-//           resolve({
-//             answer:
-//               "RAG (Retrieval-Augmented Generation) adalah teknik untuk meningkatkan output LLM dengan mengambil data relevan dari basis pengetahuan eksternal.",
-//             sources: [
-//               {
-//                 id: 1,
-//                 title: "Definisi_AI.pdf",
-//                 chunk:
-//                   "RAG menggabungkan kemampuan generatif dengan pengambilan dokumen...",
-//                 score: 0.94,
-//                 metadata: "Halaman 12",
-//               },
-//               {
-//                 id: 2,
-//                 title: "Modul_LMS.docx",
-//                 chunk:
-//                   "Dalam konteks LMS, RAG memungkinkan tutor AI menjawab berdasarkan silabus...",
-//                 score: 0.88,
-//                 metadata: "Bab 2",
-//               },
-//             ],
-//           }),
-//         1500,
-//       ),
-//     ),
-// };
+import Swal from "sweetalert2";
 
 export default function AppAdmin() {
   const documentServices = new DocumentServices();
 
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [documents, setDocuments] = useState();
+  const [documents, setDocuments] = useState([]);
   const [numberDocument, setNumberDocument] = useState(0);
   const [notification, setNotification] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -145,11 +68,24 @@ export default function AppAdmin() {
   }, [page, limit, activeTab]);
 
   const handleLogout = () => {
-    if (
-      window.confirm("Apakah Anda yakin ingin keluar dari Dashboard Admin?")
-    ) {
-      authServices.logOut(); // Menghapus token & redirect ke /login
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be signed out from the Admin Dashboard.",
+      icon: "warning",
+      iconColor: "#db2777", // Menyesuaikan warna emoji/icon dengan Tailwind pink-600
+      showCancelButton: true,
+      confirmButtonColor: "#db2777", // Tombol konfirmasi Tailwind pink-600
+      cancelButtonColor: "#64748b",  // Tombol batal Tailwind slate-500
+      confirmButtonText: "Sign Out",
+      cancelButtonText: "Cancel",
+      customClass: {
+        popup: 'rounded-2xl', // Agar senada dengan desain rounded UI kamu
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        authServices.logOut(); // Menghapus token & redirect ke /login
+      }
+    });
   };
 
   return (

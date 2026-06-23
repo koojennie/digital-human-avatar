@@ -144,19 +144,19 @@ const UploadView = ({ onUploadSuccess }) => {
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-pink-400"
             >
               <option value="kurikulum">
-                Kurikulum
+                Curriculum
               </option>
 
               <option value="materi-kuliah">
-                Materi Kuliah
+                Class Material
               </option>
 
               <option value="ujian">
-                Ujian
+                Exam
               </option>
 
               <option value="general">
-                Umum
+                General
               </option>
             </select>
           </div>

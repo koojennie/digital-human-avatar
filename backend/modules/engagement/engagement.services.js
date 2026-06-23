@@ -33,8 +33,8 @@ class EngagmentServices {
         voicePercentage: voicePercentage,
         textPercentage: 100 - voicePercentage,
         chartData: [
-          { name: "Ketik Teks", value: textCount },
-          { name: "Pesan Suara", value: voiceCount },
+          { name: "Type Message", value: textCount },
+          { name: "Voice Note", value: voiceCount },
         ],
       },
       wordCloudKeywords: topKeywords.map((k) => ({
