@@ -299,10 +299,6 @@ export default function AppAdmin() {
               {activeTab === "playground" && "RAG Sandbox"}
             </h2>
           </div>
-
-          <div className="hidden sm:flex w-10 h-10 bg-pink-50 border border-indigo-100 rounded-xl items-center justify-center text-pink-600">
-            <User size={20} />
-          </div>
         </header>
 
         {/* Dynamic Viewport */}

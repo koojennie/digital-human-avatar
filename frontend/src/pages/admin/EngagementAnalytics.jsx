@@ -68,19 +68,19 @@ const EngagementAnalyticsView = () => {
       {/* ── SECTION 1: DEPTH METRICS (Stat Cards) ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
-          label="Interaksi Mahasiswa"
+          label="Jumlah Interaksi Mahasiswa"
           value={data?.discussionDepth?.totalUserMessages}
           icon={MessageSquare}
           colorClass="bg-indigo-50 text-indigo-600"
         />
         <StatCard
-          label="Kedalaman Diskusi (Avg)"
+          label="Average Message Per Session"
           value={`${data?.discussionDepth?.avgMessagesPerSession} pesan`}
           icon={BrainCircuit}
           colorClass="bg-pink-50 text-pink-600"
         />
         <StatCard
-          label="Pemanfaatan Voice"
+          label="Pemanfaatan Fitur Suara"
           value={`${data?.featureAdoption?.voicePercentage}%`}
           icon={Mic}
           colorClass="bg-amber-50 text-amber-600"

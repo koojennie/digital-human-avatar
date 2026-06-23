@@ -67,7 +67,7 @@ export const ChatProvider = ({ children }) => {
         "[INITIALIZE] Handshake gagal: moodleUserId tidak ditemukan.",
       );
       setError(
-        "Identitas pengguna Moodle tidak terdeteksi. Mohon akses kembali dari halaman VClass.",
+        "User's Moodle identity is not detected. Please re-access from the VClass page.",
       );
       setLoading(false);
       return;
