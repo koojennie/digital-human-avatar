@@ -2,13 +2,19 @@ import engagementRepository from "./engagement.repository.js";
 
 class EngagmentServices {
   async getEngagementDashboardData() {
-    const [featureAdoptionStats, discussionDepthStats, topKeywords, topCourses] =
-      await Promise.all([
-        engagementRepository.getFeatureAdoptionStats(),
-        engagementRepository.getDiscussionDepthStats(),
-        engagementRepository.getTopKeywords(12),
-        engagementRepository.getTopCoursesByEngagement(5),
-      ]);
+    const [
+      featureAdoptionStats,
+      discussionDepthStats,
+      topKeywords,
+      topCourses,
+      reportsEngagementConsineSimiliarity,
+    ] = await Promise.all([
+      engagementRepository.getFeatureAdoptionStats(),
+      engagementRepository.getDiscussionDepthStats(),
+      engagementRepository.getTopKeywords(12),
+      engagementRepository.getTopCoursesByEngagement(5),
+      engagementRepository.getEngagementDashboardCosineSimilarity(),
+    ]);
 
     // Kalkulasi Persentase Adopsi Fitur Suara (Voice)
     let textCount = 0;
@@ -23,11 +29,27 @@ class EngagmentServices {
     const voicePercentage =
       totalAdoption > 0 ? Math.round((voiceCount / totalAdoption) * 100) : 0;
 
+    const distribusiKategori = { Tinggi: 0, Sedang: 0, Rendah: 0 };
+    reportsEngagementConsineSimiliarity.forEach((student) => {
+      if (distribusiKategori[student.kategori] !== undefined) {
+        distribusiKategori[student.kategori]++;
+      }
+    });
+
     return {
+      studentReports: reportsEngagementConsineSimiliarity,
+      lastUpdatedAt:
+        reportsEngagementConsineSimiliarity.length > 0
+          ? reportsEngagementConsineSimiliarity[0].last_updated_at
+          : null,
+      summaryDistribution: distribusiKategori,
+
       discussionDepth: {
         totalUserMessages: discussionDepthStats.totalMessages,
         totalConversations: discussionDepthStats.totalSessions,
-        avgMessagesPerSession: parseFloat(discussionDepthStats.averageMessagesPerSession),
+        avgMessagesPerSession: parseFloat(
+          discussionDepthStats.averageMessagesPerSession,
+        ),
       },
       featureAdoption: {
         voicePercentage: voicePercentage,

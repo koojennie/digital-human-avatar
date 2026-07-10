@@ -2,6 +2,7 @@ import Conversation from "../../models/conversation.model.js";
 import Message from "../../models/message.model.js";
 import Course from "../../models/course.model.js";
 import { sequelize } from "../../utils/supabaseClient.js";
+import StudentEngagementReport from "../../models/studentEngagementReport.js";
 
 class EngagmentRepository {
   async getFeatureAdoptionStats() {
@@ -87,9 +88,12 @@ class EngagmentRepository {
     });
   }
 
-  // async const getEngagementDashboardConsineSimiliarty{
-
-  // }
+  async getEngagementDashboardCosineSimilarity() {
+    return await StudentEngagementReport.findAll({
+      order: [["engagement_score", "DESC"]],
+      raw: true,
+    });
+  }
 }
 
 export default new EngagmentRepository();

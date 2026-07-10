@@ -18,6 +18,28 @@ class EngagementController {
       });
     }
   }
+
+  async getDashboardReport(req, res) {
+    try {
+      const reports =
+        await engagementRepository.getEngagementDashboardCosineSimilarity();
+      return res.status(200).json({
+        success: true,
+        message: "Data dashboard engagement berhasil diambil.",
+        data: reports,
+      });
+    } catch (error) {
+      console.error(
+        "❌ Error pada EngagementController.getDashboardReport:",
+        error,
+      );
+      return res.status(500).json({
+        success: false,
+        message: "Gagal mengambil data dashboard engagement.",
+        error: error.message,
+      });
+    }
+  }
 }
 
 export default new EngagementController();
