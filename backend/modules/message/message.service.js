@@ -27,24 +27,24 @@ class MessageService {
     validateCreateMessage(payload);
 
     const { userId, conversationId } = payload;
-
     const userText = await this._resolveUserText(payload);
 
-    const messageId = await generateMessageId();
-    console.log("messageId", messageId);
-
-    const userMessageEntity = toCreateMessageEntity({
-      ...payload,
-      message_id: messageId,
-      content: userText,
-    });
-
-    const userMessage = await messageRepository.create(userMessageEntity);
-
+    // 1. Alur Cek Pesan Default Statis
     const defaultMessages = await sendDefaultMessages({
       userMessage: userText,
     });
+
     if (defaultMessages) {
+      const messageId = await generateMessageId();
+      // Simpan pesan user dengan similarity 0 jika masuk pesan statis
+      const userMessageEntity = toCreateMessageEntity({
+        ...payload,
+        message_id: messageId,
+        content: userText,
+        metadata: { max_cosine_similarity: 0.0 },
+      });
+      const userMessage = await messageRepository.create(userMessageEntity);
+
       const savedAiMessages = await this._processStaticDefaultMessages(
         userId,
         conversationId,
@@ -53,10 +53,32 @@ class MessageService {
       return { userMessage, aiMessages: savedAiMessages };
     }
 
-    // 4. Alur Pemrosesan AI Dinamis (RAG -> Gemini -> TTS -> LipSync)
+    // 2. Alur Pemrosesan AI Dinamis (RAG -> Gemini -> TTS -> LipSync)
     try {
-      const { context } = await ragServices.retrieve(userText);
+      // 🚀 STEP 1: Panggil servis RAG terlebih dahulu sebelum simpan pesan user
+      const ragResult = await ragServices.retrieve(userText);
+      const { context, retrievedChunks } = ragResult;
 
+      // Cari skor similarity tertinggi dari hasil pencarian vektor database
+      let maxCosineSimilarity = 0.0;
+      if (retrievedChunks && retrievedChunks.length > 0) {
+        // Ambil dari indeks pertama karena biasanya sudah diurutkan dari yang terbesar
+        maxCosineSimilarity = retrievedChunks[0].similarityScore;
+      }
+
+      // 🚀 STEP 2: SIMPAN PESAN USER (Cukup 1 kali saja, JANGAN dilooping!)
+      const userMessageId = await generateMessageId();
+      const userMessageEntity = toCreateMessageEntity({
+        ...payload,
+        message_id: userMessageId,
+        content: userText,
+        metadata: {
+          max_cosine_similarity: maxCosineSimilarity,
+        },
+      });
+      const userMessage = await messageRepository.create(userMessageEntity);
+
+      // 🚀 STEP 3: Panggil Gemini API untuk generate respons
       const aiResponses = await this.geminiService.generateResponseWithRestAPI(
         userText,
         context,
@@ -75,11 +97,10 @@ class MessageService {
 
       const savedAiMessages = [];
 
+      // 🚀 STEP 4: LOOPING HANYA UNTUK MEMBUAT PESAN RESPONSE DARI AI (ASSISTANT)
       for (let i = 0; i < aiResponses.length; i++) {
         const item = aiResponses[i];
-
         const media = processedMediaMessages[i];
-
         const messageId = await generateMessageId();
 
         const aiMessage = await messageRepository.create({
@@ -102,6 +123,8 @@ class MessageService {
       }
 
       await conversationRepository.touchConversation(conversationId);
+
+      // Kembalikan objek data yang seimbang
       return { userMessage, aiMessages: savedAiMessages };
     } catch (error) {
       console.error("🚨 ERROR FATAL PADA ALUR DINAMIS CREATE_MESSAGE 🚨");

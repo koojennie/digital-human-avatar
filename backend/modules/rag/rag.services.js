@@ -140,11 +140,6 @@ class RagService {
       )
       .join("\n\n");
 
-    // return {
-    //   context,
-    //   documents: filtered,
-    // };
-
     return {
       question,
 
@@ -156,17 +151,12 @@ class RagService {
 
       context,
 
-      retrievedChunks: filtered.map((item, index) => ({
+      retrievedChunks: results.map((item, index) => ({
         index: index + 1,
-
         chunkId: item.id,
-
         documentId: item.document_id,
-
-        similarityScore: Number(item.similarity.toFixed(4)),
-
+        similarityScore: Number(item.similarity.toFixed(4)), // Ini yang dibaca di createMessage
         content: item.content,
-
         metadata: {
           source: item.metadata?.source || null,
           page: item.metadata?.page || null,
