@@ -3,7 +3,7 @@ import { Badge, Card, StatCard } from "../../components/Admin/Card";
 import {
   CheckCircle2,
   Database,
-  FileWarning,
+  Users,
   Layers,
   Trophy,
   TrendingUp,
@@ -19,49 +19,6 @@ import {
 } from "recharts";
 import { useEffect } from "react";
 import { dashboardServices } from "../../services/dashboard.services";
-
-// ── Static Data ────────────────────────────────────────────────────────────────
-const LEADERBOARD = [
-  { id: 1, full_name: "Andi Pratama", username: "andi.p", count: 87 },
-  { id: 2, full_name: "Siti Rahma", username: "siti.r", count: 74 },
-  { id: 3, full_name: "Budi Santoso", username: "budi.s", count: 68 },
-  { id: 4, full_name: "Dewi Kusuma", username: "dewi.k", count: 55 },
-  { id: 5, full_name: "Reza Firmansyah", username: "reza.f", count: 49 },
-  { id: 6, full_name: "Lina Hartati", username: "lina.h", count: 41 },
-  { id: 7, full_name: "Fajar Nugroho", username: "fajar.n", count: 33 },
-];
-
-const DAILY_DATA = [
-  { label: "10 Mei", count: 38 },
-  { label: "11 Mei", count: 42 },
-  { label: "12 Mei", count: 35 },
-  { label: "13 Mei", count: 55 },
-  { label: "14 Mei", count: 61 },
-  { label: "15 Mei", count: 47 },
-  { label: "16 Mei", count: 70 },
-  { label: "17 Mei", count: 83 },
-  { label: "18 Mei", count: 65 },
-  { label: "19 Mei", count: 58 },
-  { label: "20 Mei", count: 74 },
-  { label: "21 Mei", count: 69 },
-  { label: "22 Mei", count: 78 },
-  { label: "23 Mei", count: 91 },
-];
-
-const WEEKLY_DATA = [
-  { label: "18 Feb", count: 180 },
-  { label: "25 Feb", count: 210 },
-  { label: "4 Mar", count: 195 },
-  { label: "11 Mar", count: 245 },
-  { label: "18 Mar", count: 198 },
-  { label: "25 Mar", count: 280 },
-  { label: "1 Apr", count: 265 },
-  { label: "8 Apr", count: 310 },
-  { label: "15 Apr", count: 320 },
-  { label: "22 Apr", count: 295 },
-  { label: "29 Apr", count: 341 },
-  { label: "6 Mei", count: 378 },
-];
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = [
@@ -89,7 +46,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return (
     <div className="bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-md text-sm">
       <p className="text-slate-400 text-xs mb-1">{label}</p>
-      <p className="font-bold text-indigo-600">
+      <p className="font-bold text-pink-600">
         {payload[0].value} conversations
       </p>
     </div>
@@ -103,6 +60,7 @@ const DashboardView = ({ docs, totalDocuments }) => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [dailyData, setDailyData] = useState([]);
   const [weeklyData, setWeeklyData] = useState([]);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -113,6 +71,7 @@ const DashboardView = ({ docs, totalDocuments }) => {
         setLeaderboard(dataDashboardLeaderboard.data.leaderboard);
         setDailyData(dataDashboardLeaderboard.data.dailyData);
         setWeeklyData(dataDashboardLeaderboard.data.weeklyData);
+        setTotalUsers(dataDashboardLeaderboard.data.totalUsers);
         // console.log(dataDashboardLeaderboard.data.leaderboard);
       } catch (error) {
         console.error("🚨 [FETCH DASHBOARD ERROR] ->", error);
@@ -129,8 +88,8 @@ const DashboardView = ({ docs, totalDocuments }) => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-96 space-y-3">
-        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-500 text-sm font-medium">Sinkronisasi metrik database Collexa...</p>
+        <div className="w-10 h-10 border-4 border-pink-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-medium">Syncing Collexa database metrics...</p>
       </div>
     );
   }
@@ -143,9 +102,15 @@ const DashboardView = ({ docs, totalDocuments }) => {
           label="Total Documents"
           value={totalDocuments !== undefined ? totalDocuments : docs.length}
           icon={Database}
-          colorClass="bg-indigo-50 text-indigo-600"
+          colorClass="bg-pink-50 text-pink-600"
         />
-        {/* <StatCard
+        <StatCard
+          label="Total Users"
+          value={totalUsers}
+          icon={Users}
+          colorClass="bg-red-50 text-red-600"
+        />
+        <StatCard
           label="Total Chunks"
           value="1,420"
           icon={Layers}
@@ -157,12 +122,6 @@ const DashboardView = ({ docs, totalDocuments }) => {
           icon={CheckCircle2}
           colorClass="bg-blue-50 text-blue-600"
         />
-        <StatCard
-          label="Failed"
-          value={docs.filter((d) => d.status === "failed").length}
-          icon={FileWarning}
-          colorClass="bg-rose-50 text-rose-600"
-        /> */}
       </div>
 
       {/* Recent Activity Card */}
@@ -174,7 +133,7 @@ const DashboardView = ({ docs, totalDocuments }) => {
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <TrendingUp size={15} className="text-indigo-500" />
+                <TrendingUp size={15} className="text-pink-400" />
                 <span className="text-sm font-bold text-slate-700">
                   Conversations
                 </span>
@@ -184,7 +143,7 @@ const DashboardView = ({ docs, totalDocuments }) => {
                   onClick={() => setChartMode("day")}
                   className={`text-xs px-3 py-1 rounded-lg transition-all font-medium ${
                     chartMode === "day"
-                      ? "bg-white text-indigo-600 shadow-sm border border-slate-200"
+                      ? "bg-white text-pink-600 shadow-sm border border-slate-200"
                       : "text-slate-500 hover:text-slate-700"
                   }`}
                 >
@@ -194,7 +153,7 @@ const DashboardView = ({ docs, totalDocuments }) => {
                   onClick={() => setChartMode("week")}
                   className={`text-xs px-3 py-1 rounded-lg transition-all font-medium ${
                     chartMode === "week"
-                      ? "bg-white text-indigo-600 shadow-sm border border-slate-200"
+                      ? "bg-white text-pink-600 shadow-sm border border-slate-200"
                       : "text-slate-500 hover:text-slate-700"
                   }`}
                 >
@@ -233,7 +192,7 @@ const DashboardView = ({ docs, totalDocuments }) => {
                 />
                 <Bar
                   dataKey="count"
-                  fill="#6366f1"
+                  fill="#db2777"
                   radius={[4, 4, 0, 0]}
                   maxBarSize={28}
                 />
@@ -244,7 +203,7 @@ const DashboardView = ({ docs, totalDocuments }) => {
           {/* ── Leaderboard ── */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Trophy size={15} className="text-amber-500" />
+              <Trophy size={15} className="text-pink-600" />
               <span className="text-sm font-bold text-slate-700">
                 Leaderboard User
               </span>
@@ -290,13 +249,13 @@ const DashboardView = ({ docs, totalDocuments }) => {
                     {/* Bar */}
                     <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden hidden sm:block flex-shrink-0">
                       <div
-                        className="h-full bg-indigo-400 rounded-full"
+                        className="h-full bg-pink-600 rounded-full"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
 
                     {/* Count */}
-                    <span className="text-xs font-bold text-indigo-600 min-w-[24px] text-right flex-shrink-0">
+                    <span className="text-xs font-bold text-pink-600 min-w-[24px] text-right flex-shrink-0">
                       {u.count}
                     </span>
                   </div>

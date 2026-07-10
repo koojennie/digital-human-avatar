@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react"; // 1. Ditambahkan useEffect
-import { Send, AudioLines, ReceiptCent } from "lucide-react";
+import { Send, AudioLines, ReceiptCent, SendHorizontal } from "lucide-react";
 import { useLiveSpeech } from "../context/useLiveSpeech";
 import { useChat } from "../context/ChatContext";
 import ChatBubbleNew from "./chat/ChatBubbleNew";
@@ -24,7 +24,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
 
   // dummy response
   const staticResponse =
-    "Halo! Aku Collexa, asisten belajarmu. Ada yang ingin kamu tanyakan tentang materi VClass hari ini?";
+    "Hello! I'm Collexa, your learning assistant. Is there anything you'd like to ask about VClass material?";
 
   const { recording, startLiveRecording, stopLiveRecording, speechError } =
     useLiveSpeech({
@@ -65,7 +65,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
 
     if (!currentAvatarMessage && activeCaption && !loadingResponseAI) {
       console.log(
-        "[CAPTION] Audio selesai diputar. Menunggu 5 detik sebelum memudarkan teks.",
+        "[CAPTION] Audio finished playing. Waiting 5 seconds before fading out text.",
       );
 
       fadeTimeoutRef.current = setTimeout(() => {
@@ -96,7 +96,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
   useEffect(() => {
     if (loadingResponseAI && recording) {
       console.log(
-        "[SPEECH] Mematikan mikrofon secara otomatis karena bot mulai merespons.",
+        "[SPEECH] Automatically turning off the microphone as the bot begins to respond.",
       );
       stopLiveRecording();
     }
@@ -118,8 +118,8 @@ export const ChatInterface = ({ hidden, ...props }) => {
           <h1 className="font-black text-xl text-gray-700">Collexa</h1>
           <p className="text-gray-600 whitespace-pre-line">
             {loading
-              ? "Collexa sedang berpikir..."
-              : "Asisten yang akan membantumu untuk belajar dan \nmemahami materi VClass."}
+              ? "Collexa is thinking..."
+              : "An assistant that will help you learn and understand VClass materials."}
           </p>
           {displayError && (
             <p className="text-red-500 mt-2"> ⚠️ {displayError}</p>
@@ -189,83 +189,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
           )}
         </div>
 
-        {/* <div className="fixed right-6 top-1/2 -translate-y-1/2 max-w-xs w-full pointer-events-none">
-          <div
-            className="relative rounded-2xl px-4 py-3 text-white text-sm leading-relaxed"
-            style={{
-              background: "linear-gradient(135deg, #f472b6, #ec4899)",
-              boxShadow:
-                "0 8px 32px rgba(236,72,153,0.35), 0 2px 8px rgba(236,72,153,0.2)",
-            }}
-          >
-            <span>{staticResponse}</span>
-          </div>
-        </div> */}
-
-        {/* Container Utama Chat (Tengah - Bawah) */}
         <div className="pointer-events-auto max-w-screen-sm w-full mx-auto flex flex-col gap-4">
-          {/* <div
-            ref={chatContainerRef}
-            className="w-full h-[320px] overflow-y-auto flex flex-col gap-3 p-4 rounded-3xl scrollbar-thin scroll-smooth justify-center"
-            style={{
-              background: "white",
-              boxShadow:
-                "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)",
-              border: "1.5px solid rgba(255,255,255,0.8)",
-            }}
-          >
-            {displayError ? (
-              <div className="flex flex-col items-center justify-center p-4 text-center animate-fade-in my-auto">
-                <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 text-xl font-bold shadow-sm mb-3">
-                  ⚠️
-                </div>
-                <h3 className="text-gray-800 font-bold text-sm tracking-wide">
-                  Koneksi Diskusi Terganggu
-                </h3>
-                <p className="text-gray-500 text-xs mt-2 leading-relaxed bg-gray-50/80 p-3.5 rounded-xl border border-gray-100 max-w-sm">
-                  {displayError}
-                </p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="mt-4 text-[11px] bg-gray-800 hover:bg-gray-900 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition-all active:scale-95"
-                >
-                  Muat Ulang Halaman
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="flex-1 overflow-y-auto flex flex-col gap-3">
-                  {messages.map((msg, index) => (
-                    
-                    <ChatBubbleNew key={index} msg={msg} />
-                  ))}
-                </div>
-
-                {loadingResponseAI && (
-                  <div className="bg-white/80 backdrop-blur-sm text-gray-500 text-xs px-4 py-3 rounded-2xl rounded-bl-none self-start shadow-sm border border-gray-100 flex items-center gap-2 mt-auto">
-                    <div className="flex gap-1 items-center">
-                      <span
-                        className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: "0ms" }}
-                      ></span>
-                      <span
-                        className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: "150ms" }}
-                      ></span>
-                      <span
-                        className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: "300ms" }}
-                      ></span>
-                    </div>
-                    <span className="text-gray-400">
-                      Collexa sedang mengetik...
-                    </span>
-                  </div>
-                )}
-              </>
-            )}
-          </div> */}
-
           {/* Interactive Bottom Input Controls Bar */}
           <div className="w-full bg-white/80 backdrop-blur-lg p-2.5 rounded-2xl shadow-xl border border-white/50 flex items-center gap-2.5 transition-all">
             {/* Advanced Interactive Mic Button */}
@@ -276,7 +200,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
               <button
                 disabled={loading || loadingResponseAI || currentAvatarMessage}
                 onClick={recording ? stopLiveRecording : startLiveRecording}
-                className={`relative p-3.5 rounded-xl text-white transition-all duration-300 transform active:scale-95 disabled:opacity-40 disabled:pointer-events-none shadow-md ${
+                className={`cursor-pointer transition-all ease-in duration-300 relative p-3.5 rounded-xl text-white transform active:scale-95 disabled:opacity-40 disabled:pointer-events-none shadow-md ${
                   recording
                     ? "bg-gradient-to-r from-red-500 to-rose-600 shadow-red-200"
                     : "bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 shadow-gray-200"
@@ -285,20 +209,7 @@ export const ChatInterface = ({ hidden, ...props }) => {
                   recording ? "Klik untuk selesai merekam" : "Klik untuk bicara"
                 }
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className={`w-5 h-5 ${recording ? "animate-pulse" : ""}`}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z"
-                  />
-                </svg>
+                <AudioLines size={18}/>
               </button>
             </div>
 
@@ -307,12 +218,12 @@ export const ChatInterface = ({ hidden, ...props }) => {
               className={`w-full py-3 px-4 rounded-xl bg-gray-50/50 outline-none text-sm transition-all border ${
                 recording
                   ? "border-red-300 bg-red-50/30 text-red-900 placeholder-red-400 italic"
-                  : "border-gray-200 text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
+                  : "border-gray-200 text-gray-800 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-pink-400"
               }`}
               placeholder={
                 recording
-                  ? "Mendengarkan suaramu... ketuk tombol merah jika selesai"
-                  : "Tanyakan materi perkuliahan di sini..."
+                  ? "Listening to your voice... tap the red button when finished"
+                  : "Ask about the lecture material here..."
               }
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
@@ -324,16 +235,9 @@ export const ChatInterface = ({ hidden, ...props }) => {
             <button
               disabled={loading || loadingResponseAI || recording}
               onClick={handleSend}
-              className="bg-pink-600 hover:bg-pink-700 text-white p-3.5 rounded-xl font-semibold transition-all duration-200 transform active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-md shadow-blue-100 flex items-center justify-center flex-shrink-0"
+              className="bg-pink-600 hover:bg-pink-700 text-white p-3.5 rounded-xl font-semibold cursor-pointer transition-all duration-200 transform active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-md shadow-blue-100 flex items-center justify-center flex-shrink-0"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-5 h-5 transform rotate-45 -translate-x-0.5 translate-y-0.5"
-              >
-                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-              </svg>
+              <SendHorizontal size={18} />
             </button>
           </div>
         </div>

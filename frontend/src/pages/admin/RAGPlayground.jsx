@@ -56,7 +56,7 @@ const RAGPlayground = () => {
             <textarea
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Tanyakan sesuatu pada basis pengetahuan AI..."
+              placeholder="Ask your knowledge base...."
               className="w-full h-48 p-6 rounded-[2rem] border border-slate-200 bg-slate-50 outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-500 transition-all resize-none text-sm font-medium leading-relaxed"
             />
             

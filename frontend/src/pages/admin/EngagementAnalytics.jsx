@@ -57,7 +57,7 @@ const EngagementAnalyticsView = () => {
     return (
       <div className="flex flex-col items-center justify-center h-96 space-y-4">
         <div className="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-500 font-medium">Menganalisis keterikatan mahasiswa...</p>
+        <p className="text-slate-500 font-medium">Analyzing student engagement...</p>
       </div>
     );
   }
@@ -68,19 +68,19 @@ const EngagementAnalyticsView = () => {
       {/* ── SECTION 1: DEPTH METRICS (Stat Cards) ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
-          label="Interaksi Mahasiswa"
+          label="Total Student Interactions"
           value={data?.discussionDepth?.totalUserMessages}
           icon={MessageSquare}
           colorClass="bg-indigo-50 text-indigo-600"
         />
         <StatCard
-          label="Kedalaman Diskusi (Avg)"
-          value={`${data?.discussionDepth?.avgMessagesPerSession} pesan`}
+          label="Avg. Message Per Session"
+          value={`${data?.discussionDepth?.avgMessagesPerSession} msg`}
           icon={BrainCircuit}
           colorClass="bg-pink-50 text-pink-600"
         />
         <StatCard
-          label="Pemanfaatan Voice"
+          label="Voice Utilization"
           value={`${data?.featureAdoption?.voicePercentage}%`}
           icon={Mic}
           colorClass="bg-amber-50 text-amber-600"
@@ -117,7 +117,7 @@ const EngagementAnalyticsView = () => {
             </ResponsiveContainer>
           </div>
           <p className="text-center text-sm text-slate-500 mt-4">
-            Mahasiswa cenderung menggunakan <span className="font-bold text-pink-500">{data?.featureAdoption?.voicePercentage}%</span> fitur suara saat berdiskusi.
+            Students utilize the voice feature for <span className="font-bold text-pink-500">{data?.featureAdoption?.voicePercentage}%</span> of their discussions.
           </p>
         </Card>
 
@@ -140,7 +140,7 @@ const EngagementAnalyticsView = () => {
           </div>
           <div className="mt-8 p-4 bg-slate-50 rounded-2xl border border-slate-100">
              <p className="text-xs text-slate-500 leading-relaxed">
-               <span className="font-bold text-indigo-600">Pro-Tip:</span> Topik di atas adalah kata kunci materi VClass yang paling banyak membingungkan mahasiswa minggu ini.
+               <span className="font-bold text-pink-600">Pro-Tip:</span> The topics listed above represent the VClass keywords causing the most confusion among students this week.
              </p>
           </div>
         </Card>

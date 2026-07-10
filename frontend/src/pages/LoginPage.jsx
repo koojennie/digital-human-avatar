@@ -38,17 +38,17 @@ export const LoginPage = () => {
           <div className="text-center mb-8">
             <img src="/logo.png" width={64} className="items-center mx-auto mb-4"/>
             <h1 className="text-2xl font-extrabold tracking-tight">
-              Selamat Datang Kembali, Admin
+              Welcome Back, Admin
             </h1>
             <p className="text-slate-500 text-sm mt-2">
-              Silakan masuk menggunakan kredensial moodle Anda
+              Please login with your Moodle credential
             </p>
           </div>
 
         {error && (
-          <div className="mb-6 bg-rose-50 border border-rose-100 p-4 rounded-2xl flex items-start gap-3 text-rose-700 animate-in fade-in zoom-in-95">
-            <AlertCircle className="shrink-0 mt-0.5 text-rose-500" size={18} />
-            <div className="text-xs font-bold leading-relaxed">{error}</div>
+          <div className="mb-6 bg-rose-50 border border-rose-100 p-4 rounded-2xl flex items-center gap-3 text-rose-700 animate-in fade-in zoom-in-95">
+            <AlertCircle className="shrink-0 text-rose-500" size={24} />
+            <div className="text-sm font-bold leading-relaxed">Username atau password salah</div>
           </div>
         )}
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -63,7 +63,7 @@ export const LoginPage = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-5 py-4 bg-slate-100/70 border-none rounded-2xl focus:ring-2 focus:ring-pink-600 focus:bg-white transition-all outline-none text-sm font-bold text-slate-800 disabled:opacity-60"
-              placeholder="Masukkan username"
+              placeholder="admin"
             />
           </div>
           
@@ -90,21 +90,13 @@ export const LoginPage = () => {
             {isLoading ? (
               <>
                 <Loader2 className="animate-spin" size={18} />
-                Memverifikasi Akses...
+                Verifying Access...
               </>
             ) : (
-              "Masuk ke Dashboard"
+              "Log In"
             )}
           </button>
         </form>
-          {/* <div className="mt-8 text-center">
-            <a
-              href="#"
-              className="text-sm font-semibold text-slate-400 hover:text-blue-600 transition-colors"
-            >
-              Lupa akses admin?
-            </a>
-          </div> */}
         </div>
       </div>
     </>
