@@ -26,6 +26,7 @@ import { DocumentServices } from "../../services/document.services";
 import { authServices } from "../../services/auth.services";
 import ChatLogView from "./ChatLogView";
 import Swal from "sweetalert2";
+import EngagementScoreView from "./EngagementScoreView";
 
 export default function AppAdmin() {
   const documentServices = new DocumentServices();
@@ -151,6 +152,15 @@ export default function AppAdmin() {
             }}
           />
           <SidebarItem
+            icon={BarChart3}
+            label="Engagement Analytics"
+            active={activeTab === "analytics"}
+            onClick={() => {
+              setActiveTab("analytics");
+              setIsSidebarOpen(false);
+            }}
+          />
+          <SidebarItem
             icon={History}
             label="Live Chat Audit"
             active={activeTab === "chat-logs"}
@@ -228,7 +238,8 @@ export default function AppAdmin() {
             </button>
             <h2 className="text-sm md:text-lg font-bold text-slate-800 truncate max-w-[150px] md:max-w-none">
               {activeTab === "dashboard" && "Overview"}
-              {activeTab === "engagement" && "Engagement Analytics"}
+              {activeTab === "engagement" && "Student Engagement"}
+              {activeTab === "analytics" && "Engagement Analytics"}
               {activeTab === "chat-logs" && "Live Chat Logs & Audit Feed"}
               {activeTab === "documents" && "All Documents"}
               {activeTab === "upload" && "Upload Knowledge Base"}
@@ -242,7 +253,8 @@ export default function AppAdmin() {
           {activeTab === "dashboard" && (
             <DashboardView docs={documents} totalDocuments={numberDocument} />
           )}
-          {activeTab === "engagement" && <EngagementAnalyticsView />}
+          {activeTab === "engagement" && <EngagementScoreView />}
+          {activeTab === "analytics" && <EngagementAnalyticsView />}
           {activeTab === "chat-logs" && <ChatLogView />}
           {activeTab === "documents" && (
             <DocumentsView
