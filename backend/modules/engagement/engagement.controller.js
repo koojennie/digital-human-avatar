@@ -1,6 +1,8 @@
 import engagementServices from "./engagement.services.js";
+import { HuggingFaceService } from "../huggingface.services.js";
 
 class EngagementController {
+  huggingface = new HuggingFaceService();
   async getEngagementAnalytics(req, res) {
     try {
       const data = await engagementServices.getEngagementDashboardData();
@@ -38,6 +40,34 @@ class EngagementController {
         message: "Gagal mengambil data dashboard engagement.",
         error: error.message,
       });
+    }
+  }
+
+  async checkBatchStatus(req, res) {
+    try {
+      const status = await huggingface.getBatchStatus();
+      return res.status(200).json({ success: true, data: status });
+    } catch (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async pauseBatchProcess(req, res) {
+    try {
+      const result = await huggingFaceService.pauseBatch();
+      return res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  // 🚀 Trigger resume batch
+  async resumeBatchProcess(req, res) {
+    try {
+      const result = await huggingFaceService.resumeBatch();
+      return res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      return res.status(500).json({ success: false, error: error.message });
     }
   }
 }
