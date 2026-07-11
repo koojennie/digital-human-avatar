@@ -1,58 +1,202 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  PieChart, Pie, Cell,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ScatterChart, Scatter, ZAxis, ReferenceLine,
-  ResponsiveContainer, Legend, LabelList
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ScatterChart,
+  Scatter,
+  ZAxis,
+  ReferenceLine,
+  ResponsiveContainer,
+  Legend,
+  LabelList,
 } from "recharts";
-import { BarChart3, PieChart as PieIcon, ScatterChart as ScatterIcon, RefreshCw } from "lucide-react";
+import {
+  BarChart3,
+  PieChart as PieIcon,
+  ScatterChart as ScatterIcon,
+  RefreshCw,
+} from "lucide-react";
 import { Card } from "../../components/admin/card";
+import { engagementServices } from "../../services/engagement.services";
 
 // ── Data statis engagement mahasiswa — di-generate dari student_engagement_reports_rows.csv ──
 // Diurutkan descending berdasarkan engagement_score (tertinggi di atas).
-const engagementScoreData = [
-  { nama: 'Alia Jennifer Kim Ritzky', totalKlik: 10, totalPertanyaan: 15, avgCosineSimilarity: 0.7645, engagementScore: 0.8823, kategori: 'Tinggi' },
-  { nama: 'Kartika Putri', totalKlik: 8, totalPertanyaan: 14, avgCosineSimilarity: 0.7123, engagementScore: 0.7562, kategori: 'Tinggi' },
-  { nama: 'Joko Susilo', totalKlik: 8, totalPertanyaan: 12, avgCosineSimilarity: 0.6852, engagementScore: 0.7426, kategori: 'Tinggi' },
-  { nama: 'Mega Utami', totalKlik: 6, totalPertanyaan: 10, avgCosineSimilarity: 0.6554, engagementScore: 0.6277, kategori: 'Sedang' },
-  { nama: 'Fadhil Rahman', totalKlik: 6, totalPertanyaan: 8, avgCosineSimilarity: 0.6431, engagementScore: 0.6216, kategori: 'Sedang' },
-  { nama: 'Hendra Kusuma', totalKlik: 6, totalPertanyaan: 7, avgCosineSimilarity: 0.6120, engagementScore: 0.6060, kategori: 'Sedang' },
-  { nama: 'Gita Permata', totalKlik: 6, totalPertanyaan: 9, avgCosineSimilarity: 0.5987, engagementScore: 0.5994, kategori: 'Sedang' },
-  { nama: 'Indah Sari', totalKlik: 6, totalPertanyaan: 5, avgCosineSimilarity: 0.5842, engagementScore: 0.5921, kategori: 'Sedang' },
-  { nama: 'Citra Lestari', totalKlik: 5, totalPertanyaan: 6, avgCosineSimilarity: 0.5521, engagementScore: 0.5261, kategori: 'Sedang' },
-  { nama: 'Putra Pratama', totalKlik: 4, totalPertanyaan: 5, avgCosineSimilarity: 0.5341, engagementScore: 0.4671, kategori: 'Sedang' },
-  { nama: 'Naufal Rizqi', totalKlik: 4, totalPertanyaan: 5, avgCosineSimilarity: 0.5118, engagementScore: 0.4559, kategori: 'Sedang' },
-  { nama: 'Olivia Wong', totalKlik: 4, totalPertanyaan: 3, avgCosineSimilarity: 0.4954, engagementScore: 0.4477, kategori: 'Sedang' },
-  { nama: 'Budi Santoso', totalKlik: 4, totalPertanyaan: 4, avgCosineSimilarity: 0.4812, engagementScore: 0.4406, kategori: 'Sedang' },
-  { nama: 'Ratna Dewi', totalKlik: 2, totalPertanyaan: 3, avgCosineSimilarity: 0.4321, engagementScore: 0.3161, kategori: 'Rendah' },
-  { nama: 'Eka Wijaya', totalKlik: 2, totalPertanyaan: 2, avgCosineSimilarity: 0.4120, engagementScore: 0.3060, kategori: 'Rendah' },
-  { nama: 'Satria Baja', totalKlik: 2, totalPertanyaan: 1, avgCosineSimilarity: 0.3850, engagementScore: 0.2925, kategori: 'Rendah' },
-  { nama: 'Lukman Hakim', totalKlik: 1, totalPertanyaan: 2, avgCosineSimilarity: 0.3540, engagementScore: 0.2270, kategori: 'Rendah' },
-  { nama: 'Dimas Prabowo', totalKlik: 1, totalPertanyaan: 1, avgCosineSimilarity: 0.3210, engagementScore: 0.2105, kategori: 'Rendah' },
-];
+// const engagementScoreData = [
+//   {
+//     nama: "Alia Jennifer Kim Ritzky",
+//     totalKlik: 10,
+//     totalPertanyaan: 15,
+//     avgCosineSimilarity: 0.7645,
+//     engagementScore: 0.8823,
+//     kategori: "Tinggi",
+//   },
+//   {
+//     nama: "Kartika Putri",
+//     totalKlik: 8,
+//     totalPertanyaan: 14,
+//     avgCosineSimilarity: 0.7123,
+//     engagementScore: 0.7562,
+//     kategori: "Tinggi",
+//   },
+//   {
+//     nama: "Joko Susilo",
+//     totalKlik: 8,
+//     totalPertanyaan: 12,
+//     avgCosineSimilarity: 0.6852,
+//     engagementScore: 0.7426,
+//     kategori: "Tinggi",
+//   },
+//   {
+//     nama: "Mega Utami",
+//     totalKlik: 6,
+//     totalPertanyaan: 10,
+//     avgCosineSimilarity: 0.6554,
+//     engagementScore: 0.6277,
+//     kategori: "Sedang",
+//   },
+//   {
+//     nama: "Fadhil Rahman",
+//     totalKlik: 6,
+//     totalPertanyaan: 8,
+//     avgCosineSimilarity: 0.6431,
+//     engagementScore: 0.6216,
+//     kategori: "Sedang",
+//   },
+//   {
+//     nama: "Hendra Kusuma",
+//     totalKlik: 6,
+//     totalPertanyaan: 7,
+//     avgCosineSimilarity: 0.612,
+//     engagementScore: 0.606,
+//     kategori: "Sedang",
+//   },
+//   {
+//     nama: "Gita Permata",
+//     totalKlik: 6,
+//     totalPertanyaan: 9,
+//     avgCosineSimilarity: 0.5987,
+//     engagementScore: 0.5994,
+//     kategori: "Sedang",
+//   },
+//   {
+//     nama: "Indah Sari",
+//     totalKlik: 6,
+//     totalPertanyaan: 5,
+//     avgCosineSimilarity: 0.5842,
+//     engagementScore: 0.5921,
+//     kategori: "Sedang",
+//   },
+//   {
+//     nama: "Citra Lestari",
+//     totalKlik: 5,
+//     totalPertanyaan: 6,
+//     avgCosineSimilarity: 0.5521,
+//     engagementScore: 0.5261,
+//     kategori: "Sedang",
+//   },
+//   {
+//     nama: "Putra Pratama",
+//     totalKlik: 4,
+//     totalPertanyaan: 5,
+//     avgCosineSimilarity: 0.5341,
+//     engagementScore: 0.4671,
+//     kategori: "Sedang",
+//   },
+//   {
+//     nama: "Naufal Rizqi",
+//     totalKlik: 4,
+//     totalPertanyaan: 5,
+//     avgCosineSimilarity: 0.5118,
+//     engagementScore: 0.4559,
+//     kategori: "Sedang",
+//   },
+//   {
+//     nama: "Olivia Wong",
+//     totalKlik: 4,
+//     totalPertanyaan: 3,
+//     avgCosineSimilarity: 0.4954,
+//     engagementScore: 0.4477,
+//     kategori: "Sedang",
+//   },
+//   {
+//     nama: "Budi Santoso",
+//     totalKlik: 4,
+//     totalPertanyaan: 4,
+//     avgCosineSimilarity: 0.4812,
+//     engagementScore: 0.4406,
+//     kategori: "Sedang",
+//   },
+//   {
+//     nama: "Ratna Dewi",
+//     totalKlik: 2,
+//     totalPertanyaan: 3,
+//     avgCosineSimilarity: 0.4321,
+//     engagementScore: 0.3161,
+//     kategori: "Rendah",
+//   },
+//   {
+//     nama: "Eka Wijaya",
+//     totalKlik: 2,
+//     totalPertanyaan: 2,
+//     avgCosineSimilarity: 0.412,
+//     engagementScore: 0.306,
+//     kategori: "Rendah",
+//   },
+//   {
+//     nama: "Satria Baja",
+//     totalKlik: 2,
+//     totalPertanyaan: 1,
+//     avgCosineSimilarity: 0.385,
+//     engagementScore: 0.2925,
+//     kategori: "Rendah",
+//   },
+//   {
+//     nama: "Lukman Hakim",
+//     totalKlik: 1,
+//     totalPertanyaan: 2,
+//     avgCosineSimilarity: 0.354,
+//     engagementScore: 0.227,
+//     kategori: "Rendah",
+//   },
+//   {
+//     nama: "Dimas Prabowo",
+//     totalKlik: 1,
+//     totalPertanyaan: 1,
+//     avgCosineSimilarity: 0.321,
+//     engagementScore: 0.2105,
+//     kategori: "Rendah",
+//   },
+// ];
 
-// Distribusi kategori engagement (untuk donut chart)
-const engagementDistributionData = [
-  { name: 'Tinggi', value: 3, percentage: 16.7 },
-  { name: 'Sedang', value: 10, percentage: 55.6 },
-  { name: 'Rendah', value: 5, percentage: 27.8 },
-];
+// // Distribusi kategori engagement (untuk donut chart)
+// const engagementDistributionData = [
+//   { name: "Tinggi", value: 3, percentage: 16.7 },
+//   { name: "Sedang", value: 10, percentage: 55.6 },
+//   { name: "Rendah", value: 5, percentage: 27.8 },
+// ];
 
 // Data scatter: Total Klik Materi vs Avg Cosine Similarity (relevansi pertanyaan)
-const scatterData = engagementScoreData.map((d) => ({
-  nama: d.nama.split(' ')[0], // pakai nama depan saja biar label tidak numpuk
-  totalKlik: d.totalKlik,
-  avgCosineSimilarity: d.avgCosineSimilarity,
-  kategori: d.kategori,
-}));
+// const scatterData = engagementScoreData.map((d) => ({
+//   nama: d.nama.split(" ")[0], // pakai nama depan saja biar label tidak numpuk
+//   totalKlik: d.totalKlik,
+//   avgCosineSimilarity: d.avgCosineSimilarity,
+//   kategori: d.kategori,
+// }));
 
 const THRESHOLD_RELEVANSI = 0.5;
 
 // Mapping warna traffic-light per kategori, dipakai konsisten di semua chart
 const KATEGORI_COLORS = {
-  Tinggi: '#22c55e', // hijau
-  Sedang: '#f59e0b', // oranye
-  Rendah: '#ef4444', // merah
+  Tinggi: "#22c55e", // hijau
+  Sedang: "#f59e0b", // oranye
+  Rendah: "#ef4444", // merah
 };
 
 // ── Custom label untuk bar chart: score tetap terbaca di ujung bar ──────────
@@ -76,14 +220,47 @@ const renderScoreLabel = (props) => {
 const renderScatterLabel = (props) => {
   const { x, y, value } = props;
   return (
-    <text x={x} y={y - 12} fontSize={11} fontWeight={600} fill="#334155" textAnchor="middle">
+    <text
+      x={x}
+      y={y - 12}
+      fontSize={11}
+      fontWeight={600}
+      fill="#334155"
+      textAnchor="middle"
+    >
       {value}
     </text>
   );
 };
 
 const EngagementScoreView = () => {
+  const [rawReports, setRawReports] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const loadData = async (showOverlayLoading = false) => {
+    try {
+      if (showOverlayLoading) setIsRefreshing(true);
+      else setLoading(true);
+
+      const response = await engagementServices.getDashboardOverview();
+
+      const studentReports = response?.data?.studentReports ?? [];
+
+      setRawReports(studentReports);
+
+      console.log("studentReports:", studentReports);
+    } catch (error) {
+      console.error("Gagal memuat student engagement reports:", error);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -92,14 +269,55 @@ const EngagementScoreView = () => {
     setIsRefreshing(false);
   };
 
+  const engagementScoreData = rawReports
+    .map((item) => ({
+      nama: item.nama_mahasiswa,
+      totalKlik: item.total_klik,
+      totalPertanyaan: item.total_pertanyaan,
+      avgCosineSimilarity: parseFloat(item.avg_cosine_similarity || 0),
+      engagementScore: parseFloat(item.engagement_score || 0),
+      kategori: item.kategori || "Sedang",
+    }))
+    .sort((a, b) => b.engagementScore - a.engagementScore);
+
+  const scatterData = engagementScoreData.map((d) => ({
+    nama: d.nama.split(" ")[0],
+    totalKlik: d.totalKlik,
+    avgCosineSimilarity: d.avgCosineSimilarity,
+    kategori: d.kategori,
+  }));
+
+  const totalMahasiswa = engagementScoreData.length;
+  const counts = engagementScoreData.reduce(
+    (acc, curr) => {
+      acc[curr.kategori] = (acc[curr.kategori] || 0) + 1;
+      return acc;
+    },
+    { Tinggi: 0, Sedang: 0, Rendah: 0 },
+  );
+
+  const engagementDistributionData = Object.keys(counts).map((key) => {
+    const value = counts[key];
+    const percentage =
+      totalMahasiswa > 0
+        ? parseFloat(((value / totalMahasiswa) * 100).toFixed(1))
+        : 0;
+    return { name: key, value, percentage };
+  });
+
+  const sedangPercentage =
+    engagementDistributionData.find((d) => d.name === "Sedang")?.percentage ||
+    0;
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-
       {/* ── HORIZONTAL BAR CHART: Engagement Score per Mahasiswa (full width) ── */}
       <Card className="p-8">
         <div className="flex items-center gap-2 mb-6">
           <BarChart3 size={18} className="text-indigo-500" />
-          <h3 className="text-lg font-bold text-slate-800">Engagement Score per Mahasiswa</h3>
+          <h3 className="text-lg font-bold text-slate-800">
+            Engagement Score per Mahasiswa
+          </h3>
         </div>
         <div style={{ height: engagementScoreData.length * 32 + 40 }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -110,7 +328,11 @@ const EngagementScoreView = () => {
               barCategoryGap={8}
             >
               <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" domain={[0, 1]} tickFormatter={(v) => v.toFixed(1)} />
+              <XAxis
+                type="number"
+                domain={[0, 1]}
+                tickFormatter={(v) => v.toFixed(1)}
+              />
               <YAxis
                 type="category"
                 dataKey="nama"
@@ -118,13 +340,26 @@ const EngagementScoreView = () => {
                 tick={{ fontSize: 12, fill: "#334155" }}
               />
               <Tooltip
-                formatter={(value, _name, props) => [value.toFixed(4), `Kategori: ${props.payload.kategori}`]}
-                contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                formatter={(value, _name, props) => [
+                  value.toFixed(4),
+                  `Kategori: ${props.payload.kategori}`,
+                ]}
+                contentStyle={{
+                  borderRadius: "12px",
+                  border: "none",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                }}
               />
               <Bar dataKey="engagementScore" radius={[0, 6, 6, 0]}>
-                <LabelList dataKey="engagementScore" content={renderScoreLabel} />
+                <LabelList
+                  dataKey="engagementScore"
+                  content={renderScoreLabel}
+                />
                 {engagementScoreData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={KATEGORI_COLORS[entry.kategori]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={KATEGORI_COLORS[entry.kategori]}
+                  />
                 ))}
               </Bar>
             </BarChart>
@@ -134,12 +369,13 @@ const EngagementScoreView = () => {
 
       {/* ── DONUT CHART + SCATTER PLOT (berdampingan di bawah) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
         {/* DONUT CHART: Distribusi Kategori Engagement */}
         <Card className="p-8">
           <div className="flex items-center gap-2 mb-6">
             <PieIcon size={18} className="text-pink-500" />
-            <h3 className="text-lg font-bold text-slate-800">Distribusi Kategori Engagement</h3>
+            <h3 className="text-lg font-bold text-slate-800">
+              Distribusi Kategori Engagement
+            </h3>
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -154,22 +390,37 @@ const EngagementScoreView = () => {
                   labelLine={false}
                 >
                   {engagementDistributionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={KATEGORI_COLORS[entry.name]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={KATEGORI_COLORS[entry.name]}
+                    />
                   ))}
                 </Pie>
                 <Tooltip
                   formatter={(value, name) => [`${value} mahasiswa`, name]}
-                  contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "none",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  }}
                 />
                 <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
           </div>
           <p className="text-center text-sm text-slate-500 mt-4">
-            <span className="font-bold" style={{ color: KATEGORI_COLORS.Sedang }}>
-              {engagementDistributionData.find((d) => d.name === "Sedang")?.percentage}%
+            <span
+              className="font-bold"
+              style={{ color: KATEGORI_COLORS.Sedang }}
+            >
+              {
+                engagementDistributionData.find((d) => d.name === "Sedang")
+                  ?.percentage
+              }
+              %
             </span>{" "}
-            mahasiswa berada pada kategori engagement <span className="font-semibold">Sedang</span>.
+            mahasiswa berada pada kategori engagement{" "}
+            <span className="font-semibold">Sedang</span>.
           </p>
         </Card>
 
@@ -177,17 +428,26 @@ const EngagementScoreView = () => {
         <Card className="p-8">
           <div className="flex items-center gap-2 mb-6">
             <ScatterIcon size={18} className="text-indigo-500" />
-            <h3 className="text-lg font-bold text-slate-800">Klik Materi vs Relevansi Pertanyaan</h3>
+            <h3 className="text-lg font-bold text-slate-800">
+              Klik Materi vs Relevansi Pertanyaan
+            </h3>
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
+              <ScatterChart
+                margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   type="number"
                   dataKey="totalKlik"
                   name="Total Klik Materi"
-                  label={{ value: "Total Klik Materi", position: "insideBottom", offset: -10, fontSize: 12 }}
+                  label={{
+                    value: "Total Klik Materi",
+                    position: "insideBottom",
+                    offset: -10,
+                    fontSize: 12,
+                  }}
                   tick={{ fontSize: 12 }}
                 />
                 <YAxis
@@ -195,7 +455,12 @@ const EngagementScoreView = () => {
                   dataKey="avgCosineSimilarity"
                   name="Avg Cosine Similarity"
                   domain={[0.3, 0.8]}
-                  label={{ value: "Avg Cosine Similarity", angle: -90, position: "insideLeft", fontSize: 12 }}
+                  label={{
+                    value: "Avg Cosine Similarity",
+                    angle: -90,
+                    position: "insideLeft",
+                    fontSize: 12,
+                  }}
                   tick={{ fontSize: 12 }}
                 />
                 <ZAxis range={[120, 120]} />
@@ -203,18 +468,35 @@ const EngagementScoreView = () => {
                   y={THRESHOLD_RELEVANSI}
                   stroke="#94a3b8"
                   strokeDasharray="4 4"
-                  label={{ value: "Threshold relevansi", position: "insideTopRight", fontSize: 11, fill: "#64748b" }}
+                  label={{
+                    value: "Threshold relevansi",
+                    position: "insideTopRight",
+                    fontSize: 11,
+                    fill: "#64748b",
+                  }}
                 />
                 <Tooltip
                   cursor={{ strokeDasharray: "3 3" }}
-                  formatter={(value, name) => [typeof value === "number" ? value.toFixed(3) : value, name]}
+                  formatter={(value, name) => [
+                    typeof value === "number" ? value.toFixed(3) : value,
+                    name,
+                  ]}
                   labelFormatter={() => ""}
-                  contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "none",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  }}
                 />
                 <Scatter data={scatterData}>
                   <LabelList dataKey="nama" content={renderScatterLabel} />
                   {scatterData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={KATEGORI_COLORS[entry.kategori]} stroke="#fff" strokeWidth={1} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={KATEGORI_COLORS[entry.kategori]}
+                      stroke="#fff"
+                      strokeWidth={1}
+                    />
                   ))}
                 </Scatter>
               </ScatterChart>
