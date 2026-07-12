@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   BarChart3,
+  ScatterChart,
   Bell,
   CheckCircle2,
   Database,
@@ -143,7 +144,7 @@ export default function AppAdmin() {
             }}
           />
           <SidebarItem
-            icon={BarChart3}
+            icon={ScatterChart}
             label="Student Engagement"
             active={activeTab === "engagement"}
             onClick={() => {
