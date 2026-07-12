@@ -54,8 +54,6 @@ export default function AppAdmin() {
 
       const { data, pagination } = response.data;
 
-      console.log("data from getDocumentsLibrary", data);
-
       setDocuments(data || []);
       setNumberDocument(pagination.total);
     } catch (error) {
