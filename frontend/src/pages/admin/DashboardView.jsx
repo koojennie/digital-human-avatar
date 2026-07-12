@@ -55,7 +55,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 const DashboardView = ({ docs, totalDocuments }) => {
-  const [chartMode, setChartMode] = useState("day");
+  const [chartMode, setChartMode] = useState("week");
   
   const [leaderboard, setLeaderboard] = useState([]);
   const [dailyData, setDailyData] = useState([]);
