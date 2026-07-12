@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  PieChart,
-  Pie,
-  Cell,
   BarChart,
   Bar,
   XAxis,
@@ -14,6 +11,9 @@ import {
   ZAxis,
   ReferenceLine,
   ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
   Legend,
   LabelList,
 } from "recharts";
@@ -26,180 +26,14 @@ import {
 import { Card } from "../../components/admin/card";
 import { engagementServices } from "../../services/engagement.services";
 
-// ── Data statis engagement mahasiswa — di-generate dari student_engagement_reports_rows.csv ──
-// Diurutkan descending berdasarkan engagement_score (tertinggi di atas).
-// const engagementScoreData = [
-//   {
-//     nama: "Alia Jennifer Kim Ritzky",
-//     totalKlik: 10,
-//     totalPertanyaan: 15,
-//     avgCosineSimilarity: 0.7645,
-//     engagementScore: 0.8823,
-//     kategori: "Tinggi",
-//   },
-//   {
-//     nama: "Kartika Putri",
-//     totalKlik: 8,
-//     totalPertanyaan: 14,
-//     avgCosineSimilarity: 0.7123,
-//     engagementScore: 0.7562,
-//     kategori: "Tinggi",
-//   },
-//   {
-//     nama: "Joko Susilo",
-//     totalKlik: 8,
-//     totalPertanyaan: 12,
-//     avgCosineSimilarity: 0.6852,
-//     engagementScore: 0.7426,
-//     kategori: "Tinggi",
-//   },
-//   {
-//     nama: "Mega Utami",
-//     totalKlik: 6,
-//     totalPertanyaan: 10,
-//     avgCosineSimilarity: 0.6554,
-//     engagementScore: 0.6277,
-//     kategori: "Sedang",
-//   },
-//   {
-//     nama: "Fadhil Rahman",
-//     totalKlik: 6,
-//     totalPertanyaan: 8,
-//     avgCosineSimilarity: 0.6431,
-//     engagementScore: 0.6216,
-//     kategori: "Sedang",
-//   },
-//   {
-//     nama: "Hendra Kusuma",
-//     totalKlik: 6,
-//     totalPertanyaan: 7,
-//     avgCosineSimilarity: 0.612,
-//     engagementScore: 0.606,
-//     kategori: "Sedang",
-//   },
-//   {
-//     nama: "Gita Permata",
-//     totalKlik: 6,
-//     totalPertanyaan: 9,
-//     avgCosineSimilarity: 0.5987,
-//     engagementScore: 0.5994,
-//     kategori: "Sedang",
-//   },
-//   {
-//     nama: "Indah Sari",
-//     totalKlik: 6,
-//     totalPertanyaan: 5,
-//     avgCosineSimilarity: 0.5842,
-//     engagementScore: 0.5921,
-//     kategori: "Sedang",
-//   },
-//   {
-//     nama: "Citra Lestari",
-//     totalKlik: 5,
-//     totalPertanyaan: 6,
-//     avgCosineSimilarity: 0.5521,
-//     engagementScore: 0.5261,
-//     kategori: "Sedang",
-//   },
-//   {
-//     nama: "Putra Pratama",
-//     totalKlik: 4,
-//     totalPertanyaan: 5,
-//     avgCosineSimilarity: 0.5341,
-//     engagementScore: 0.4671,
-//     kategori: "Sedang",
-//   },
-//   {
-//     nama: "Naufal Rizqi",
-//     totalKlik: 4,
-//     totalPertanyaan: 5,
-//     avgCosineSimilarity: 0.5118,
-//     engagementScore: 0.4559,
-//     kategori: "Sedang",
-//   },
-//   {
-//     nama: "Olivia Wong",
-//     totalKlik: 4,
-//     totalPertanyaan: 3,
-//     avgCosineSimilarity: 0.4954,
-//     engagementScore: 0.4477,
-//     kategori: "Sedang",
-//   },
-//   {
-//     nama: "Budi Santoso",
-//     totalKlik: 4,
-//     totalPertanyaan: 4,
-//     avgCosineSimilarity: 0.4812,
-//     engagementScore: 0.4406,
-//     kategori: "Sedang",
-//   },
-//   {
-//     nama: "Ratna Dewi",
-//     totalKlik: 2,
-//     totalPertanyaan: 3,
-//     avgCosineSimilarity: 0.4321,
-//     engagementScore: 0.3161,
-//     kategori: "Rendah",
-//   },
-//   {
-//     nama: "Eka Wijaya",
-//     totalKlik: 2,
-//     totalPertanyaan: 2,
-//     avgCosineSimilarity: 0.412,
-//     engagementScore: 0.306,
-//     kategori: "Rendah",
-//   },
-//   {
-//     nama: "Satria Baja",
-//     totalKlik: 2,
-//     totalPertanyaan: 1,
-//     avgCosineSimilarity: 0.385,
-//     engagementScore: 0.2925,
-//     kategori: "Rendah",
-//   },
-//   {
-//     nama: "Lukman Hakim",
-//     totalKlik: 1,
-//     totalPertanyaan: 2,
-//     avgCosineSimilarity: 0.354,
-//     engagementScore: 0.227,
-//     kategori: "Rendah",
-//   },
-//   {
-//     nama: "Dimas Prabowo",
-//     totalKlik: 1,
-//     totalPertanyaan: 1,
-//     avgCosineSimilarity: 0.321,
-//     engagementScore: 0.2105,
-//     kategori: "Rendah",
-//   },
-// ];
-
-// // Distribusi kategori engagement (untuk donut chart)
-// const engagementDistributionData = [
-//   { name: "Tinggi", value: 3, percentage: 16.7 },
-//   { name: "Sedang", value: 10, percentage: 55.6 },
-//   { name: "Rendah", value: 5, percentage: 27.8 },
-// ];
-
-// Data scatter: Total Klik Materi vs Avg Cosine Similarity (relevansi pertanyaan)
-// const scatterData = engagementScoreData.map((d) => ({
-//   nama: d.nama.split(" ")[0], // pakai nama depan saja biar label tidak numpuk
-//   totalKlik: d.totalKlik,
-//   avgCosineSimilarity: d.avgCosineSimilarity,
-//   kategori: d.kategori,
-// }));
-
 const THRESHOLD_RELEVANSI = 0.5;
 
-// Mapping warna traffic-light per kategori, dipakai konsisten di semua chart
 const KATEGORI_COLORS = {
-  Tinggi: "#22c55e", // hijau
-  Sedang: "#f59e0b", // oranye
-  Rendah: "#ef4444", // merah
+  Tinggi: "#22c55e",  // Hijau
+  Sedang: "#f59e0b",  // Oranye
+  Rendah: "#ef4444",  // Merah
 };
 
-// ── Custom label untuk bar chart: score tetap terbaca di ujung bar ──────────
 const renderScoreLabel = (props) => {
   const { x, y, width, height, value } = props;
   return (
@@ -216,7 +50,6 @@ const renderScoreLabel = (props) => {
   );
 };
 
-// ── Custom label untuk titik scatter: tampilkan nama depan di atas titik ────
 const renderScatterLabel = (props) => {
   const { x, y, value } = props;
   return (
@@ -244,12 +77,9 @@ const EngagementScoreView = () => {
       else setLoading(true);
 
       const response = await engagementServices.getDashboardOverview();
-
       const studentReports = response?.data?.studentReports ?? [];
-
+      
       setRawReports(studentReports);
-
-      console.log("studentReports:", studentReports);
     } catch (error) {
       console.error("Gagal memuat student engagement reports:", error);
     } finally {
@@ -262,13 +92,12 @@ const EngagementScoreView = () => {
     loadData();
   }, []);
 
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    // TODO: ganti dengan pemanggilan ulang API/fetch data yang sesungguhnya
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    setIsRefreshing(false);
+  // Memperbaiki handleRefresh agar memanggil API endpoint yang sesungguhnya
+  const handleRefresh = () => {
+    loadData(true);
   };
 
+  // Memetakan data sesuai dengan struktur JSON endpoint
   const engagementScoreData = rawReports
     .map((item) => ({
       nama: item.nama_mahasiswa,
@@ -281,7 +110,7 @@ const EngagementScoreView = () => {
     .sort((a, b) => b.engagementScore - a.engagementScore);
 
   const scatterData = engagementScoreData.map((d) => ({
-    nama: d.nama.split(" ")[0],
+    nama: d.nama.split(" ")[0], // Ambil nama depan agar chart tidak padat
     totalKlik: d.totalKlik,
     avgCosineSimilarity: d.avgCosineSimilarity,
     kategori: d.kategori,
@@ -293,7 +122,7 @@ const EngagementScoreView = () => {
       acc[curr.kategori] = (acc[curr.kategori] || 0) + 1;
       return acc;
     },
-    { Tinggi: 0, Sedang: 0, Rendah: 0 },
+    { Tinggi: 0, Sedang: 0, Rendah: 0 }
   );
 
   const engagementDistributionData = Object.keys(counts).map((key) => {
@@ -305,13 +134,19 @@ const EngagementScoreView = () => {
     return { name: key, value, percentage };
   });
 
-  const sedangPercentage =
-    engagementDistributionData.find((d) => d.name === "Sedang")?.percentage ||
-    0;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64 text-slate-500">
+        <RefreshCw className="animate-spin mr-2" size={20} />
+        Memuat data keterikatan mahasiswa...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* ── HORIZONTAL BAR CHART: Engagement Score per Mahasiswa (full width) ── */}
+      
+      {/* ── BAR CHART: Engagement Score per Mahasiswa ── */}
       <Card className="p-8">
         <div className="flex items-center gap-2 mb-6">
           <BarChart3 size={18} className="text-indigo-500" />
@@ -319,7 +154,7 @@ const EngagementScoreView = () => {
             Engagement Score per Mahasiswa
           </h3>
         </div>
-        <div style={{ height: engagementScoreData.length * 32 + 40 }}>
+        <div style={{ height: engagementScoreData.length * 36 + 40 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={engagementScoreData}
@@ -367,9 +202,10 @@ const EngagementScoreView = () => {
         </div>
       </Card>
 
-      {/* ── DONUT CHART + SCATTER PLOT (berdampingan di bawah) ── */}
+      {/* ── GRID: DONUT CHART & SCATTER PLOT ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* DONUT CHART: Distribusi Kategori Engagement */}
+        
+        {/* DONUT CHART: Distribusi Kategori */}
         <Card className="p-8">
           <div className="flex items-center gap-2 mb-6">
             <PieIcon size={18} className="text-pink-500" />
@@ -413,11 +249,7 @@ const EngagementScoreView = () => {
               className="font-bold"
               style={{ color: KATEGORI_COLORS.Sedang }}
             >
-              {
-                engagementDistributionData.find((d) => d.name === "Sedang")
-                  ?.percentage
-              }
-              %
+              {engagementDistributionData.find((d) => d.name === "Sedang")?.percentage || 0}%
             </span>{" "}
             mahasiswa berada pada kategori engagement{" "}
             <span className="font-semibold">Sedang</span>.
@@ -454,7 +286,7 @@ const EngagementScoreView = () => {
                   type="number"
                   dataKey="avgCosineSimilarity"
                   name="Avg Cosine Similarity"
-                  domain={[0.3, 0.8]}
+                  domain={[0.2, 0.9]}
                   label={{
                     value: "Avg Cosine Similarity",
                     angle: -90,
@@ -481,7 +313,6 @@ const EngagementScoreView = () => {
                     typeof value === "number" ? value.toFixed(3) : value,
                     name,
                   ]}
-                  labelFormatter={() => ""}
                   contentStyle={{
                     borderRadius: "12px",
                     border: "none",
