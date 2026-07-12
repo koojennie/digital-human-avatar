@@ -60,8 +60,8 @@ class EngagmentServices {
         ],
       },
       wordCloudKeywords: topKeywords.map((k) => ({
-        text: k.word,
-        value: parseInt(k.frequency, 10),
+        text: k.text || "Topik Umum", // Menggunakan k.text sesuai output query SQL
+        value: parseInt(k.value || 0, 10), // Menggunakan k.value sesuai output query SQL
       })),
       topAcademicCourses: topCourses.map((c) => ({
         courseName: c.courseName || "Mata Kuliah Umum",

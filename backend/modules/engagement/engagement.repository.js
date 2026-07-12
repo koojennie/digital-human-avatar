@@ -32,16 +32,41 @@ class EngagmentRepository {
   async getTopKeywords(limitCount = 10) {
     // Kueri SQL mentah via Sequelize untuk memecah kalimat chat mahasiswa menjadi baris kata kustom
     const query = `
-      SELECT word, COUNT(*) as frequency
-      FROM (
-        SELECT LOWER(REGEXP_SPLIT_TO_TABLE(content, '\s+')) as word
+     WITH extracted_topics AS (
+        SELECT 
+          CASE 
+            -- Pola 1: Menangkap frasa setelah kata "bedanya x dan y"
+            WHEN LOWER(content) ~ 'bedanya\\s+([a-zA-Z0-9\\s,\\-_]+)' 
+              THEN SUBSTRING(LOWER(content) FROM 'bedanya\\s+([a-zA-Z0-9\\s,\\-_]+)')
+            
+            -- Pola 2: Menangkap frasa setelah kata "cara x"
+            WHEN LOWER(content) ~ 'cara\\s+([a-zA-Z0-9\\s,\\-_]+)' 
+              THEN 'cara ' || SUBSTRING(LOWER(content) FROM 'cara\\s+([a-zA-Z0-9\\s,\\-_]+)')
+            
+            -- Pola 3: Menangkap frasa sebelum "gimana" atau "di js"
+            WHEN LOWER(content) ~ '([a-zA-Z0-9\\s,\\-_]+)\\s+(gimana|bagaimana)' 
+              THEN SUBSTRING(LOWER(content) FROM '([a-zA-Z0-9\\s,\\-_]+)\\s+(gimana|bagaimana)')
+              
+            -- Default: Jika kalimat pendek, ambil maksimal 4 kata pertama
+            ELSE TRIM(REGEXP_REPLACE(LOWER(content), '^((?:\\w+\\s+){1,3}\\w+).*$', '\\1'))
+          END AS raw_topic
         FROM messages
-        WHERE role = 'user'
-      ) AS words_table
-      WHERE LENGTH(word) > 4 
-        AND word NOT IN ('yang', 'untuk', 'dengan', 'adalah', 'bisa', 'kamu', 'saya', 'bukan', 'atau', 'dari', 'ini', 'itu')
-      GROUP BY word
-      ORDER BY frequency DESC
+        WHERE role = 'user' AND content IS NOT NULL
+      ),
+      filtered_topics AS (
+        SELECT 
+          -- Bersihkan sisa spasi atau karakter aneh di ujung kalimat
+          TRIM(REGEXP_REPLACE(raw_topic, '[^a-zA-Z0-9\\s,]', '', 'g')) AS text
+        FROM extracted_topics
+      )
+      SELECT text, COUNT(*) AS value
+      FROM filtered_topics
+      WHERE text IS NOT NULL 
+        AND LENGTH(text) > 4 
+        AND LENGTH(text) < 40
+        AND text NOT IN ('yang', 'untuk', 'dengan', 'adalah', 'bisa', 'kamu', 'saya')
+      GROUP BY text
+      ORDER BY value DESC
       LIMIT :limitCount;
     `;
 
@@ -57,7 +82,6 @@ class EngagmentRepository {
         // Ambil nama panjang Course
         [sequelize.col("course.fullname"), "courseName"],
 
-        
         [
           sequelize.fn("COUNT", sequelize.col("messages.message_id")),
           "messageCount",
@@ -80,10 +104,10 @@ class EngagmentRepository {
           required: true,
         },
       ],
-      group: ["course.fullname", "course.course_id"], 
+      group: ["course.fullname", "course.course_id"],
       order: [[sequelize.literal('"messageCount"'), "DESC"]],
       limit: limitCount,
-      subQuery: false, 
+      subQuery: false,
       raw: true,
     });
   }
