@@ -140,16 +140,6 @@ const DashboardView = ({ docs, totalDocuments }) => {
               </div>
               <div className="flex gap-1 p-1 bg-slate-100 rounded-xl">
                 <button
-                  onClick={() => setChartMode("day")}
-                  className={`text-xs px-3 py-1 rounded-lg transition-all font-medium ${
-                    chartMode === "day"
-                      ? "bg-white text-pink-600 shadow-sm border border-slate-200"
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  Harian
-                </button>
-                <button
                   onClick={() => setChartMode("week")}
                   className={`text-xs px-3 py-1 rounded-lg transition-all font-medium ${
                     chartMode === "week"
@@ -158,6 +148,16 @@ const DashboardView = ({ docs, totalDocuments }) => {
                   }`}
                 >
                   Mingguan
+                </button>
+                <button
+                  onClick={() => setChartMode("day")}
+                  className={`text-xs px-3 py-1 rounded-lg transition-all font-medium ${
+                    chartMode === "day"
+                      ? "bg-white text-pink-600 shadow-sm border border-slate-200"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  Harian
                 </button>
               </div>
             </div>
