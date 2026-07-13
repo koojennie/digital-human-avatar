@@ -3,8 +3,8 @@ import { generateUserId } from "./user.utils.js";
 
 export class UserRepository {
   async findOrCreateUser({ moodleUserId, username, email, fullname }) {
-    let user = await User.findOne({ 
-      where: { moodle_user_id: String(moodleUserId) } 
+    let user = await User.findOne({
+      where: { moodle_user_id: String(moodleUserId) },
     });
 
     if (!user) {
@@ -17,18 +17,20 @@ export class UserRepository {
           email,
           full_name: fullname,
         });
-        return [user, true]; // Kembalikan format array [instance, created] mirip findOrCreate
+        return [user, true];
       } catch (err) {
-        // Jika kecolongan di waktu bersamaan oleh request paralel, fallback ambil data yang barusan ter-create
-        user = await User.findOne({ 
-          where: { moodle_user_id: String(moodleUserId) } 
+        // Ambil data yang sudah terlanjur dibuat oleh request paralel
+        user = await User.findOne({
+          where: { moodle_user_id: String(moodleUserId) },
         });
+
+        // FIX: Pastikan tetap me-return data agar tidak menghasilkan undefined/null
+        return [user, false];
       }
     }
 
     return [user, false];
   }
-
   async findUserByEmail(email) {
     return User.findOne({ where: { email: email } });
   }

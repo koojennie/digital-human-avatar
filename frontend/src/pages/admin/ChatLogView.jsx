@@ -82,7 +82,10 @@ export default function ChatLogView() {
                   {sess.course?.fullname || "VClass Course"}
                 </span>
                 <span>
-                {new Date(sess.last_message_at).toLocaleTimeString([], {
+                  {new Date(sess.last_message_at).toLocaleTimeString([], {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
