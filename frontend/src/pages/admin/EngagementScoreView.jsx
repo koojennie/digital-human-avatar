@@ -136,9 +136,9 @@ const EngagementScoreView = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500">
-        <RefreshCw className="animate-spin mr-2" size={20} />
-        Memuat data keterikatan mahasiswa...
+      <div className="flex flex-col items-center justify-center h-96 space-y-3">
+        <div className="w-10 h-10 border-4 border-pink-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-medium">Loading student engagement data...</p>
       </div>
     );
   }
