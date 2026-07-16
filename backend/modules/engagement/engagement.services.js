@@ -29,11 +29,37 @@ class EngagmentServices {
     const voicePercentage =
       totalAdoption > 0 ? Math.round((voiceCount / totalAdoption) * 100) : 0;
 
-    const distribusiKategori = { Tinggi: 0, Sedang: 0, Rendah: 0 };
-    reportsEngagementConsineSimiliarity.forEach((student) => {
-      if (distribusiKategori[student.kategori] !== undefined) {
-        distribusiKategori[student.kategori]++;
+    // const distribusiKategori = { Tinggi: 0, Sedang: 0, Rendah: 0 };
+    // reportsEngagementConsineSimiliarity.forEach((student) => {
+    //   if (distribusiKategori[student.kategori] !== undefined) {
+    //     distribusiKategori[student.kategori]++;
+    //   }
+    // });
+
+    const distribusiKategori = {
+      "> 0.70": 0,
+      "0.40 - 0.70": 0,
+      "< 0.40": 0,
+    };
+
+    const mappedReports = reportsEngagementConsineSimiliarity.map((student) => {
+      const score = parseFloat(student.engagement_score || 0);
+      let rentangKategori = "0.40 - 0.70";
+
+      if (score > 0.7) {
+        rentangKategori = "> 0.70";
+      } else if (score < 0.4) {
+        rentangKategori = "< 0.40";
       }
+
+      // Tambahkan hitungan ke summary objek
+      distribusiKategori[rentangKategori]++;
+
+      // Override property kategori bawaan db menjadi format rentang angka
+      return {
+        ...student,
+        kategori: rentangKategori,
+      };
     });
 
     return {

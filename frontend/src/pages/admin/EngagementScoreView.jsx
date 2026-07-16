@@ -28,10 +28,11 @@ import { engagementServices } from "../../services/engagement.services";
 
 const THRESHOLD_RELEVANSI = 0.5;
 
+// Palet warna Pink sesuai Dashboard Utama
 const KATEGORI_COLORS = {
-  Tinggi: "#22c55e",  // Hijau
-  Sedang: "#f59e0b",  // Oranye
-  Rendah: "#ef4444",  // Merah
+  "> 0.70": "#db2777",      // Pink Pekat Utama
+  "0.40 - 0.70": "#f472b6", // Pink Medium
+  "< 0.40": "#fbcfe8",      // Soft Pink
 };
 
 const renderScoreLabel = (props) => {
@@ -78,7 +79,7 @@ const EngagementScoreView = () => {
 
       const response = await engagementServices.getDashboardOverview();
       const studentReports = response?.data?.studentReports ?? [];
-      
+
       setRawReports(studentReports);
     } catch (error) {
       console.error("Gagal memuat student engagement reports:", error);
@@ -92,21 +93,29 @@ const EngagementScoreView = () => {
     loadData();
   }, []);
 
-  // Memperbaiki handleRefresh agar memanggil API endpoint yang sesungguhnya
   const handleRefresh = () => {
     loadData(true);
   };
 
-  // Memetakan data sesuai dengan struktur JSON endpoint
+  // Memetakan data dan mendefinisikan rentang angka secara paksa berdasarkan engagement_score numerik
   const engagementScoreData = rawReports
-    .map((item) => ({
-      nama: item.nama_mahasiswa,
-      totalKlik: item.total_klik,
-      totalPertanyaan: item.total_pertanyaan,
-      avgCosineSimilarity: parseFloat(item.avg_cosine_similarity || 0),
-      engagementScore: parseFloat(item.engagement_score || 0),
-      kategori: item.kategori || "Sedang",
-    }))
+    .map((item) => {
+      const score = parseFloat(item.engagement_score || 0);
+      
+      // Tentukan rentang berdasarkan skor riil agar match dengan KATEGORI_COLORS
+      let rentangKategori = "0.40 - 0.70";
+      if (score > 0.7) rentangKategori = "> 0.70";
+      else if (score < 0.4) rentangKategori = "< 0.40";
+
+      return {
+        nama: item.nama_mahasiswa,
+        totalKlik: item.total_klik,
+        totalPertanyaan: item.total_pertanyaan,
+        avgCosineSimilarity: parseFloat(item.avg_cosine_similarity || 0),
+        engagementScore: score,
+        kategori: rentangKategori, // Key ini dipastikan COCOK dengan KATEGORI_COLORS
+      };
+    })
     .sort((a, b) => b.engagementScore - a.engagementScore);
 
   const scatterData = engagementScoreData.map((d) => ({
@@ -117,12 +126,16 @@ const EngagementScoreView = () => {
   }));
 
   const totalMahasiswa = engagementScoreData.length;
+  
+  // Hitung akumulasi jumlah mahasiswa per kategori rentang skor numerik
   const counts = engagementScoreData.reduce(
     (acc, curr) => {
-      acc[curr.kategori] = (acc[curr.kategori] || 0) + 1;
+      if (acc[curr.kategori] !== undefined) {
+        acc[curr.kategori]++;
+      }
       return acc;
     },
-    { Tinggi: 0, Sedang: 0, Rendah: 0 }
+    { "> 0.70": 0, "0.40 - 0.70": 0, "< 0.40": 0 }
   );
 
   const engagementDistributionData = Object.keys(counts).map((key) => {
@@ -138,7 +151,9 @@ const EngagementScoreView = () => {
     return (
       <div className="flex flex-col items-center justify-center h-96 space-y-3">
         <div className="w-10 h-10 border-4 border-pink-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-500 font-medium">Loading student engagement data...</p>
+        <p className="text-slate-500 font-medium">
+          Loading student engagement data...
+        </p>
       </div>
     );
   }
@@ -149,7 +164,7 @@ const EngagementScoreView = () => {
       {/* ── BAR CHART: Engagement Score per Mahasiswa ── */}
       <Card className="p-8">
         <div className="flex items-center gap-2 mb-6">
-          <BarChart3 size={18} className="text-indigo-500" />
+          <BarChart3 size={18} className="text-pink-500" />
           <h3 className="text-lg font-bold text-slate-800">
             Engagement Score per Mahasiswa
           </h3>
@@ -162,22 +177,27 @@ const EngagementScoreView = () => {
               margin={{ top: 0, right: 60, left: 0, bottom: 0 }}
               barCategoryGap={8}
             >
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
               <XAxis
                 type="number"
                 domain={[0, 1]}
                 tickFormatter={(v) => v.toFixed(1)}
+                tick={{ fontSize: 10, fill: "#94a3b8" }}
+                tickLine={false}
+                axisLine={false}
               />
               <YAxis
                 type="category"
                 dataKey="nama"
                 width={160}
                 tick={{ fontSize: 12, fill: "#334155" }}
+                tickLine={false}
+                axisLine={false}
               />
               <Tooltip
                 formatter={(value, _name, props) => [
                   value.toFixed(4),
-                  `Kategori: ${props.payload.kategori}`,
+                  `Rentang Skor: ${props.payload.kategori}`,
                 ]}
                 contentStyle={{
                   borderRadius: "12px",
@@ -192,8 +212,8 @@ const EngagementScoreView = () => {
                 />
                 {engagementScoreData.map((entry, index) => (
                   <Cell
-                    key={`cell-${index}`}
-                    fill={KATEGORI_COLORS[entry.kategori]}
+                    key={`cell-bar-${index}`}
+                    fill={KATEGORI_COLORS[entry.kategori] || "#db2777"}
                   />
                 ))}
               </Bar>
@@ -205,7 +225,7 @@ const EngagementScoreView = () => {
       {/* ── GRID: DONUT CHART & SCATTER PLOT ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        {/* DONUT CHART: Distribusi Kategori */}
+        {/* DONUT CHART: Distribusi Kategori Rentang Angka */}
         <Card className="p-8">
           <div className="flex items-center gap-2 mb-6">
             <PieIcon size={18} className="text-pink-500" />
@@ -222,18 +242,18 @@ const EngagementScoreView = () => {
                   outerRadius={90}
                   paddingAngle={4}
                   dataKey="value"
-                  label={({ name, percentage }) => `${name} ${percentage}%`}
+                  label={({ name, percentage }) => `${name} (${percentage}%)`}
                   labelLine={false}
                 >
                   {engagementDistributionData.map((entry, index) => (
                     <Cell
-                      key={`cell-${index}`}
-                      fill={KATEGORI_COLORS[entry.name]}
+                      key={`cell-pie-${index}`}
+                      fill={KATEGORI_COLORS[entry.name] || "#db2777"}
                     />
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value, name) => [`${value} mahasiswa`, name]}
+                  formatter={(value, name) => [`${value} mahasiswa`, `Skor ${name}`]}
                   contentStyle={{
                     borderRadius: "12px",
                     border: "none",
@@ -247,19 +267,19 @@ const EngagementScoreView = () => {
           <p className="text-center text-sm text-slate-500 mt-4">
             <span
               className="font-bold"
-              style={{ color: KATEGORI_COLORS.Sedang }}
+              style={{ color: KATEGORI_COLORS["0.40 - 0.70"] }}
             >
-              {engagementDistributionData.find((d) => d.name === "Sedang")?.percentage || 0}%
+              {engagementDistributionData.find((d) => d.name === "0.40 - 0.70")?.percentage || 0}%
             </span>{" "}
-            mahasiswa berada pada kategori engagement{" "}
-            <span className="font-semibold">Sedang</span>.
+            mahasiswa berada pada rentang skor engagement{" "}
+            <span className="font-semibold">0.40 - 0.70</span>.
           </p>
         </Card>
 
         {/* SCATTER PLOT: Klik Materi vs Relevansi Pertanyaan */}
         <Card className="p-8">
           <div className="flex items-center gap-2 mb-6">
-            <ScatterIcon size={18} className="text-indigo-500" />
+            <ScatterIcon size={18} className="text-pink-500" />
             <h3 className="text-lg font-bold text-slate-800">
               Klik Materi vs Relevansi Pertanyaan
             </h3>
@@ -269,7 +289,7 @@ const EngagementScoreView = () => {
               <ScatterChart
                 margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis
                   type="number"
                   dataKey="totalKlik"
@@ -281,6 +301,8 @@ const EngagementScoreView = () => {
                     fontSize: 12,
                   }}
                   tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={false}
                 />
                 <YAxis
                   type="number"
@@ -294,17 +316,19 @@ const EngagementScoreView = () => {
                     fontSize: 12,
                   }}
                   tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={false}
                 />
                 <ZAxis range={[120, 120]} />
                 <ReferenceLine
                   y={THRESHOLD_RELEVANSI}
-                  stroke="#94a3b8"
+                  stroke="#db2777"
                   strokeDasharray="4 4"
                   label={{
                     value: "Threshold relevansi",
                     position: "insideTopRight",
                     fontSize: 11,
-                    fill: "#64748b",
+                    fill: "#db2777",
                   }}
                 />
                 <Tooltip
@@ -323,8 +347,8 @@ const EngagementScoreView = () => {
                   <LabelList dataKey="nama" content={renderScatterLabel} />
                   {scatterData.map((entry, index) => (
                     <Cell
-                      key={`cell-${index}`}
-                      fill={KATEGORI_COLORS[entry.kategori]}
+                      key={`cell-scatter-${index}`}
+                      fill={KATEGORI_COLORS[entry.kategori] || "#db2777"}
                       stroke="#fff"
                       strokeWidth={1}
                     />
