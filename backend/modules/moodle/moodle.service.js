@@ -1,9 +1,14 @@
 import { UserRepository } from "../user/user.repository.js";
 import jwt from "jsonwebtoken";
+import { MoodleRepository } from "./moodle.repository.js";
 
 export class MoodleServices {
   API_URL_MOODLE = process.env.MOODLE_API_URL;
   MOODLE_TOKEN = process.env.MOODLE_TOKEN;
+
+  constructor() {
+    this.moodleRepository = new MoodleRepository();
+  }
 
   async getUserMoodleByUserId({ moodleUserId }) {
     const params = new URLSearchParams({
@@ -129,5 +134,16 @@ export class MoodleServices {
     }
 
     return res.json();
+  }
+
+  async getQuizGrades({ quizId }) {
+    try {
+      const grades = await this.moodleRepository.getQuizGrades(quizId);
+
+      return grades;
+    } catch (error) {
+      console.log("Error getQuizGrades moodle services", error);
+      throw new Error(error.message || "Gagal mengambil nilai quiz.");
+    }
   }
 }
