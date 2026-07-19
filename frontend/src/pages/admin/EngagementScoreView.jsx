@@ -21,6 +21,7 @@ import {
   BarChart3,
   PieChart as PieIcon,
   ScatterChart as ScatterIcon,
+  GraduationCap,
   RefreshCw,
 } from "lucide-react";
 import { Card } from "../../components/admin/card";
@@ -51,6 +52,22 @@ const renderScoreLabel = (props) => {
   );
 };
 
+const renderQuizScoreLabel = (props) => {
+  const { x, y, width, height, value } = props;
+  return (
+    <text
+      x={x + width + 8}
+      y={y + height / 2}
+      dy={4}
+      fontSize={12}
+      fontWeight={600}
+      fill="#334155"
+    >
+      {value.toFixed(1)}
+    </text>
+  );
+};
+
 const renderScatterLabel = (props) => {
   const { x, y, value } = props;
   return (
@@ -71,16 +88,20 @@ const EngagementScoreView = () => {
   const [rawReports, setRawReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [quizGrades, setQuizGrades] = useState([]);
 
   const loadData = async (showOverlayLoading = false) => {
     try {
       if (showOverlayLoading) setIsRefreshing(true);
       else setLoading(true);
 
-      const response = await engagementServices.getDashboardOverview();
-      const studentReports = response?.data?.studentReports ?? [];
+      const [overviewRes, quizRes] = await Promise.all([
+        engagementServices.getDashboardOverview(),
+        engagementServices.getQuizGrades(1),
+      ]);
 
-      setRawReports(studentReports);
+      setRawReports(overviewRes?.data?.studentReports ?? []);
+      setQuizGrades(quizRes?.data ?? []);
     } catch (error) {
       console.error("Gagal memuat student engagement reports:", error);
     } finally {
@@ -124,6 +145,13 @@ const EngagementScoreView = () => {
     avgCosineSimilarity: d.avgCosineSimilarity,
     kategori: d.kategori,
   }));
+
+  const quizGradeData = quizGrades
+    .map((item) => ({
+      nama: item.fullname,
+      score: parseFloat(item.score || 0),
+    }))
+    .sort((a, b) => b.score - a.score);
 
   const totalMahasiswa = engagementScoreData.length;
   
@@ -360,6 +388,45 @@ const EngagementScoreView = () => {
         </Card>
       </div>
 
+      {/* ── BAR CHART: Nilai Kuis Pilihan Ganda ── */}
+      <Card className="p-8">
+        <div className="flex items-center gap-2 mb-6">
+          <GraduationCap size={18} className="text-pink-500" />
+          <h3 className="text-lg font-bold text-slate-800">
+            Nilai Kuis Pilihan Ganda per Mahasiswa
+          </h3>
+        </div>
+        <div style={{ height: quizGradeData.length * 36 + 40 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={quizGradeData}
+              layout="vertical"
+              margin={{ top: 0, right: 60, left: 0, bottom: 0 }}
+              barCategoryGap={8}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+              <XAxis
+                type="number"
+                domain={[0, 10]}
+                tick={{ fontSize: 10, fill: "#94a3b8" }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                type="category"
+                dataKey="nama"
+                width={160}
+                tick={{ fontSize: 12, fill: "#334155" }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Bar dataKey="score" radius={[0, 6, 6, 0]} fill="#db2777">
+                <LabelList dataKey="score" content={renderQuizScoreLabel} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
       {/* ── TOMBOL REFRESH DATA ── */}
       <div className="flex justify-center">
         <button

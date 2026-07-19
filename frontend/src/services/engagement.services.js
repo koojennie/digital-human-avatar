@@ -18,4 +18,19 @@ export const engagementServices = {
 
     return response.json();
   },
+  async getQuizGrades(quizId = 1) {
+    const response = await fetch(`${API_URL}/moodle/quiz/${quizId}/grades`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...authServices.getAuthHeader(),
+      },
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch quiz grades");
+    }
+
+    return response.json();
+  },
 };
