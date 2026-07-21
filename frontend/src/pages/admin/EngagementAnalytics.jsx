@@ -14,7 +14,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { Card, StatCard } from "../../components/admin/card";
+import { Card, StatCard } from "../../components/Admin/Card";
 import { engagementServices } from "../../services/engagement.services";
 
 // ── Skema Warna Collexa (Indigo untuk Text, Pink untuk Voice) ──────────────────

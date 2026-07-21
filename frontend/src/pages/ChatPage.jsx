@@ -1,5 +1,5 @@
-import ChatContainer from "../components/Chat/ChatContainer";
-import ChatInput from "../components/Chat/ChatInput";
+import ChatContainer from "../components/chat/ChatContainer";
+import ChatInput from "../components/chat/ChatInput";
 
 export default function ChatPage() {
   return (

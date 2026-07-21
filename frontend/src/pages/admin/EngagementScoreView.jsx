@@ -24,7 +24,7 @@ import {
   GraduationCap,
   RefreshCw,
 } from "lucide-react";
-import { Card } from "../../components/admin/card";
+import { Card } from "../../components/Admin/Card";
 import { engagementServices } from "../../services/engagement.services";
 
 const THRESHOLD_RELEVANSI = 0.5;
