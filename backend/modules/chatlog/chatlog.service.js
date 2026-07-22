@@ -1,4 +1,4 @@
-import chatlogRespository from "./chatlog.respository.js";
+import ChatLogRepository from "./chatlog.repository.js";
 
 class ChatLogService {
   async getSessions() {

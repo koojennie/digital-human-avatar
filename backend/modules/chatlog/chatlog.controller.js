@@ -1,4 +1,4 @@
-import chatLogService from "./chatLog.service.js";
+import ChatLogService from "./chatlog.service.js";
 
 class ChatLogController {
   async getSessions(req, res) {

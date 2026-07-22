@@ -1,6 +1,6 @@
 import { authServices } from "./auth.services";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 class RagService {
   async retrievePlayground(question, limit = 5, threshold = 0.7) {
