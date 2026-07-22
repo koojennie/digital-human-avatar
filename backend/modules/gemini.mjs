@@ -168,7 +168,7 @@ class GeminiService {
       if (response.status === 401) {
         console.log("TOKEN REFRESH...");
         await this.authenticateRestAPI();
-        return await this.GenerateResponseRestAPi(question, context);
+        return await this.generateResponseWithRestAPI(question, context);
       }
 
       if (!response.ok) {
