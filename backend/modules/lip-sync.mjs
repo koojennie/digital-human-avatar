@@ -49,7 +49,7 @@ const lipSync = async ({ messages }) => {
     });
 
     message.lipsync = await readJsonTranscript({
-      fileName: `audios/message_${index}.json`,
+      fileName: `audios/message_${id}.json`,
     });
   }
 
