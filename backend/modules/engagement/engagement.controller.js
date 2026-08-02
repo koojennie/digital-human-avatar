@@ -2,8 +2,11 @@ import engagementServices from "./engagement.services.js";
 import { HuggingFaceService } from "../huggingface.services.js";
 
 class EngagementController {
-  huggingface = new HuggingFaceService();
-  async getEngagementAnalytics(req, res) {
+  // Instansiasi instance service
+  huggingFaceServices = new HuggingFaceService();
+
+  // 1. Gunakan Arrow Function pada method yang dipanggil route Express
+  getEngagementAnalytics = async (req, res) => {
     try {
       const data = await engagementServices.getEngagementDashboardData();
 
@@ -19,57 +22,69 @@ class EngagementController {
         message: "Gagal menyusun ringkasan statistik keterikatan.",
       });
     }
-  }
+  };
 
-  async getDashboardReport(req, res) {
+  getDashboardReport = async (req, res) => {
     try {
-      const reports =
-        await engagementRepository.getEngagementDashboardCosineSimilarity();
+      const reports = await engagementRepository.getEngagementDashboardCosineSimilarity();
       return res.status(200).json({
         success: true,
         message: "Data dashboard engagement berhasil diambil.",
         data: reports,
       });
     } catch (error) {
-      console.error(
-        "❌ Error pada EngagementController.getDashboardReport:",
-        error,
-      );
+      console.error("❌ Error pada EngagementController.getDashboardReport:", error);
       return res.status(500).json({
         success: false,
         message: "Gagal mengambil data dashboard engagement.",
         error: error.message,
       });
     }
-  }
+  };
 
-  async checkBatchStatus(req, res) {
+  checkBatchStatus = async (req, res) => {
     try {
-      const status = await huggingface.getBatchStatus();
+      // 💡 FIX: Pakai this.huggingFaceServices
+      const status = await this.huggingFaceServices.getBatchStatus();
       return res.status(200).json({ success: true, data: status });
     } catch (error) {
       return res.status(500).json({ success: false, error: error.message });
     }
-  }
+  };
 
-  async pauseBatchProcess(req, res) {
+  pauseBatchProcess = async (req, res) => {
     try {
-      const result = await huggingFaceService.pauseBatch();
+      // 💡 FIX: Pakai this.huggingFaceServices
+      const result = await this.huggingFaceServices.pauseBatch();
       return res.status(200).json({ success: true, data: result });
     } catch (error) {
       return res.status(500).json({ success: false, error: error.message });
     }
-  }
+  };
 
-  // 🚀 Trigger resume batch
-  async resumeBatchProcess(req, res) {
+  resumeBatchProcess = async (req, res) => {
     try {
-      const result = await huggingFaceService.resumeBatch();
+      // 💡 FIX: Pakai this.huggingFaceServices
+      const result = await this.huggingFaceServices.resumeBatch();
       return res.status(200).json({ success: true, data: result });
     } catch (error) {
       return res.status(500).json({ success: false, error: error.message });
     }
-  }
+  };
+
+  refreshEngagementData = async (req, res) => {
+    try {
+      // 💡 FIX: this.huggingFaceServices sekarang aman dan ter-bind penuh
+      const result = await this.huggingFaceServices.triggerBatchSync();
+      return res.status(200).json({
+        success: true,
+        message: result.message,
+        data: result.data,
+      });
+    } catch (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  };
 }
 
 export default new EngagementController();

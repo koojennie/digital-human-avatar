@@ -58,22 +58,31 @@ export class HuggingFaceService {
   }
 
   // ==================== FAST API SCHEDULER SERVICES ====================
+  #getFastApiBaseUrl() {
+    return process.env.FASTAPI_BASE_URL || "http://localhost:7860";
+  }
+
+  // 🚀 1. Cek Status Scheduler & Jadwal Running Berikutnya (next_run_time)
   async getBatchStatus() {
-    const baseUrl = process.env.FASTAPI_BASE_URL;
+    const baseUrl = this.#getFastApiBaseUrl();
     const response = await fetch(`${baseUrl}/api/engagement/status`, {
       method: "GET",
-      "Content-Type": "application/json",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
       throw new Error(`FAST API status error: ${response.statusText}`);
     }
 
+    // Mengembalikan object: { scheduler_running, job_status, next_run_time }
     return await response.json();
   }
 
+  // 🚀 2. Matikan (Pause) Automation Batch
   async pauseBatch() {
-    const baseUrl = process.env.FASTAPI_BASE_URL;
+    const baseUrl = this.#getFastApiBaseUrl();
     const response = await fetch(`${baseUrl}/api/engagement/pause`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -86,8 +95,9 @@ export class HuggingFaceService {
     return await response.json();
   }
 
+  // 🚀 3. Nyalakan Kembali (Resume) Automation Batch
   async resumeBatch() {
-    const baseUrl = process.env.FASTAPI_BASE_URL || "http://localhost:7860";
+    const baseUrl = this.#getFastApiBaseUrl();
     const response = await fetch(`${baseUrl}/api/engagement/resume`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -96,6 +106,37 @@ export class HuggingFaceService {
     if (!response.ok) {
       throw new Error(`FastAPI resume error: ${response.statusText}`);
     }
+    return await response.json();
+  }
+
+  // 🚀 4. Manual Trigger Sync (Nembak & Tunggu Kalkulasi Beres + Terima Data Baru)
+  async triggerBatchSync() {
+    const baseUrl = this.#getFastApiBaseUrl();
+    const response = await fetch(`${baseUrl}/api/engagement/trigger-sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`FastAPI trigger-sync error: ${response.statusText}`);
+    }
+
+    // Mengembalikan object: { status, message, data }
+    return await response.json();
+  }
+
+  // 🚀 5. Ambil Data Report Cepat dari Cache Tabel
+  async getEngagementReports() {
+    const baseUrl = this.#getFastApiBaseUrl();
+    const response = await fetch(`${baseUrl}/api/engagement`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`FastAPI get engagement error: ${response.statusText}`);
+    }
+
     return await response.json();
   }
 }
