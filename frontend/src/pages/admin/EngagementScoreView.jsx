@@ -239,7 +239,7 @@ const EngagementScoreView = () => {
             </h3>
           </div>
           <span className="text-xs font-semibold px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
-            Total: {engagementScoreData.length} Mahasiswa
+            Total: {engagementScoreData.length} Students
           </span>
         </div>
 
