@@ -18,6 +18,7 @@ export const engagementServices = {
 
     return response.json();
   },
+
   async getQuizGrades(quizId = 1) {
     const response = await fetch(`${API_URL}/moodle/quiz/${quizId}/grades`, {
       headers: {
@@ -29,6 +30,23 @@ export const engagementServices = {
 
     if (!response.ok) {
       throw new Error("Failed to fetch quiz grades");
+    }
+
+    return response.json();
+  },
+
+  // 🚀 METHOD BARU: Tembak Recalculate Batch Sync
+  async refreshEngagementBatch() {
+    const response = await fetch(`${API_URL}/analytics/refreshtrigger`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...authServices.getAuthHeader(),
+      },
+      method: "POST", // Method POST ke Express/FastAPI
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to recalculate engagement batch");
     }
 
     return response.json();
