@@ -201,8 +201,8 @@ const EngagementScoreView = () => {
     return (
       <div className="flex flex-col items-center justify-center h-96 space-y-3">
         <div className="w-10 h-10 border-4 border-pink-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-500 font-medium text-sm">
-          Memuat data statistik engagement mahasiswa...
+        <p className="text-slate-500 font-medium animate-pulse">
+          Loading student engagement data...
         </p>
       </div>
     );
@@ -235,7 +235,7 @@ const EngagementScoreView = () => {
           <div className="flex items-center gap-2">
             <BarChart3 size={18} className="text-pink-500" />
             <h3 className="text-lg font-bold text-slate-800">
-              Engagement Score per Mahasiswa
+              Engagement Score per Student
             </h3>
           </div>
           <span className="text-xs font-semibold px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
@@ -271,7 +271,7 @@ const EngagementScoreView = () => {
               <Tooltip
                 formatter={(value, _name, props) => [
                   typeof value === "number" ? value.toFixed(4) : value,
-                  `Rentang Skor: ${props.payload.kategori}`,
+                  `Score Range: ${props.payload.kategori}`,
                 ]}
                 contentStyle={customTooltipStyle}
               />
@@ -298,7 +298,7 @@ const EngagementScoreView = () => {
             <div className="flex items-center gap-2 mb-6">
               <PieIcon size={18} className="text-pink-500" />
               <h3 className="text-lg font-bold text-slate-800">
-                Distribusi Kategori Engagement
+                Engagement Category Distribution
               </h3>
             </div>
             <div className="h-64">
@@ -321,7 +321,7 @@ const EngagementScoreView = () => {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value, name) => [`${value} mahasiswa`, `Skor ${name}`]}
+                    formatter={(value, name) => [`${value} students`, `Score ${name}`]}
                     contentStyle={customTooltipStyle}
                   />
                   <Legend verticalAlign="bottom" height={36} />
@@ -336,7 +336,7 @@ const EngagementScoreView = () => {
             >
               {engagementDistributionData.find((d) => d.name === "0.40 - 0.70")?.percentage || 0}%
             </span>{" "}
-            mahasiswa berada pada rentang skor engagement{" "}
+            of students fall within the engagement score range{" "}
             <span className="font-semibold">0.40 - 0.70</span>.
           </p>
         </Card>
@@ -346,7 +346,7 @@ const EngagementScoreView = () => {
           <div className="flex items-center gap-2 mb-6">
             <ScatterIcon size={18} className="text-pink-500" />
             <h3 className="text-lg font-bold text-slate-800">
-              Klik Materi vs Relevansi Pertanyaan
+              Material Clicks vs Question Relevance
             </h3>
           </div>
           <div className="h-64">
@@ -356,9 +356,9 @@ const EngagementScoreView = () => {
                 <XAxis
                   type="number"
                   dataKey="totalKlik"
-                  name="Total Klik Materi"
+                  name="Total Material Clicks"
                   label={{
-                    value: "Total Klik Materi",
+                    value: "Total Material Clicks",
                     position: "insideBottom",
                     offset: -10,
                     fontSize: 12,
@@ -388,7 +388,7 @@ const EngagementScoreView = () => {
                   stroke="#db2777"
                   strokeDasharray="4 4"
                   label={{
-                    value: "Threshold relevansi",
+                    value: "Relevance Threshold",
                     position: "insideTopRight",
                     fontSize: 11,
                     fill: "#db2777",
@@ -424,7 +424,7 @@ const EngagementScoreView = () => {
         <div className="flex items-center gap-2 mb-6">
           <GraduationCap size={18} className="text-pink-500" />
           <h3 className="text-lg font-bold text-slate-800">
-            Nilai Kuis Pilihan Ganda per Mahasiswa
+            Multiple Choice Quiz Score per Student
           </h3>
         </div>
         <div style={{ height: Math.max(quizGradeData.length * 36 + 40, 200) }}>
@@ -474,7 +474,7 @@ const EngagementScoreView = () => {
           <span>
             {isRefreshing
               ? "Mengkalkulasi Ulang Data..."
-              : "Hitung Ulang & Refresh Data"}
+              : "Calculate & Refresh Data"}
           </span>
         </button>
       </div>
