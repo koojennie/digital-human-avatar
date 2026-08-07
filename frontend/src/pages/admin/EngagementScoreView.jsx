@@ -34,7 +34,7 @@ const THRESHOLD_RELEVANSI = 0.5;
 const KATEGORI_COLORS = {
   "> 0.70": "#db2777",      // Pink Pekat Utama
   "0.40 - 0.70": "#f472b6", // Pink Medium
-  "< 0.40": "#fbcfe8",      // Soft Pink
+  "< 0.40": "#f9a8d4",      // Soft Pink
 };
 
 const getKategoriColor = (kategori) => KATEGORI_COLORS[kategori] || "#db2777";
