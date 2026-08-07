@@ -464,7 +464,7 @@ const EngagementScoreView = () => {
         <button
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl text-white font-semibold text-sm shadow-md transition-all duration-200 ${
+          className={`cursor-pointer flex items-center gap-2.5 px-6 py-3 rounded-2xl text-white font-semibold text-sm shadow-md transition-all duration-200 ${
             isRefreshing
               ? "bg-pink-400 cursor-not-allowed opacity-80"
               : "bg-pink-600 hover:bg-pink-700 active:scale-95 hover:shadow-lg"
