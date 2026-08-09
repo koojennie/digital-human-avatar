@@ -304,9 +304,9 @@ const DynamicFilterBar = ({ onFilterChange }) => {
 const THRESHOLD_RELEVANSI = 0.5;
 
 const KATEGORI_COLORS = {
-  "> 0.70": "#db2777",
-  "0.40 - 0.70": "#f472b6",
-  "< 0.40": "#fbcfe8",
+  "> 0.70": "#db2777",      // Pink Pekat Utama
+  "0.40 - 0.70": "#f472b6", // Pink Medium
+  "< 0.40": "#f9a8d4",      // Soft Pink
 };
 
 const getKategoriColor = (kategori) => KATEGORI_COLORS[kategori] || "#db2777";
@@ -454,8 +454,8 @@ const EngagementScoreView = () => {
     return (
       <div className="flex flex-col items-center justify-center h-96 space-y-3">
         <div className="w-10 h-10 border-4 border-pink-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-500 font-medium text-sm">
-          Memuat data statistik engagement mahasiswa...
+        <p className="text-slate-500 font-medium animate-pulse">
+          Loading student engagement data...
         </p>
       </div>
     );
@@ -491,64 +491,58 @@ const EngagementScoreView = () => {
           <div className="flex items-center gap-2">
             <BarChart3 size={18} className="text-pink-500" />
             <h3 className="text-lg font-bold text-slate-800">
-              Engagement Score per Mahasiswa
+              Engagement Score per Student
             </h3>
           </div>
           <span className="text-xs font-semibold px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
-            Hasil Filter: {engagementScoreData.length} Mahasiswa
+            Total: {engagementScoreData.length} Students
           </span>
         </div>
 
-        {engagementScoreData.length === 0 ? (
-          <div className="py-12 text-center text-slate-400 text-sm">
-            Tidak ada data mahasiswa yang sesuai dengan kriteria filter.
-          </div>
-        ) : (
-          <div style={{ height: Math.max(engagementScoreData.length * 36 + 40, 200) }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={engagementScoreData}
-                layout="vertical"
-                margin={{ top: 0, right: 60, left: 0, bottom: 0 }}
-                barCategoryGap={8}
-              >
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                <XAxis
-                  type="number"
-                  domain={[0, 1]}
-                  tickFormatter={(v) => v.toFixed(1)}
-                  tick={{ fontSize: 10, fill: "#94a3b8" }}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="nama"
-                  width={160}
-                  tick={{ fontSize: 12, fill: "#334155" }}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip
-                  formatter={(value, _name, props) => [
-                    typeof value === "number" ? value.toFixed(4) : value,
-                    `Rentang Skor: ${props.payload.kategori}`,
-                  ]}
-                  contentStyle={customTooltipStyle}
-                />
-                <Bar dataKey="engagementScore" radius={[0, 6, 6, 0]}>
-                  <LabelList dataKey="engagementScore" content={<RenderScoreLabel />} />
-                  {engagementScoreData.map((entry, index) => (
-                    <Cell
-                      key={`cell-bar-${index}`}
-                      fill={getKategoriColor(entry.kategori)}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        )}
+        <div style={{ height: Math.max(engagementScoreData.length * 36 + 40, 200) }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={engagementScoreData}
+              layout="vertical"
+              margin={{ top: 0, right: 60, left: 0, bottom: 0 }}
+              barCategoryGap={8}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+              <XAxis
+                type="number"
+                domain={[0, 1]}
+                tickFormatter={(v) => v.toFixed(1)}
+                tick={{ fontSize: 10, fill: "#94a3b8" }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                type="category"
+                dataKey="nama"
+                width={160}
+                tick={{ fontSize: 12, fill: "#334155" }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip
+                formatter={(value, _name, props) => [
+                  typeof value === "number" ? value.toFixed(4) : value,
+                  `Score Range: ${props.payload.kategori}`,
+                ]}
+                contentStyle={customTooltipStyle}
+              />
+              <Bar dataKey="engagementScore" radius={[0, 6, 6, 0]}>
+                <LabelList dataKey="engagementScore" content={<RenderScoreLabel />} />
+                {engagementScoreData.map((entry, index) => (
+                  <Cell
+                    key={`cell-bar-${index}`}
+                    fill={getKategoriColor(entry.kategori)}
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </Card>
 
       {/* ── GRID: DONUT CHART & SCATTER PLOT ── */}
@@ -560,7 +554,7 @@ const EngagementScoreView = () => {
             <div className="flex items-center gap-2 mb-6">
               <PieIcon size={18} className="text-pink-500" />
               <h3 className="text-lg font-bold text-slate-800">
-                Distribusi Kategori Engagement
+                Engagement Category Distribution
               </h3>
             </div>
             <div className="h-64">
@@ -583,7 +577,7 @@ const EngagementScoreView = () => {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value, name) => [`${value} mahasiswa`, `Skor ${name}`]}
+                    formatter={(value, name) => [`${value} students`, `Score ${name}`]}
                     contentStyle={customTooltipStyle}
                   />
                   <Legend verticalAlign="bottom" height={36} />
@@ -598,7 +592,7 @@ const EngagementScoreView = () => {
             >
               {engagementDistributionData.find((d) => d.name === "0.40 - 0.70")?.percentage || 0}%
             </span>{" "}
-            mahasiswa terfilter berada pada rentang skor{" "}
+            of students fall within the engagement score range{" "}
             <span className="font-semibold">0.40 - 0.70</span>.
           </p>
         </Card>
@@ -608,7 +602,7 @@ const EngagementScoreView = () => {
           <div className="flex items-center gap-2 mb-6">
             <ScatterIcon size={18} className="text-pink-500" />
             <h3 className="text-lg font-bold text-slate-800">
-              Klik Materi vs Relevansi Pertanyaan
+              Material Clicks vs Question Relevance
             </h3>
           </div>
           <div className="h-64">
@@ -618,7 +612,13 @@ const EngagementScoreView = () => {
                 <XAxis
                   type="number"
                   dataKey="totalKlik"
-                  name="Total Klik Materi"
+                  name="Total Material Clicks"
+                  label={{
+                    value: "Total Material Clicks",
+                    position: "insideBottom",
+                    offset: -10,
+                    fontSize: 12,
+                  }}
                   tick={{ fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
@@ -638,7 +638,7 @@ const EngagementScoreView = () => {
                   stroke="#db2777"
                   strokeDasharray="4 4"
                   label={{
-                    value: "Threshold relevansi",
+                    value: "Relevance Threshold",
                     position: "insideTopRight",
                     fontSize: 11,
                     fill: "#db2777",
@@ -674,7 +674,7 @@ const EngagementScoreView = () => {
         <div className="flex items-center gap-2 mb-6">
           <GraduationCap size={18} className="text-pink-500" />
           <h3 className="text-lg font-bold text-slate-800">
-            Nilai Kuis Pilihan Ganda per Mahasiswa
+            Multiple Choice Quiz Score per Student
           </h3>
         </div>
         <div style={{ height: Math.max(quizGradeData.length * 36 + 40, 200) }}>
@@ -714,7 +714,7 @@ const EngagementScoreView = () => {
         <button
           onClick={() => loadData(true)}
           disabled={isRefreshing}
-          className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl text-white font-semibold text-sm shadow-md transition-all duration-200 ${
+          className={`cursor-pointer flex items-center gap-2.5 px-6 py-3 rounded-2xl text-white font-semibold text-sm shadow-md transition-all duration-200 ${
             isRefreshing
               ? "bg-pink-400 cursor-not-allowed opacity-80"
               : "bg-pink-600 hover:bg-pink-700 active:scale-95 hover:shadow-lg"
@@ -724,7 +724,7 @@ const EngagementScoreView = () => {
           <span>
             {isRefreshing
               ? "Mengkalkulasi Ulang Data..."
-              : "Hitung Ulang & Refresh Data"}
+              : "Calculate & Refresh Data"}
           </span>
         </button>
       </div>
