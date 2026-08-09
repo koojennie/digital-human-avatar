@@ -16,7 +16,7 @@ class EngagmentServices {
       engagementRepository.getEngagementDashboardCosineSimilarity(),
     ]);
 
-    // Kalkulasi Persentase Adopsi Fitur Suara (Voice)
+    // 1. Kalkulasi Persentase Adopsi Fitur Suara (Voice)
     let textCount = 0;
     let voiceCount = 0;
 
@@ -29,13 +29,7 @@ class EngagmentServices {
     const voicePercentage =
       totalAdoption > 0 ? Math.round((voiceCount / totalAdoption) * 100) : 0;
 
-    // const distribusiKategori = { Tinggi: 0, Sedang: 0, Rendah: 0 };
-    // reportsEngagementConsineSimiliarity.forEach((student) => {
-    //   if (distribusiKategori[student.kategori] !== undefined) {
-    //     distribusiKategori[student.kategori]++;
-    //   }
-    // });
-
+    // 2. Mapping Kategori & Buat Summary Distribution
     const distribusiKategori = {
       "> 0.70": 0,
       "0.40 - 0.70": 0,
@@ -52,29 +46,28 @@ class EngagmentServices {
         rentangKategori = "< 0.40";
       }
 
-      // Tambahkan hitungan ke summary objek
       distribusiKategori[rentangKategori]++;
 
-      // Override property kategori bawaan db menjadi format rentang angka
       return {
         ...student,
-        kategori: rentangKategori,
+        kategori: rentangKategori, // Dynamic category range
+        created_at: student.last_updated_at, // Mapping alias tanggal jika diperlukan filter date
+        user_created_at: student.user?.created_at || student["user.created_at"] || null,
       };
     });
 
     return {
-      studentReports: reportsEngagementConsineSimiliarity,
+      // 🎯 FIX: Return `mappedReports` bukan data mentahnya
+      studentReports: mappedReports,
       lastUpdatedAt:
-        reportsEngagementConsineSimiliarity.length > 0
-          ? reportsEngagementConsineSimiliarity[0].last_updated_at
-          : null,
+        mappedReports.length > 0 ? mappedReports[0].last_updated_at : null,
       summaryDistribution: distribusiKategori,
 
       discussionDepth: {
         totalUserMessages: discussionDepthStats.totalMessages,
         totalConversations: discussionDepthStats.totalSessions,
         avgMessagesPerSession: parseFloat(
-          discussionDepthStats.averageMessagesPerSession,
+          discussionDepthStats.averageMessagesPerSession || 0
         ),
       },
       featureAdoption: {
@@ -86,12 +79,12 @@ class EngagmentServices {
         ],
       },
       wordCloudKeywords: topKeywords.map((k) => ({
-        text: k.text || "Topik Umum", // Menggunakan k.text sesuai output query SQL
-        value: parseInt(k.value || 0, 10), // Menggunakan k.value sesuai output query SQL
+        text: k.text || "Topik Umum",
+        value: parseInt(k.value || 0, 10),
       })),
       topAcademicCourses: topCourses.map((c) => ({
         courseName: c.courseName || "Mata Kuliah Umum",
-        messagesVolume: parseInt(c.messageCount, 10),
+        messagesVolume: parseInt(c.messageCount || 0, 10),
       })),
     };
   }
