@@ -38,7 +38,7 @@ export const LoginPage = () => {
           <div className="text-center mb-8">
             <img src="/logo.png" width={64} className="items-center mx-auto mb-4"/>
             <h1 className="text-2xl font-extrabold tracking-tight">
-              Welcome Back, Admin
+              Welcome Back, Dosen
             </h1>
             <p className="text-slate-500 text-sm mt-2">
               Please login with your Moodle credential
@@ -63,7 +63,7 @@ export const LoginPage = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-5 py-4 bg-slate-100/70 border-none rounded-2xl focus:ring-2 focus:ring-pink-600 focus:bg-white transition-all outline-none text-sm font-bold text-slate-800 disabled:opacity-60"
-              placeholder="admin"
+              placeholder="dosen"
             />
           </div>
           

@@ -70,7 +70,7 @@ export default function AppAdmin() {
   const handleLogout = () => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You will be signed out from the Admin Dashboard.",
+      text: "You will be signed out from the Dashboard.",
       icon: "warning",
       iconColor: "#db2777", // Menyesuaikan warna emoji/icon dengan Tailwind pink-600
       showCancelButton: true,
@@ -203,7 +203,7 @@ export default function AppAdmin() {
               A
             </div>
             <div>
-              <p className="text-sm font-bold">Admin</p>
+              <p className="text-sm font-bold">Dosen 1</p>
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
                 User
               </p>
