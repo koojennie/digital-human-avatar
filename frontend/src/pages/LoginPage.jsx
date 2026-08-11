@@ -49,6 +49,7 @@ export const LoginPage = () => {
           <div className="mb-6 bg-rose-50 border border-rose-100 p-4 rounded-2xl flex items-center gap-3 text-rose-700 animate-in fade-in zoom-in-95">
             <AlertCircle className="shrink-0 text-rose-500" size={24} />
             <div className="text-sm font-bold leading-relaxed">Username atau password salah</div>
+            {console.log(error)}
           </div>
         )}
           <form onSubmit={handleSubmit} className="space-y-6">

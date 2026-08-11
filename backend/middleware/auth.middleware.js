@@ -28,7 +28,8 @@ export const isAdmin = async (req, res, next) => {
     const secretKey = process.env.JWT_SECRET || "RAHASIA_BACKEND_AVATAR_123";
     const decoded = jwt.verify(token, secretKey);
 
-    if (decoded.role !== "admin") {
+    const allowedRoles = ["admin", "teacher"];
+    if (!allowedRoles.includes(decoded.role)) {
       return res.status(403).json({
         success: false,
         error: "FORBIDDEN_ACCESS",

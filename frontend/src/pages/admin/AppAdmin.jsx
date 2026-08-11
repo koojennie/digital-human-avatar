@@ -38,6 +38,7 @@ export default function AppAdmin() {
   const [notification, setNotification] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [userLogin, setUserLogin] = useState("");
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -51,15 +52,17 @@ export default function AppAdmin() {
     setIsLoading(true);
     try {
       const response = await documentServices.getDocumentsLibrary(page, limit);
+      const userLogin = await authServices.getCurrentUser();
 
       const { data, pagination } = response.data;
 
       setDocuments(data || []);
       setNumberDocument(pagination.total);
+      setUserLogin(userLogin.full_name);      
     } catch (error) {
       showToast("Failed to load documents from server.");
       console.error("Error fetching documents:", error);
-    } finally{
+    } finally {
       setIsLoading(false);
     }
   };
@@ -203,7 +206,7 @@ export default function AppAdmin() {
               A
             </div>
             <div>
-              <p className="text-sm font-bold">Dosen 1</p>
+              <p className="text-sm font-bold">{userLogin}</p>
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
                 User
               </p>
@@ -258,11 +261,11 @@ export default function AppAdmin() {
           {activeTab === "documents" && (
             <DocumentsView
               docs={documents}
-              isLoading={isLoading} 
+              isLoading={isLoading}
               pagination={{ page, limit, total: numberDocument }}
               onRefresh={async () => {
-                await loadDocuments(); 
-                showToast("Document library updated!"); 
+                await loadDocuments();
+                showToast("Document library updated!");
               }}
             />
           )}

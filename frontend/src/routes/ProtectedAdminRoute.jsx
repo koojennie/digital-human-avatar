@@ -14,13 +14,15 @@ export const ProtectedRoute = () => {
     const currentTime = Date.now() / 1000;
 
     if (decoded.exp < currentTime) {
-      localStorage.removeItem("token"); 
+      localStorage.removeItem("token");
       return <Navigate to="/login" replace />;
     }
 
-    if (decoded.role !== "admin") {
-      alert("Akses ditolak! Anda bukan admin.");
-      return <Navigate to="/" replace />; 
+    const allowedRoles = ["admin", "teacher"];
+
+    if (!allowedRoles.includes(decoded.role)) {
+      alert("Akses ditolak! Anda bukan admin atau dosen.");
+      return <Navigate to="/" replace />;
     }
 
     return <Outlet />;
