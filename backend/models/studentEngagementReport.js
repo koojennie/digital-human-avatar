@@ -1,7 +1,17 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../utils/supabaseClient.js";
+import User from "./user.model.js";
 
-class StudentEngagementReport extends Model {}
+class StudentEngagementReport extends Model {
+  static associate(models) {
+    // 🎯 Relasi ke User via moodle_user_id
+    StudentEngagementReport.belongsTo(models.User, {
+      foreignKey: "moodle_user_id",
+      targetKey: "moodle_user_id",
+      as: "user",
+    });
+  }
+}
 
 StudentEngagementReport.init(
   {
@@ -71,5 +81,11 @@ StudentEngagementReport.init(
     timestamps: false,
   }
 );
+
+StudentEngagementReport.belongsTo(User, {
+  foreignKey: "moodle_user_id",
+  targetKey: "moodle_user_id",
+  as: "user",
+});
 
 export default StudentEngagementReport;

@@ -1,11 +1,12 @@
+// dashboard.service.js
 import dashboardRepository from "./dashboard.repository.js";
 
 class DashboardService {
-  async getMainDashboardStash() {
-    const [dailyStats,weeklyStats, leaderboardStats, totalUsers] = await Promise.all([
+  async getMainDashboardStash(filters = {}) {
+    const [dailyStats, weeklyStats, leaderboardStats, totalUsers] = await Promise.all([
       dashboardRepository.getDailyTrends(),
       dashboardRepository.getWeeklyTrends(),
-      dashboardRepository.getUserLeaderboard(7),
+      dashboardRepository.getUserLeaderboard(null, filters),
       dashboardRepository.getTotalUsers(),
     ]);    
 
@@ -14,6 +15,7 @@ class DashboardService {
         id: item.user_id || index + 1,
         full_name: item.full_name || "Mahasiswa VClass",
         username: item.username || "student",
+        created_at: item.created_at,
         count: parseInt(item.count, 10),
       };
     });

@@ -3,6 +3,7 @@ import Message from "../../models/message.model.js";
 import Course from "../../models/course.model.js";
 import { sequelize } from "../../utils/supabaseClient.js";
 import StudentEngagementReport from "../../models/studentEngagementReport.js";
+import User from "../../models/user.model.js";
 
 class EngagmentRepository {
   async getFeatureAdoptionStats() {
@@ -115,7 +116,15 @@ class EngagmentRepository {
   async getEngagementDashboardCosineSimilarity() {
     return await StudentEngagementReport.findAll({
       order: [["engagement_score", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["created_at"],
+        },
+      ],
       raw: true,
+      nest: true,
     });
   }
 }

@@ -4,13 +4,14 @@ import Message from "../../models/message.model.js";
 import User from "../../models/user.model.js";
 
 class ChatLogRepository {
-  async getAllSessions(limit = 50, offset = 0) {
+  async getAllSessions(limit = 100, offset = 0) {
     return await Conversation.findAndCountAll({
       include: [
         {
           model: User,
           as: "user",
-          attributes: ["user_id", "username", "full_name"],
+          // 🎯 Ambil kolom created_at dari tabel users
+          attributes: ["user_id", "username", "full_name", "created_at"], 
         },
         {
           model: Course,
@@ -24,17 +25,13 @@ class ChatLogRepository {
     });
   }
 
-  // 2. Ambil isi chat lengkap di dalam satu sesi untuk sisi kanan
   async getChatMessagesBySession(conversationId) {
     return await Message.findAll({
       where: {
         conversation_id: conversationId,
       },
-
       attributes: ["message_id", "role", "type", "content", "created_at"],
-
       order: [["created_at", "ASC"]],
-
       raw: true,
     });
   }
