@@ -200,7 +200,7 @@ export default function AppAdmin() {
         <div className="mt-auto space-y-3">
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
             <div className="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold">
-              A
+              D
             </div>
             <div>
               <p className="text-sm font-bold">Dosen 1</p>
