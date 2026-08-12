@@ -83,7 +83,9 @@ export class MoodleServices {
       const moodleUserId = moodleUserData.userid;
       const moodleUsername = moodleUserData.username;
 
-      if (moodleUsername != "admin") {
+      const normalizedUsername = String(moodleUsername || "").toLowerCase();
+
+      if (moodleUsername !== "admin" && !normalizedUsername.includes("dosen")) {
         throw new Error("Username bukan admin, anda bukan admin");
       }
 

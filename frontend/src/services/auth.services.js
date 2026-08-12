@@ -47,4 +47,9 @@ export const authServices = {
       Authorization: token ? `Bearer ${token}` : "",
     };
   },
+
+  getCurrentUser() {
+    const user = localStorage.getItem("admin_user"); 
+    return user ? JSON.parse(user) : null;
+  },
 };
