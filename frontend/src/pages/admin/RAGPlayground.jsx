@@ -170,7 +170,7 @@ const RAGPlayground = () => {
               <div className="flex gap-4">
                 <div className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Chunks Checked</p>
-                  <h4 className="text-2xl font-black">{result.summary.totalRetrieved}</h4>
+                  <h4 className="text-2xl font-black text-black">{result.summary.totalRetrieved}</h4>
                 </div>
                 <div className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Passed (&ge; 0.70)</p>
@@ -186,10 +186,10 @@ const RAGPlayground = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <Search className="text-pink-400" size={18} />
-              <h3 className="font-bold text-base tracking-tight text-slate-200">Source Chunks Breakdown</h3>
+              <h3 className="font-bold text-base tracking-tight text-slate-800">Source Chunks Breakdown</h3>
             </div>
             {result?.retrievedChunks && (
-              <span className="text-[10px] text-slate-400 font-bold bg-white/5 px-2.5 py-1 rounded-lg">
+              <span className="text-[10px] text-slate-900 font-bold bg-white/5 px-2.5 py-1 rounded-lg">
                 Top {result.retrievedChunks.length} Chunks
               </span>
             )}
@@ -254,13 +254,13 @@ const RAGPlayground = () => {
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-300 leading-relaxed italic mb-4 line-clamp-3">
+                    <p className="text-xs text-slate-900 leading-relaxed italic mb-4 line-clamp-3">
                       "{chunk.content}"
                     </p>
 
                     <div className="pt-3 border-t border-white/5 flex items-center gap-2.5">
-                      <FileText size={13} className="text-slate-400" />
-                      <p className="text-[10px] font-bold text-slate-300 truncate flex-1">
+                      <FileText size={13} className="text-slate-800" />
+                      <p className="text-[10px] font-bold text-slate-800 truncate flex-1">
                         {chunk.metadata?.source || "Document PDF"}
                       </p>
                       <span className="text-[9px] font-bold text-slate-500 uppercase">
