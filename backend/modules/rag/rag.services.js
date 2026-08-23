@@ -140,6 +140,8 @@ class RagService {
       )
       .join("\n\n");
 
+      const maxCosineSimilarity = results.length > 0 ? Number(results[0].similarity.toFixed(4)) : 0.0;
+
     return {
       question,
 
@@ -147,6 +149,7 @@ class RagService {
         totalRetrieved: results.length,
         totalRelevant: filtered.length,
         threshold: 0.7,
+        maxCosineSimilarity,
       },
 
       context,
@@ -180,6 +183,7 @@ class RagService {
       answersAI,
 
       summary: ragResult.summary,
+      maxCosineSimilarity: ragResult.maxCosineSimilarity,
 
       retrievedChunks: ragResult.retrievedChunks,
 

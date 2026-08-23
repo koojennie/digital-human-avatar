@@ -7,8 +7,9 @@ import {
   Terminal,
   Sparkles,
   CheckCircle2,
-  BrainCircuit,
+  AlertCircle,
   Layers,
+  Activity,
 } from "lucide-react";
 import { Card } from "../../components/Admin/Card";
 import ragServices from "../../services/rag.services";
@@ -24,8 +25,6 @@ const RAGPlayground = () => {
     try {
       setLoading(true);
       const response = await ragServices.retrievePlayground(query);
-      console.log('response playground FRONTEND ', response);
-      
       setResult(response.data);
     } catch (error) {
       console.error("RAG Error:", error);
@@ -48,7 +47,7 @@ const RAGPlayground = () => {
             </div>
             <div>
               <h2 className="text-xl font-black text-slate-800 tracking-tight">RAG Playground</h2>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Test Pipeline & Knowledge Retrieval</p>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Test Pipeline & Cosine Similarity</p>
             </div>
           </div>
 
@@ -56,22 +55,22 @@ const RAGPlayground = () => {
             <textarea
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask your knowledge base...."
-              className="w-full h-48 p-6 rounded-[2rem] border border-slate-200 bg-slate-50 outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-500 transition-all resize-none text-sm font-medium leading-relaxed"
+              placeholder="Ketik pertanyaan untuk menguji nilai similarity chunk materi...."
+              className="w-full h-44 p-6 rounded-[2rem] border border-slate-200 bg-slate-50 outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-500 transition-all resize-none text-sm font-medium leading-relaxed"
             />
             
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4.5 rounded-2xl bg-pink-600 text-white font-bold hover:bg-pink-700 transition-all duration-200 ease-in cursor-pointer flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-slate-200 active:scale-[0.98]"
+              className="w-full py-4.5 rounded-2xl bg-pink-600 text-white font-bold hover:bg-pink-700 transition-all duration-200 cursor-pointer flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-slate-200 active:scale-[0.98]"
             >
               {loading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  Synthesizing Answer...
+                  Menguji Vector Search & AI...
                 </>
               ) : (
-                <>Run Retrieval Engine <Send size={18} /></>
+                <>Uji Similarity & Jawaban <Send size={18} /></>
               )}
             </button>
           </form>
@@ -86,7 +85,7 @@ const RAGPlayground = () => {
               </div>
               <div>
                 <h3 className="text-lg font-black text-slate-800">AI Intelligent Response</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Multi-segment synthesis</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Avatar Output State</p>
               </div>
             </div>
 
@@ -97,12 +96,12 @@ const RAGPlayground = () => {
                   className="group rounded-[2rem] border border-slate-100 bg-slate-50/50 p-6 hover:border-indigo-200 transition-all"
                 >
                   <div className="flex items-center gap-4 mb-5">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black shadow-lg shadow-indigo-100">
+                    <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black shadow-md shadow-indigo-100">
                       AI
                     </div>
                     <div>
-                      <p className="font-bold text-slate-800">Assistant Response #{index + 1}</p>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Segmented output</p>
+                      <p className="font-bold text-slate-800 text-xs">Pesan #{index + 1}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Avatar Dialogue</p>
                     </div>
                   </div>
 
@@ -112,11 +111,11 @@ const RAGPlayground = () => {
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 mt-5">
-                    <span className="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-indigo-100 text-indigo-700 border border-indigo-200 uppercase tracking-tight">
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <span className="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-indigo-100 text-indigo-700 border border-indigo-200 uppercase">
                       Face: {item.facialExpression}
                     </span>
-                    <span className="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-slate-200 text-slate-700 border border-slate-300 uppercase tracking-tight">
+                    <span className="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-slate-200 text-slate-700 border border-slate-300 uppercase">
                       Anim: {item.animation}
                     </span>
                   </div>
@@ -127,31 +126,54 @@ const RAGPlayground = () => {
         )}
       </div>
 
-      {/* --- RIGHT SECTION: Technical Analytics --- */}
+      {/* --- RIGHT SECTION: Technical Analytics & Cosine Scores --- */}
       <div className="xl:col-span-2 space-y-8">
         
-        {/* RETRIEVAL STATS */}
+        {/* RETRIEVAL STATS & MAX COSINE */}
         {result?.summary && (
           <Card className="p-8 rounded-[2.5rem] bg-slate-900 text-white shadow-2xl border-none">
-            <div className="flex items-center gap-3 mb-8">
+            <div className="flex items-center gap-3 mb-6">
               <div className="p-2.5 bg-indigo-500 rounded-xl shadow-lg shadow-indigo-500/20">
                 <Database size={20} />
               </div>
-              <h3 className="font-bold text-lg tracking-tight">Retrieval Metrics</h3>
+              <div>
+                <h3 className="font-bold text-lg tracking-tight">Retrieval Metrics</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vector Search Analytics</p>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 gap-4">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Similarity Threshold</p>
-                <h4 className="text-3xl font-black text-indigo-400">{result.summary.threshold}</h4>
+              {/* 🎯 KARTU MAX COSINE SIMILARITY TERTINGGI */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                    <Activity size={12} className="text-pink-400" /> Max Cosine Score
+                  </p>
+                  <h4 className={`text-3xl font-black ${
+                    result.summary.maxCosineSimilarity >= result.summary.threshold ? "text-emerald-400" : "text-rose-400"
+                  }`}>
+                    {result.summary.maxCosineSimilarity}
+                  </h4>
+                </div>
+                <div className="text-right">
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                    result.summary.maxCosineSimilarity >= result.summary.threshold 
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" 
+                      : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                  }`}>
+                    {result.summary.maxCosineSimilarity >= result.summary.threshold ? "MATCH (RELEVAN)" : "LOW (DITOLAK)"}
+                  </span>
+                  <p className="text-[10px] text-slate-400 mt-1">Threshold: {result.summary.threshold}</p>
+                </div>
               </div>
+
               <div className="flex gap-4">
-                <div className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-5">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Retrieved</p>
+                <div className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Chunks Checked</p>
                   <h4 className="text-2xl font-black">{result.summary.totalRetrieved}</h4>
                 </div>
-                <div className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-5">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Relevant</p>
+                <div className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Passed (&ge; 0.70)</p>
                   <h4 className="text-2xl font-black text-emerald-400">{result.summary.totalRelevant}</h4>
                 </div>
               </div>
@@ -159,86 +181,100 @@ const RAGPlayground = () => {
           </Card>
         )}
 
-        {/* RAW RETRIEVED CHUNKS */}
-        <Card className="p-8 rounded-[2.5rem] bg-slate-950 text-white min-h-[500px] border border-slate-200">
-          <div className="flex items-center gap-3 mb-8">
-            <Search className="text-pink-400" size={18} />
-            <h3 className="font-bold text-lg tracking-tight text-slate-800">Source Chunks</h3>
+        {/* RAW RETRIEVED CHUNKS DENGAN INDIKATOR WARNA SCORE */}
+        <Card className="p-8 rounded-[2.5rem] bg-slate-950 text-white min-h-[460px] border border-slate-800">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <Search className="text-pink-400" size={18} />
+              <h3 className="font-bold text-base tracking-tight text-slate-200">Source Chunks Breakdown</h3>
+            </div>
+            {result?.retrievedChunks && (
+              <span className="text-[10px] text-slate-400 font-bold bg-white/5 px-2.5 py-1 rounded-lg">
+                Top {result.retrievedChunks.length} Chunks
+              </span>
+            )}
           </div>
 
           {!result && !loading && (
             <div className="flex flex-col items-center justify-center text-center py-24 opacity-30">
-              <div className="w-20 h-20 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center mb-6">
-                <Layers size={36} />
+              <div className="w-16 h-16 rounded-[1.5rem] bg-white/5 border border-white/10 flex items-center justify-center mb-4">
+                <Layers size={28} />
               </div>
               <p className="text-xs font-bold uppercase tracking-[0.2em]">Waiting for Query</p>
             </div>
           )}
 
           {loading && (
-            <div className="space-y-6 animate-pulse">
+            <div className="space-y-4 animate-pulse">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="p-6 bg-white/5 rounded-3xl border border-white/10">
-                  <div className="h-4 bg-white/10 rounded-full w-1/3 mb-4" />
+                <div key={i} className="p-5 bg-white/5 rounded-2xl border border-white/10">
+                  <div className="h-4 bg-white/10 rounded-full w-1/3 mb-3" />
                   <div className="h-3 bg-white/5 rounded-full w-full mb-2" />
-                  <div className="h-3 bg-white/5 rounded-full w-5/6" />
+                  <div className="h-3 bg-white/5 rounded-full w-4/5" />
                 </div>
               ))}
             </div>
           )}
 
           {result?.retrievedChunks && (
-            <div className="space-y-5 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-              {result.retrievedChunks.map((chunk) => (
-                <div
-                  key={chunk.chunkId}
-                  className="p-6 bg-white/5 border border-white/10 rounded-[2rem] hover:bg-white/10 transition-all border-l-4 border-l-indigo-500"
-                >
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-bold border border-indigo-500/20">
-                      Score: {chunk.similarityScore}
-                    </span>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-                      Page {chunk.metadata?.page}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-300 leading-relaxed italic mb-5 line-clamp-4">
-                    "{chunk.content}"
-                  </p>
-                  <div className="pt-4 border-t border-white/5 flex items-center gap-3">
-                    <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg">
-                      <FileText size={14} />
+            <div className="space-y-4 max-h-[550px] overflow-y-auto pr-2 custom-scrollbar">
+              {result.retrievedChunks.map((chunk) => {
+                const isPassed = chunk.similarityScore >= (result.summary?.threshold || 0.7);
+
+                return (
+                  <div
+                    key={chunk.chunkId || chunk.index}
+                    className={`p-5 bg-white/5 border rounded-2xl transition-all ${
+                      isPassed
+                        ? "border-emerald-500/50 border-l-4 border-l-emerald-500 hover:bg-emerald-950/20"
+                        : "border-slate-800 border-l-4 border-l-rose-500/60 hover:bg-white/10"
+                    }`}
+                  >
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black border ${
+                          isPassed
+                            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                            : "bg-rose-500/20 text-rose-300 border-rose-500/30"
+                        }`}>
+                          Cosine: {chunk.similarityScore}
+                        </span>
+                        {isPassed ? (
+                          <span className="text-[9px] text-emerald-400 font-bold flex items-center gap-1">
+                            <CheckCircle2 size={11} /> Relevan
+                          </span>
+                        ) : (
+                          <span className="text-[9px] text-rose-400 font-bold flex items-center gap-1">
+                            <AlertCircle size={11} /> Di Bawah Threshold
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-500">
+                        Hal. {chunk.metadata?.page || 1}
+                      </span>
                     </div>
-                    <div className="overflow-hidden">
-                      <p className="text-[10px] font-bold text-white truncate">
-                        {chunk.metadata?.source}
+
+                    <p className="text-xs text-slate-300 leading-relaxed italic mb-4 line-clamp-3">
+                      "{chunk.content}"
+                    </p>
+
+                    <div className="pt-3 border-t border-white/5 flex items-center gap-2.5">
+                      <FileText size={13} className="text-slate-400" />
+                      <p className="text-[10px] font-bold text-slate-300 truncate flex-1">
+                        {chunk.metadata?.source || "Document PDF"}
                       </p>
-                      <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase">
                         Chunk #{chunk.index}
-                      </p>
+                      </span>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </Card>
-
-        {/* PROMPT CONTEXT VIEW */}
-        {result?.context && (
-          <Card className="p-6 rounded-[2rem] border border-slate-200">
-            <div className="flex items-center gap-3 mb-4">
-              <CheckCircle2 className="text-emerald-500" size={18} />
-              <h3 className="font-bold text-sm text-slate-800">Injected Context</h3>
-            </div>
-            <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800">
-              <pre className="text-[10px] font-mono text-emerald-400 whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto custom-scrollbar">
-                {result.context}
-              </pre>
-            </div>
-          </Card>
-        )}
       </div>
+
     </div>
   );
 };
