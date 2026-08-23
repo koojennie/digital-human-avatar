@@ -55,7 +55,7 @@ const RAGPlayground = () => {
             <textarea
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ketik pertanyaan untuk menguji nilai similarity chunk materi...."
+              placeholder="Ask a question to test document chunk similarity scores...."
               className="w-full h-44 p-6 rounded-[2rem] border border-slate-200 bg-slate-50 outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-500 transition-all resize-none text-sm font-medium leading-relaxed"
             />
             
@@ -67,10 +67,10 @@ const RAGPlayground = () => {
               {loading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  Menguji Vector Search & AI...
+                  Testing Vector Search & AI...
                 </>
               ) : (
-                <>Uji Similarity & Jawaban <Send size={18} /></>
+                <>Run Retrieval & Test Similarity <Send size={18} /></>
               )}
             </button>
           </form>
@@ -100,7 +100,7 @@ const RAGPlayground = () => {
                       AI
                     </div>
                     <div>
-                      <p className="font-bold text-slate-800 text-xs">Pesan #{index + 1}</p>
+                      <p className="font-bold text-slate-800 text-xs">Message #{index + 1}</p>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Avatar Dialogue</p>
                     </div>
                   </div>
@@ -143,7 +143,7 @@ const RAGPlayground = () => {
             </div>
             
             <div className="grid grid-cols-1 gap-4">
-              {/* 🎯 KARTU MAX COSINE SIMILARITY TERTINGGI */}
+              {/* MAX COSINE SIMILARITY METRIC CARD */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-center justify-between">
                 <div>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
@@ -161,7 +161,7 @@ const RAGPlayground = () => {
                       ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" 
                       : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
                   }`}>
-                    {result.summary.maxCosineSimilarity >= result.summary.threshold ? "MATCH (RELEVAN)" : "LOW (DITOLAK)"}
+                    {result.summary.maxCosineSimilarity >= result.summary.threshold ? "MATCH (RELEVANT)" : "LOW (REJECTED)"}
                   </span>
                   <p className="text-[10px] text-slate-400 mt-1">Threshold: {result.summary.threshold}</p>
                 </div>
@@ -181,7 +181,7 @@ const RAGPlayground = () => {
           </Card>
         )}
 
-        {/* RAW RETRIEVED CHUNKS DENGAN INDIKATOR WARNA SCORE */}
+        {/* RAW RETRIEVED CHUNKS WITH SCORE COLOR INDICATOR */}
         <Card className="p-8 rounded-[2.5rem] bg-slate-950 text-white min-h-[460px] border border-slate-800">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -241,16 +241,16 @@ const RAGPlayground = () => {
                         </span>
                         {isPassed ? (
                           <span className="text-[9px] text-emerald-400 font-bold flex items-center gap-1">
-                            <CheckCircle2 size={11} /> Relevan
+                            <CheckCircle2 size={11} /> Relevant
                           </span>
                         ) : (
                           <span className="text-[9px] text-rose-400 font-bold flex items-center gap-1">
-                            <AlertCircle size={11} /> Di Bawah Threshold
+                            <AlertCircle size={11} /> Below Threshold
                           </span>
                         )}
                       </div>
                       <span className="text-[10px] font-bold text-slate-500">
-                        Hal. {chunk.metadata?.page || 1}
+                        Page {chunk.metadata?.page || 1}
                       </span>
                     </div>
 
