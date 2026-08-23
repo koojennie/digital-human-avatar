@@ -137,7 +137,7 @@ const RAGPlayground = () => {
                 <Database size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-lg tracking-tight">Retrieval Metrics</h3>
+                <h3 className="font-bold text-lg tracking-tight text-slate-900">Retrieval Metrics</h3>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vector Search Analytics</p>
               </div>
             </div>
