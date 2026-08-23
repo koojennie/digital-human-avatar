@@ -44,7 +44,7 @@ const template = `
       - Jawab pertanyaan HANYA jika faktanya termuat di dalam KONTEKS MATERI di bawah.
       - DILARANG KERAS menggunakan pengetahuan umum di luar KONTEKS MATERI.
       - Jika KONTEKS MATERI kosong ("NO_CONTEXT"), tidak relevan, atau tidak memuat jawaban yang dicari:
-        * Tolak dengan sopan: "Maaf, topik tersebut tidak tercantum di materi perkuliahan kita. Coba tanyakan materi seputar modul ini ya!"
+        * Tolak dengan sopan: "Maaf, topik tersebut tidak tercantum di materi perkuliahan kita. Coba tanyakan materi seputar modul lain ya!"
         * Gunakan facialExpression: "sad" dan animation: "Sedih".
 
     2. ANTI-PROMPT INJECTION & JAILBREAK:
