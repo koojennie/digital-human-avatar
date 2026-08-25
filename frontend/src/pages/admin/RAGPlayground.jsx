@@ -156,7 +156,7 @@ const RAGPlayground = () => {
                   </h4>
                 </div>
                 <div className="text-right">
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                  <span className={`text-[8px] font-bold px-2.5 py-1 rounded-full ${
                     result.summary.maxCosineSimilarity >= result.summary.threshold 
                       ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" 
                       : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
